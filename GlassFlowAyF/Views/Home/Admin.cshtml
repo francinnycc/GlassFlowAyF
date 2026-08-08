@@ -1,0 +1,235 @@
+﻿@{
+    ViewData["Title"] = "Dashboard administrativo";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            ADMINISTRACIÓN
+        </span>
+
+        <h1>
+            Dashboard
+        </h1>
+
+        <p>
+            Resumen general de GlassFlow A&F.
+        </p>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+
+            <div class="stat-number mt-3">
+                @ViewBag.TotalSolicitudes
+            </div>
+
+            <div class="stat-label">
+                Solicitudes totales
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+
+            <div class="stat-number mt-3">
+                @ViewBag.SolicitudesPendientes
+            </div>
+
+            <div class="stat-label">
+                Pendientes de revisión
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <div class="stat-number mt-3">
+                @ViewBag.Visitas
+            </div>
+
+            <div class="stat-label">
+                Visitas programadas
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+            <div class="stat-number mt-3">
+                @ViewBag.Instalaciones
+            </div>
+
+            <div class="stat-label">
+                Instalaciones activas
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mt-2">
+
+    <div class="col-lg-8">
+
+        <div class="glass-card">
+
+            <div class="d-flex
+                justify-content-between
+                align-items-center
+                mb-4">
+
+                <div>
+                    <h4>
+                        Solicitudes recientes
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Últimas solicitudes recibidas.
+                    </p>
+                </div>
+
+                <a asp-controller="Cotizaciones"
+                       asp-action="Index"
+                       class="btn btn-outline-primary btn-sm">
+
+                    Ver todas
+
+                </a>
+
+            </div>
+
+            @if (ViewBag.SolicitudesRecientes != null)
+            {
+                <div class="table-responsive">
+
+                    <table class="table align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Producto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (
+                                var item
+                                in ViewBag.SolicitudesRecientes)
+                            {
+                                <tr>
+
+                                    <td>
+                                        #SOL-@item.Id.ToString("D5")
+                                    </td>
+
+                                    <td>
+                                        @item.NombreCliente
+                                    </td>
+
+                                    <td>
+                                        @item.TipoProducto
+                                    </td>
+
+                                    <td>
+                                        <span class="status-badge">
+                                            @item.Estado
+                                        </span>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="glass-card">
+
+            <h4>
+                Acciones rápidas
+            </h4>
+
+            <div class="d-grid gap-2 mt-4">
+
+                <a asp-controller="Cotizaciones"
+                       asp-action="Index"
+                       class="btn btn-outline-primary">
+
+                    Revisar solicitudes
+
+                </a>
+
+                <a asp-controller="VisitasTecnicas"
+                       asp-action="Create"
+                       class="btn btn-outline-primary">
+
+                    Programar visita
+
+                </a>
+
+                <a asp-controller="Instalaciones"
+                       asp-action="Create"
+                       class="btn btn-outline-primary">
+
+                    Asignar instalación
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

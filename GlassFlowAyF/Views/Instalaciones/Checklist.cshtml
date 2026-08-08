@@ -1,0 +1,105 @@
+﻿@model GlassFlowAyF.Models.TrabajoInstalacion
+
+@{
+    ViewData["Title"] = "Checklist";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+            #INS-@Model.Id.ToString("D5")
+        </span>
+
+        <h1>
+            Checklist de instalación
+        </h1>
+
+        <p>
+            @Model.Cliente - @Model.Producto
+        </p>
+
+    </div>
+
+    <span class="status-badge">
+        @Model.Estado
+    </span>
+
+</div>
+
+<form asp-action="Checklist"
+      method="post"
+      class="glass-card">
+
+    <input asp-for="Id"
+           type="hidden" />
+
+    <div class="checklist-row">
+
+        <input asp-for="MedidasConfirmadas"
+               class="form-check-input" />
+
+        <label asp-for="MedidasConfirmadas">
+        </label>
+
+    </div>
+
+    <div class="checklist-row">
+
+        <input asp-for="MaterialListo"
+               class="form-check-input" />
+
+        <label asp-for="MaterialListo">
+        </label>
+
+    </div>
+
+    <div class="checklist-row">
+
+        <input asp-for="InstalacionRealizada"
+               class="form-check-input" />
+
+        <label asp-for="InstalacionRealizada">
+        </label>
+
+    </div>
+
+    <div class="checklist-row">
+
+        <input asp-for="RevisionAcabados"
+               class="form-check-input" />
+
+        <label asp-for="RevisionAcabados">
+        </label>
+
+    </div>
+
+    <div class="checklist-row">
+
+        <input asp-for="LimpiezaFinal"
+               class="form-check-input" />
+
+        <label asp-for="LimpiezaFinal">
+        </label>
+
+    </div>
+
+    <div class="mt-4">
+
+        <label asp-for="Observaciones"
+               class="form-label">
+        </label>
+
+        <textarea asp-for="Observaciones"
+                  class="form-control"
+                      rows="4">
+        </textarea>
+
+        </div>
+
+        <button class="btn btn-glassflow mt-4">
+            Guardar progreso
+        </button>
+
+    </form>

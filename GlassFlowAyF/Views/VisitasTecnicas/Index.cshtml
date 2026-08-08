@@ -1,0 +1,70 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.VisitaTecnica>
+
+@{
+    ViewData["Title"] = "Visitas técnicas";
+}
+
+<div class="page-header">
+
+    <div>
+        <h1>Agenda de visitas técnicas</h1>
+
+        <p>
+            Organiza mediciones y
+            revisiones presenciales.
+        </p>
+    </div>
+
+    <a class="btn btn-glassflow"
+           asp-action="Create">
+
+        Programar visita
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    @foreach (var visita in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+
+            <div class="glass-card h-100">
+
+                <span class="status-badge">
+                    @visita.Estado
+                </span>
+
+                <h4 class="mt-3">
+                    @visita.FechaHora
+                    .ToString("dd/MM/yyyy")
+                </h4>
+
+                <p>
+                    @visita.FechaHora
+                    .ToString("hh:mm tt")
+                </p>
+
+                <p>
+                    <strong>Técnico:</strong>
+                    @visita.TecnicoAsignado
+                </p>
+
+                <p>
+                    <strong>Cliente:</strong>
+                    @visita
+                    .SolicitudCotizacion?
+                    .NombreCliente
+                </p>
+
+                <p class="text-muted">
+                    @visita.Direccion
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+</div>

@@ -1,0 +1,82 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.TrabajoInstalacion>
+
+@{
+    ViewData["Title"] = "Instalaciones";
+}
+
+<div class="page-header">
+
+    <div>
+        <h1>Panel de instalaciones</h1>
+
+        <p>
+            Consulta trabajos,
+            instaladores y avances.
+        </p>
+    </div>
+
+    <a class="btn btn-glassflow"
+           asp-action="Create">
+
+        Asignar instalación
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+
+            <div class="glass-card h-100">
+
+                <div class="d-flex
+                    justify-content-between">
+
+                    <span class="request-id">
+                        #INS-@item.Id.ToString("D5")
+                    </span>
+
+                    <span class="status-badge">
+                        @item.Estado
+                    </span>
+
+                </div>
+
+                <h4 class="mt-3">
+                    @item.Cliente
+                </h4>
+
+                <p>
+                    @item.Producto
+                </p>
+
+                <p class="small">
+                    <strong>Instalador:</strong>
+                    @item.Instalador
+                </p>
+
+                <p class="small">
+                    <strong>Fecha:</strong>
+                    @item.FechaInstalacion
+                    .ToString("dd/MM/yyyy")
+                </p>
+
+                <a class="btn
+                    btn-outline-primary
+                    w-100"
+                       asp-action="Checklist"
+                       asp-route-id="@item.Id">
+
+                    Abrir checklist
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+
+</div>

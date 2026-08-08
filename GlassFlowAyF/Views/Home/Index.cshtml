@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "GlassFlow A&F";
+}
+
+<section class="public-hero">
+
+    <div class="container py-5">
+
+        <div class="row
+            min-vh-75
+            align-items-center">
+
+            <div class="col-lg-7">
+
+                <span class="eyebrow text-info">
+                    SOLUCIONES A&F
+                </span>
+
+                <h1 class="display-4
+                    fw-bold
+                    text-white
+                    mt-3">
+
+                    Diseña, cotiza e instala
+                    tu proyecto en vidrio.
+
+                </h1>
+
+                <p class="lead text-light mt-3">
+
+                    Una experiencia digital para
+                    solicitar ventanas, puertas,
+                    espejos y soluciones personalizadas.
+
+                </p>
+
+                <div class="d-flex gap-3 mt-4">
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-action="Dashboard"
+                               class="btn btn-teal btn-lg">
+
+                            Ir a mi panel
+
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account"
+                               asp-action="Register"
+                               class="btn btn-teal btn-lg">
+
+                            Crear cuenta
+
+                        </a>
+
+                        <a asp-controller="Account"
+                               asp-action="Login"
+                               class="btn
+                            btn-outline-light
+                            btn-lg">
+
+                            Iniciar sesión
+
+                        </a>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<style>
+
+    .public-hero {
+        min-height: calc(100vh - 72px);
+
+        background:
+            radial-gradient(
+                circle at 85% 30%,
+                rgba(0,174,179,.30),
+                transparent 35%
+            ),
+            linear-gradient(
+                115deg,
+                #061824,
+                #0b3550
+            );
+    }
+
+    .min-vh-75 {
+        min-height: 72vh;
+    }
+
+</style>

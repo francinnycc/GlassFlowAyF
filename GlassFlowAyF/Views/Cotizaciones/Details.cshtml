@@ -1,0 +1,179 @@
+﻿@model GlassFlowAyF.Models.SolicitudCotizacion
+
+@{
+    ViewData["Title"] = "Detalle de solicitud";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+            #SOL-@Model.Id.ToString("D5")
+        </span>
+
+        <h1>
+            @Model.TipoProducto
+        </h1>
+
+        <span class="status-badge">
+            @Model.Estado
+        </span>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="glass-card">
+
+            <h4>
+                Información del proyecto
+            </h4>
+
+            <dl class="row mt-4">
+
+                <dt class="col-sm-4">
+                    Cliente
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.NombreCliente
+                </dd>
+
+                <dt class="col-sm-4">
+                    Producto
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.TipoProducto
+                </dd>
+
+                <dt class="col-sm-4">
+                    Medidas
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Ancho m × @Model.Alto m
+                </dd>
+
+                <dt class="col-sm-4">
+                    Instalación
+                </dt>
+
+                <dd class="col-sm-8">
+                    @(Model.RequiereInstalacion
+                        ? "Sí"
+                        : "No")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Dirección
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Direccion
+                </dd>
+
+                <dt class="col-sm-4">
+                    Descripción
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Descripcion
+                </dd>
+
+            </dl>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-5">
+
+        <div class="glass-card">
+
+            <h4>
+                Seguimiento
+            </h4>
+
+            @{
+                var etapas = new[]
+                {
+                    "Solicitado",
+                    "En revisión",
+                    "Cotizado",
+                    "Aprobado",
+                    "En producción",
+                    "Instalación programada",
+                    "Instalado",
+                    "Finalizado"
+                };
+            }
+
+            <div class="timeline mt-4">
+
+                @foreach (var etapa in etapas)
+                {
+                    <div class="timeline-item">
+
+                        <div class="timeline-dot">
+                        </div>
+
+                        <div>
+                            <strong>
+                                @etapa
+                            </strong>
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            @if (User.IsInRole("Administrador"))
+            {
+                <hr />
+
+                <form asp-action="CambiarEstado"
+                      method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.Id" />
+
+                    <label class="form-label">
+                        Cambiar estado
+                    </label>
+
+                    <select name="estado"
+                            class="form-select mb-3">
+
+                        @foreach (var etapa in etapas)
+                        {
+                            <option value="@etapa">
+                                @etapa
+                            </option>
+                        }
+
+                    </select>
+
+                    <button class="btn
+                        btn-glassflow
+                        w-100">
+
+                        Actualizar estado
+
+                    </button>
+
+                </form>
+            }
+
+        </div>
+
+    </div>
+
+</div>

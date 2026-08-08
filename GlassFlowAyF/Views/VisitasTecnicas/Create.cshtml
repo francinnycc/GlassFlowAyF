@@ -1,0 +1,105 @@
+﻿@model GlassFlowAyF.Models.VisitaTecnica
+
+@{
+    ViewData["Title"] = "Programar visita";
+}
+
+<div class="page-header">
+
+    <div>
+        <h1>Programar visita técnica</h1>
+
+        <p>
+            Selecciona la solicitud,
+            fecha y técnico responsable.
+        </p>
+    </div>
+
+</div>
+
+<form asp-action="Create"
+      method="post"
+      class="glass-card">
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger">
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-12">
+
+            <label asp-for="SolicitudCotizacionId"
+                   class="form-label">
+            </label>
+
+            <select asp-for="SolicitudCotizacionId"
+                    asp-items="ViewBag.Solicitudes"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione una solicitud
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <label asp-for="FechaHora"
+                   class="form-label">
+            </label>
+
+            <input asp-for="FechaHora"
+                   class="form-control" />
+
+        </div>
+
+        <div class="col-md-6">
+
+            <label asp-for="TecnicoAsignado"
+                   class="form-label">
+            </label>
+
+            <input asp-for="TecnicoAsignado"
+                   class="form-control"
+                   placeholder="Nombre del técnico" />
+
+        </div>
+
+        <div class="col-12">
+
+            <label asp-for="Direccion"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Direccion"
+                   class="form-control" />
+
+        </div>
+
+        <div class="col-12">
+
+            <label asp-for="Observaciones"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="Observaciones"
+                      class="form-control"
+                          rows="3">
+            </textarea>
+
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+
+            <button class="btn btn-glassflow">
+                Guardar visita
+            </button>
+
+        </div>
+
+    </form>

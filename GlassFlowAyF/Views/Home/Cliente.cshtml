@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Mi panel";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            PANEL DEL CLIENTE
+        </span>
+
+        <h1>
+            Bienvenido 👋
+        </h1>
+
+        <p>
+            ¿Qué deseas hacer hoy?
+        </p>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mb-5">
+
+    <div class="col-md-6 col-xl-3">
+
+        <a class="action-card"
+               asp-controller="Cotizaciones"
+               asp-action="Create">
+
+            <i class="bi bi-file-earmark-plus"></i>
+
+            <h5 class="mt-3">
+                Nueva solicitud
+            </h5>
+
+            <p class="text-muted mb-0">
+                Solicita una cotización personalizada.
+            </p>
+
+        </a>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <a class="action-card"
+               asp-controller="Cotizaciones"
+               asp-action="MisSolicitudes">
+
+            <i class="bi bi-clipboard-data"></i>
+
+            <h5 class="mt-3">
+                Mis solicitudes
+            </h5>
+
+            <p class="text-muted mb-0">
+                Consulta el avance de tus proyectos.
+            </p>
+
+        </a>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <a class="action-card"
+               asp-controller="Productos"
+               asp-action="Index">
+
+            <i class="bi bi-window"></i>
+
+            <h5 class="mt-3">
+                Catálogo
+            </h5>
+
+            <p class="text-muted mb-0">
+                Explora nuestros productos.
+            </p>
+
+        </a>
+
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+
+        <div class="action-card">
+
+            <i class="bi bi-stars"></i>
+
+            <h5 class="mt-3">
+                Recomendaciones IA
+            </h5>
+
+            <p class="text-muted mb-0">
+                Próximamente: sugerencias inteligentes.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="glass-card">
+
+    <div class="d-flex
+        justify-content-between
+        align-items-center">
+
+        <div>
+
+            <h4>
+                Comienza tu próximo proyecto
+            </h4>
+
+            <p class="text-muted mb-0">
+                Registra medidas, detalles e instalación
+                desde una sola solicitud.
+            </p>
+
+        </div>
+
+        <a asp-controller="Cotizaciones"
+               asp-action="Create"
+               class="btn btn-glassflow">
+
+            Crear solicitud
+
+        </a>
+
+    </div>
+
+</div>

@@ -1,0 +1,185 @@
+﻿@model GlassFlowAyF.Models.SolicitudCotizacion
+
+@{
+    ViewData["Title"] = "Nueva solicitud";
+}
+
+<div class="page-header">
+
+    <div>
+        <span class="eyebrow">
+            Cotización personalizada
+        </span>
+
+        <h1>Nueva solicitud</h1>
+
+        <p>
+            Cuéntanos qué necesitas y
+            nosotros revisaremos tu proyecto.
+        </p>
+    </div>
+
+</div>
+
+<form asp-action="Create"
+      method="post"
+      class="glass-card">
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3">
+    </div>
+
+    <h4>
+        1. Producto o servicio
+    </h4>
+
+    <div class="row g-3 mt-1">
+
+        <div class="col-md-6">
+
+            <label asp-for="TipoProducto"
+                   class="form-label">
+            </label>
+
+            <select asp-for="TipoProducto"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione...
+                </option>
+
+                <option>Puerta de baño</option>
+                <option>Ventana</option>
+                <option>Espejo</option>
+                <option>Estructura en vidrio</option>
+                <option>Baranda</option>
+                <option>Otro</option>
+
+            </select>
+
+            <span asp-validation-for="TipoProducto"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <label asp-for="Ancho"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Ancho"
+                   class="form-control"
+                   placeholder="Ej. 1.80" />
+
+        </div>
+
+        <div class="col-md-3">
+
+            <label asp-for="Alto"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Alto"
+                   class="form-control"
+                   placeholder="Ej. 2.10" />
+
+        </div>
+
+    </div>
+
+    <hr class="my-4" />
+
+    <h4>
+        2. Detalles del trabajo
+    </h4>
+
+    <div class="row g-3 mt-1">
+
+        <div class="col-12">
+
+            <label asp-for="Descripcion"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="Descripcion"
+                      class="form-control"
+                      rows="4"
+                          placeholder="Describe lo que deseas realizar...">
+            </textarea>
+
+                <span asp-validation-for="Descripcion"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="form-check
+                    glass-check
+                    mt-4">
+
+                    <input asp-for="RequiereInstalacion"
+                           class="form-check-input" />
+
+                    <label asp-for="RequiereInstalacion"
+                           class="form-check-label">
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-8">
+
+                <label asp-for="Direccion"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Direccion"
+                       class="form-control"
+                       placeholder="Dirección donde se realizará el trabajo" />
+
+                <span asp-validation-for="Direccion"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="col-12">
+
+                <label asp-for="Observaciones"
+                       class="form-label">
+                </label>
+
+                <textarea asp-for="Observaciones"
+                          class="form-control"
+                          rows="3"
+                              placeholder="Información adicional...">
+            </textarea>
+
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+
+                <button class="btn btn-glassflow"
+                        type="submit">
+
+                    Enviar solicitud
+
+                </button>
+
+                <a class="btn btn-outline-secondary"
+                       asp-action="MisSolicitudes">
+
+                    Cancelar
+
+                </a>
+
+            </div>
+
+        </form>
