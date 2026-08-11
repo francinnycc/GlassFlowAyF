@@ -1,0 +1,167 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.DisenoIA>
+
+@{
+    ViewData["Title"] =
+        "Diseños IA de clientes";
+}
+
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            ADMINISTRACIÓN
+        </span>
+
+        <h1>
+            Diseños IA de clientes
+        </h1>
+
+        <p>
+            Consulta conceptos generados
+            y reconoce la preferencia visual
+            seleccionada por cada cliente.
+        </p>
+
+    </div>
+
+</div>
+
+
+@if (!Model.Any())
+{
+    <div class="glass-card text-center py-5">
+
+        <i class="bi bi-stars fs-1 text-muted">
+        </i>
+
+        <h4 class="mt-3">
+            Todavía no hay diseños generados
+        </h4>
+
+        <p class="text-muted mb-0">
+
+            Los diseños aparecerán cuando
+            los clientes utilicen
+            GlassFlow AI Studio.
+
+        </p>
+
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+
+        @foreach (var diseno in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+
+
+                <div class="ai-design-card h-100">
+
+
+                    <div class="ai-design-image">
+
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            diseno.RutaImagenGenerada))
+                        {
+                            <img src="@diseno.RutaImagenGenerada"
+                                 alt="Diseño generado por IA" />
+                        }
+
+
+                        @if (diseno.EsFavorito)
+                        {
+                            <span class="ai-favorite-badge">
+
+                                <i class="bi bi-heart-fill">
+                                </i>
+
+                                Elegido por cliente
+
+                            </span>
+                        }
+
+
+                    </div>
+
+
+                    <div class="p-4">
+
+
+                        <span class="request-id">
+
+                            #SOL-@diseno.SolicitudCotizacionId.ToString("D5")
+
+                        </span>
+
+
+                        <h4 class="mt-2">
+
+                            @(diseno.SolicitudCotizacion?
+                                .Producto?.Nombre
+                                ??
+                                diseno.SolicitudCotizacion?
+                                .TipoProducto)
+
+                        </h4>
+
+
+                        <p class="text-muted mb-2">
+
+                            <i class="bi bi-person me-1">
+                            </i>
+
+                            @diseno.SolicitudCotizacion?
+                            .NombreCliente
+
+                        </p>
+
+
+                        <div class="ai-tags mb-3">
+
+
+                            <span>
+                                @diseno.Estilo
+                            </span>
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                diseno.ColorPerfil))
+                            {
+                                <span>
+                                    @diseno.ColorPerfil
+                                </span>
+                            }
+
+
+                        </div>
+
+
+                        <a asp-action="Resultado"
+                               asp-route-id="@diseno.Id"
+                               class="btn
+                            btn-outline-primary
+                            w-100">
+
+                            Revisar propuesta
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+        }
+
+
+    </div>
+}

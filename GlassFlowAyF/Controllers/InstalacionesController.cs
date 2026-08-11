@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlassFlowAyF.Controllers
 {
     [Authorize(Roles = "Administrador")]
-    public class InstalacionesController
-        : Controller
+    public class InstalacionesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -27,19 +26,40 @@ namespace GlassFlowAyF.Controllers
         }
 
 
+        // =====================================================
+        // LISTADO DE INSTALACIONES
+        // =====================================================
+
         public async Task<IActionResult> Index()
         {
             var trabajos =
-                await _context.TrabajosInstalacion
-                    .Include(t => t.Instalador)
-                    .Include(t => t.Compra)
+                await _context
+                    .TrabajosInstalacion
+
+                    .AsNoTracking()
+
+                    .Include(t =>
+                        t.Instalador)
+
+                    .Include(t =>
+                        t.Compra)
+
+                    .Include(t =>
+                        t.SolicitudCotizacion)
+
                     .OrderBy(t =>
                         t.FechaInstalacion)
+
                     .ToListAsync();
+
 
             return View(trabajos);
         }
 
+
+        // =====================================================
+        // CREAR - GET
+        // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> Create(
@@ -49,69 +69,238 @@ namespace GlassFlowAyF.Controllers
                 compraId,
                 null);
 
-            return View(
+
+            var modelo =
                 new TrabajoInstalacion
                 {
                     CompraId =
                         compraId,
 
                     FechaInstalacion =
-                        DateTime.Now.AddDays(3)
-                });
+                        DateTime.Now
+                            .AddDays(3)
+                            .Date
+                            .AddHours(9)
+                };
+
+
+            return View(modelo);
         }
 
+
+        // =====================================================
+        // CREAR - POST
+        // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             TrabajoInstalacion trabajo)
         {
-            if (!trabajo.CompraId.HasValue)
+            /*
+             * Cliente, Producto y Dirección NO son escritos
+             * manualmente en el formulario.
+             *
+             * Se obtienen de la compra/solicitud.
+             *
+             * Por eso eliminamos su validación inicial del
+             * ModelState antes de comprobar IsValid.
+             */
+
+            ModelState.Remove(
+                nameof(
+                    TrabajoInstalacion.Cliente));
+
+            ModelState.Remove(
+                nameof(
+                    TrabajoInstalacion.Producto));
+
+            ModelState.Remove(
+                nameof(
+                    TrabajoInstalacion.Direccion));
+
+
+            // =================================================
+            // VALIDAR COMPRA
+            // =================================================
+
+            if (!trabajo.CompraId.HasValue ||
+                trabajo.CompraId.Value <= 0)
             {
                 ModelState.AddModelError(
-                    nameof(trabajo.CompraId),
-                    "Seleccione una compra.");
+                    nameof(
+                        trabajo.CompraId),
+
+                    "Debe seleccionar una compra.");
             }
+
+
+            // =================================================
+            // VALIDAR INSTALADOR
+            // =================================================
 
             if (string.IsNullOrWhiteSpace(
                 trabajo.InstaladorId))
             {
                 ModelState.AddModelError(
-                    nameof(trabajo.InstaladorId),
-                    "Seleccione un instalador.");
+                    nameof(
+                        trabajo.InstaladorId),
+
+                    "Debe seleccionar un instalador.");
             }
 
 
-            var compra =
-                trabajo.CompraId.HasValue
-                    ? await _context.Compras
-                        .Include(c => c.Cliente)
-                        .Include(c => c.Cotizacion)
+            // =================================================
+            // VALIDAR FECHA
+            // =================================================
+
+            if (trabajo.FechaInstalacion <=
+                DateTime.Now)
+            {
+                ModelState.AddModelError(
+                    nameof(
+                        trabajo.FechaInstalacion),
+
+                    "La fecha de instalación debe ser futura.");
+            }
+
+
+            // =================================================
+            // BUSCAR COMPRA Y TODA SU INFORMACIÓN
+            // =================================================
+
+            Compra? compra = null;
+
+
+            if (trabajo.CompraId.HasValue)
+            {
+                compra =
+                    await _context
+                        .Compras
+
+                        .Include(c =>
+                            c.Cliente)
+
+                        .Include(c =>
+                            c.Cotizacion)
+
                             .ThenInclude(c =>
                                 c!.SolicitudCotizacion)
+
                                 .ThenInclude(s =>
                                     s!.Producto)
+
+                        .Include(c =>
+                            c.Cotizacion)
+
+                            .ThenInclude(c =>
+                                c!.SolicitudCotizacion)
+
+                                .ThenInclude(s =>
+                                    s!.Material)
+
+                        .Include(c =>
+                            c.TrabajoInstalacion)
+
                         .FirstOrDefaultAsync(
                             c =>
                                 c.Id ==
-                                trabajo.CompraId)
-                    : null;
+                                trabajo.CompraId.Value);
+            }
 
 
-            if (compra == null)
+            if (trabajo.CompraId.HasValue &&
+                compra == null)
             {
                 ModelState.AddModelError(
-                    nameof(trabajo.CompraId),
+                    nameof(
+                        trabajo.CompraId),
+
                     "La compra seleccionada no existe.");
             }
-            else if (compra.Estado !=
-                "En producción")
+
+
+            // =================================================
+            // VALIDAR ESTADO DE COMPRA
+            // =================================================
+
+            if (compra != null &&
+                compra.Estado !=
+                    "En producción")
             {
                 ModelState.AddModelError(
-                    nameof(trabajo.CompraId),
-                    "La compra debe tener el pago confirmado.");
+                    nameof(
+                        trabajo.CompraId),
+
+                    "La compra debe tener el pago confirmado " +
+                    "y estar en estado 'En producción'.");
             }
 
+
+            // =================================================
+            // EVITAR DOBLE INSTALACIÓN
+            // =================================================
+
+            if (compra?.TrabajoInstalacion != null)
+            {
+                ModelState.AddModelError(
+                    nameof(
+                        trabajo.CompraId),
+
+                    "Esta compra ya tiene una instalación asignada.");
+            }
+
+
+            // =================================================
+            // VALIDAR QUE EL INSTALADOR EXISTA Y TENGA EL ROL
+            // =================================================
+
+            ApplicationUser? instalador =
+                null;
+
+
+            if (!string.IsNullOrWhiteSpace(
+                trabajo.InstaladorId))
+            {
+                instalador =
+                    await _userManager
+                        .FindByIdAsync(
+                            trabajo.InstaladorId);
+
+
+                if (instalador == null ||
+                    !instalador.Activo)
+                {
+                    ModelState.AddModelError(
+                        nameof(
+                            trabajo.InstaladorId),
+
+                        "El instalador seleccionado no está disponible.");
+                }
+                else
+                {
+                    var esInstalador =
+                        await _userManager
+                            .IsInRoleAsync(
+                                instalador,
+                                "Instalador");
+
+
+                    if (!esInstalador)
+                    {
+                        ModelState.AddModelError(
+                            nameof(
+                                trabajo.InstaladorId),
+
+                            "El usuario seleccionado no tiene rol de Instalador.");
+                    }
+                }
+            }
+
+
+            // =================================================
+            // SI HAY ERRORES
+            // =================================================
 
             if (!ModelState.IsValid)
             {
@@ -119,45 +308,108 @@ namespace GlassFlowAyF.Controllers
                     trabajo.CompraId,
                     trabajo.InstaladorId);
 
+
                 return View(trabajo);
             }
 
 
+            // =================================================
+            // OBTENER SOLICITUD
+            // =================================================
+
             var solicitud =
-                compra!.Cotizacion?
+                compra!
+                    .Cotizacion?
                     .SolicitudCotizacion;
 
+
+            if (solicitud == null)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+
+                    "No fue posible encontrar la solicitud " +
+                    "relacionada con esta compra.");
+
+
+                await CargarCombos(
+                    trabajo.CompraId,
+                    trabajo.InstaladorId);
+
+
+                return View(trabajo);
+            }
+
+
+            // =================================================
+            // COMPLETAR DATOS AUTOMÁTICAMENTE
+            // =================================================
 
             trabajo.Cliente =
                 compra.Cliente?
                     .NombreCompleto
                 ??
-                solicitud?.NombreCliente
-                ??
-                "";
+                solicitud.NombreCliente;
+
 
             trabajo.Producto =
-                solicitud?.Producto?.Nombre
+                solicitud.Producto?
+                    .Nombre
                 ??
-                solicitud?.TipoProducto
-                ??
-                "";
+                solicitud.TipoProducto;
+
 
             trabajo.Direccion =
-                solicitud?.Direccion ?? "";
+                solicitud.Direccion
+                ??
+                compra.Cliente?
+                    .Direccion
+                ??
+                "Dirección pendiente de confirmar";
+
 
             trabajo.SolicitudCotizacionId =
-                solicitud?.Id;
+                solicitud.Id;
+
+
+            trabajo.InstaladorId =
+                instalador!.Id;
+
 
             trabajo.Estado =
                 "Programada";
 
 
-            _context.TrabajosInstalacion
+            trabajo.MedidasConfirmadas =
+                false;
+
+            trabajo.MaterialListo =
+                false;
+
+            trabajo.InstalacionIniciada =
+                false;
+
+            trabajo.InstalacionRealizada =
+                false;
+
+            trabajo.RevisionAcabados =
+                false;
+
+            trabajo.LimpiezaFinal =
+                false;
+
+
+            // =================================================
+            // GUARDAR INSTALACIÓN
+            // =================================================
+
+            _context
+                .TrabajosInstalacion
                 .Add(trabajo);
 
 
-            solicitud!.Estado =
+            // Actualizar solicitud
+            solicitud.Estado =
                 "Instalación programada";
 
 
@@ -166,7 +418,8 @@ namespace GlassFlowAyF.Controllers
 
 
             TempData["Mensaje"] =
-                "Instalación asignada correctamente.";
+                $"Instalación asignada correctamente a " +
+                $"{instalador.NombreCompleto}.";
 
 
             return RedirectToAction(
@@ -174,30 +427,84 @@ namespace GlassFlowAyF.Controllers
         }
 
 
+        // =====================================================
+        // CARGAR COMPRAS E INSTALADORES
+        // =====================================================
+
         private async Task CargarCombos(
             int? compraId,
             string? instaladorId)
         {
+            // =================================================
+            // COMPRAS DISPONIBLES
+            // =================================================
+
             var compras =
-                await _context.Compras
-                    .Include(c => c.Cliente)
-                    .Include(c => c.Cotizacion)
+                await _context
+                    .Compras
+
+                    .AsNoTracking()
+
+                    .Include(c =>
+                        c.Cliente)
+
+                    .Include(c =>
+                        c.Cotizacion)
+
                         .ThenInclude(c =>
                             c!.SolicitudCotizacion)
+
+                            .ThenInclude(s =>
+                                s!.Producto)
+
+                    .Include(c =>
+                        c.TrabajoInstalacion)
+
                     .Where(c =>
                         c.Estado ==
                             "En producción" &&
+
                         c.TrabajoInstalacion ==
                             null)
-                    .Select(c => new
-                    {
-                        c.Id,
 
-                        Texto =
-                            $"{c.NumeroOrden} - " +
-                            $"{c.Cliente!.NombreCompleto} - " +
-                            $"{c.Cotizacion!.SolicitudCotizacion!.TipoProducto}"
-                    })
+                    .OrderByDescending(c =>
+                        c.FechaCompra)
+
+                    .Select(c =>
+                        new
+                        {
+                            c.Id,
+
+                            Texto =
+                                c.NumeroOrden
+                                + " - "
+                                + (
+                                    c.Cliente != null
+                                        ? c.Cliente.NombreCompleto
+                                        : "Cliente"
+                                  )
+                                + " - "
+                                + (
+                                    c.Cotizacion != null &&
+                                    c.Cotizacion.SolicitudCotizacion != null &&
+                                    c.Cotizacion.SolicitudCotizacion.Producto != null
+
+                                        ? c.Cotizacion
+                                            .SolicitudCotizacion
+                                            .Producto
+                                            .Nombre
+
+                                        : c.Cotizacion != null &&
+                                          c.Cotizacion.SolicitudCotizacion != null
+
+                                            ? c.Cotizacion
+                                                .SolicitudCotizacion
+                                                .TipoProducto
+
+                                            : "Proyecto"
+                                  )
+                        })
+
                     .ToListAsync();
 
 
@@ -209,16 +516,31 @@ namespace GlassFlowAyF.Controllers
                     compraId);
 
 
-            var instaladores =
+            // =================================================
+            // INSTALADORES ACTIVOS
+            // =================================================
+
+            var instaladoresRol =
                 await _userManager
                     .GetUsersInRoleAsync(
                         "Instalador");
 
 
+            var instaladores =
+                instaladoresRol
+
+                    .Where(u =>
+                        u.Activo)
+
+                    .OrderBy(u =>
+                        u.NombreCompleto)
+
+                    .ToList();
+
+
             ViewBag.Instaladores =
                 new SelectList(
-                    instaladores
-                        .Where(u => u.Activo),
+                    instaladores,
                     "Id",
                     "NombreCompleto",
                     instaladorId);

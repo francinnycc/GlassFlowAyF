@@ -1,64 +1,145 @@
 using GlassFlowAyF.Data;
 using GlassFlowAyF.Models;
+using GlassFlowAyF.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder =
-    WebApplication.CreateBuilder(args);
+    WebApplication.CreateBuilder(
+        args);
 
-builder.Services.AddControllersWithViews();
+
+builder.Services
+    .AddControllersWithViews();
+
+
+// =======================================================
+// SERVICIO OPENAI
+// =======================================================
+
+builder.Services
+    .AddHttpClient<
+        IOpenAIService,
+        OpenAIService>(
+        client =>
+        {
+            client.BaseAddress =
+                new Uri(
+                    "https://api.openai.com/");
+
+            client.Timeout =
+                TimeSpan.FromMinutes(
+                    3);
+        });
+
+
+// =======================================================
+// MYSQL
+// =======================================================
 
 var connectionString =
     builder.Configuration
-        .GetConnectionString("DefaultConnection")
+        .GetConnectionString(
+            "DefaultConnection")
     ?? throw new InvalidOperationException(
         "No se encontró la cadena DefaultConnection.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options =>
-        options.UseMySql(
-            connectionString,
-            ServerVersion.AutoDetect(
-                connectionString)));
 
 builder.Services
-    .AddIdentity<ApplicationUser, IdentityRole>(
+    .AddDbContext<ApplicationDbContext>(
+        options =>
+            options.UseMySql(
+                connectionString,
+
+                ServerVersion.AutoDetect(
+                    connectionString)));
+
+
+// =======================================================
+// IDENTITY
+// =======================================================
+
+builder.Services
+    .AddIdentity<
+        ApplicationUser,
+        IdentityRole>(
         options =>
         {
-            options.Password.RequiredLength = 6;
-            options.Password.RequireDigit = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireNonAlphanumeric = false;
+            options.Password
+                .RequiredLength =
+                    6;
 
-            options.User.RequireUniqueEmail = true;
+            options.Password
+                .RequireDigit =
+                    true;
 
-            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Password
+                .RequireUppercase =
+                    true;
 
-            options.Lockout.DefaultLockoutTimeSpan =
-                TimeSpan.FromMinutes(10);
+            options.Password
+                .RequireLowercase =
+                    true;
+
+            options.Password
+                .RequireNonAlphanumeric =
+                    false;
+
+
+            options.User
+                .RequireUniqueEmail =
+                    true;
+
+
+            options.Lockout
+                .MaxFailedAccessAttempts =
+                    5;
+
+            options.Lockout
+                .DefaultLockoutTimeSpan =
+                    TimeSpan.FromMinutes(
+                        10);
         })
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+
+    .AddEntityFrameworkStores<
+        ApplicationDbContext>()
+
     .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(
-    options =>
-    {
-        options.LoginPath =
-            "/Account/Login";
 
-        options.AccessDeniedPath =
-            "/Account/AccessDenied";
+// =======================================================
+// COOKIE
+// =======================================================
 
-        options.ExpireTimeSpan =
-            TimeSpan.FromHours(2);
+builder.Services
+    .ConfigureApplicationCookie(
+        options =>
+        {
+            options.LoginPath =
+                "/Account/Login";
 
-        options.SlidingExpiration = true;
-    });
+            options.AccessDeniedPath =
+                "/Account/AccessDenied";
 
-var app = builder.Build();
+            options.ExpireTimeSpan =
+                TimeSpan.FromHours(
+                    2);
 
-if (!app.Environment.IsDevelopment())
+            options.SlidingExpiration =
+                true;
+        });
+
+
+var app =
+    builder.Build();
+
+
+// =======================================================
+// PIPELINE
+// =======================================================
+
+if (!app.Environment
+    .IsDevelopment())
 {
     app.UseExceptionHandler(
         "/Home/Error");
@@ -66,41 +147,66 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
+
 app.MapControllerRoute(
-    name: "default",
+    name:
+        "default",
+
     pattern:
         "{controller=Home}/{action=Index}/{id?}");
 
-await CrearRolesYUsuariosAsync(app);
+
+// =======================================================
+// ROLES Y USUARIOS
+// =======================================================
+
+await CrearRolesYUsuariosAsync(
+    app);
+
 
 app.Run();
 
 
-static async Task CrearRolesYUsuariosAsync(
-    WebApplication app)
+// =======================================================
+// CREAR ROLES Y USUARIOS
+// =======================================================
+
+static async Task
+    CrearRolesYUsuariosAsync(
+        WebApplication app)
 {
     using var scope =
-        app.Services.CreateScope();
+        app.Services
+            .CreateScope();
+
 
     var roleManager =
         scope.ServiceProvider
             .GetRequiredService<
                 RoleManager<IdentityRole>>();
 
+
     var userManager =
         scope.ServiceProvider
             .GetRequiredService<
                 UserManager<ApplicationUser>>();
 
+
     var configuration =
         scope.ServiceProvider
-            .GetRequiredService<IConfiguration>();
+            .GetRequiredService<
+                IConfiguration>();
 
 
     string[] roles =
@@ -111,65 +217,97 @@ static async Task CrearRolesYUsuariosAsync(
     };
 
 
-    foreach (var rol in roles)
+    foreach (var rol
+        in roles)
     {
         if (!await roleManager
-            .RoleExistsAsync(rol))
+            .RoleExistsAsync(
+                rol))
         {
-            await roleManager.CreateAsync(
-                new IdentityRole(rol));
+            await roleManager
+                .CreateAsync(
+                    new IdentityRole(
+                        rol));
         }
     }
 
 
+    // ===================================================
+    // ADMINISTRADOR
+    // ===================================================
+
     var adminEmail =
-        configuration["SeedAdmin:Email"];
+        configuration[
+            "SeedAdmin:Email"];
+
 
     var adminPassword =
-        configuration["SeedAdmin:Password"];
+        configuration[
+            "SeedAdmin:Password"];
 
 
-    if (!string.IsNullOrWhiteSpace(adminEmail) &&
-        !string.IsNullOrWhiteSpace(adminPassword))
+    if (!string.IsNullOrWhiteSpace(
+            adminEmail) &&
+        !string.IsNullOrWhiteSpace(
+            adminPassword))
     {
         var admin =
-            await userManager.FindByEmailAsync(
-                adminEmail);
+            await userManager
+                .FindByEmailAsync(
+                    adminEmail);
+
 
         if (admin == null)
         {
             admin =
                 new ApplicationUser
                 {
-                    UserName = adminEmail,
-                    Email = adminEmail,
+                    UserName =
+                        adminEmail,
+
+                    Email =
+                        adminEmail,
 
                     NombreCompleto =
                         "Administrador GlassFlow",
 
-                    EmailConfirmed = true,
-                    Activo = true,
-                    FechaRegistro = DateTime.Now
+                    EmailConfirmed =
+                        true,
+
+                    Activo =
+                        true,
+
+                    FechaRegistro =
+                        DateTime.Now
                 };
 
+
             var resultado =
-                await userManager.CreateAsync(
-                    admin,
-                    adminPassword);
+                await userManager
+                    .CreateAsync(
+                        admin,
+                        adminPassword);
+
 
             if (resultado.Succeeded)
             {
-                await userManager.AddToRoleAsync(
-                    admin,
-                    "Administrador");
+                await userManager
+                    .AddToRoleAsync(
+                        admin,
+                        "Administrador");
             }
         }
     }
 
 
+    // ===================================================
+    // INSTALADORES DEMO
+    // ===================================================
+
     var installerPassword =
         configuration[
             "SeedInstaller:Password"];
+
 
     if (!string.IsNullOrWhiteSpace(
         installerPassword))
@@ -180,11 +318,13 @@ static async Task CrearRolesYUsuariosAsync(
             "Carlos Ramírez",
             installerPassword);
 
+
         await CrearInstalador(
             userManager,
             "instalador2@glassflowaf.com",
             "Andrés Rodríguez",
             installerPassword);
+
 
         await CrearInstalador(
             userManager,
@@ -195,39 +335,62 @@ static async Task CrearRolesYUsuariosAsync(
 }
 
 
+// =======================================================
+// CREAR INSTALADOR
+// =======================================================
+
 static async Task CrearInstalador(
-    UserManager<ApplicationUser> userManager,
+    UserManager<ApplicationUser>
+        userManager,
+
     string correo,
     string nombre,
     string password)
 {
     var usuario =
         await userManager
-            .FindByEmailAsync(correo);
+            .FindByEmailAsync(
+                correo);
+
 
     if (usuario == null)
     {
         usuario =
             new ApplicationUser
             {
-                UserName = correo,
-                Email = correo,
-                NombreCompleto = nombre,
-                EmailConfirmed = true,
-                Activo = true,
-                FechaRegistro = DateTime.Now
+                UserName =
+                    correo,
+
+                Email =
+                    correo,
+
+                NombreCompleto =
+                    nombre,
+
+                EmailConfirmed =
+                    true,
+
+                Activo =
+                    true,
+
+                FechaRegistro =
+                    DateTime.Now
             };
 
+
         var resultado =
-            await userManager.CreateAsync(
-                usuario,
-                password);
+            await userManager
+                .CreateAsync(
+                    usuario,
+                    password);
+
 
         if (resultado.Succeeded)
         {
-            await userManager.AddToRoleAsync(
-                usuario,
-                "Instalador");
+            await userManager
+                .AddToRoleAsync(
+                    usuario,
+                    "Instalador");
         }
     }
 }

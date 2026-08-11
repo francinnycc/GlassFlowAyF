@@ -10,17 +10,20 @@ namespace GlassFlowAyF.Models
         [Required]
         [StringLength(120)]
         [Display(Name = "Nombre del cliente")]
-        public string NombreCliente { get; set; } = string.Empty;
+        public string NombreCliente { get; set; }
+            = string.Empty;
 
         [Required]
         [EmailAddress]
         [StringLength(150)]
-        public string Correo { get; set; } = string.Empty;
+        public string Correo { get; set; }
+            = string.Empty;
 
         [Required]
         [Phone]
         [StringLength(30)]
-        public string Telefono { get; set; } = string.Empty;
+        public string Telefono { get; set; }
+            = string.Empty;
 
 
         // PRODUCTO
@@ -33,7 +36,8 @@ namespace GlassFlowAyF.Models
         // Se conserva para solicitudes antiguas.
         [StringLength(120)]
         [Display(Name = "Producto solicitado")]
-        public string TipoProducto { get; set; } = string.Empty;
+        public string TipoProducto { get; set; }
+            = string.Empty;
 
 
         // MATERIAL
@@ -46,10 +50,13 @@ namespace GlassFlowAyF.Models
 
         // DESCRIPCIÓN
 
-        [Required(ErrorMessage = "Describa el trabajo que necesita.")]
+        [Required(
+            ErrorMessage =
+                "Describa el trabajo que necesita.")]
         [StringLength(1000)]
         [Display(Name = "Descripción del trabajo")]
-        public string Descripcion { get; set; } = string.Empty;
+        public string Descripcion { get; set; }
+            = string.Empty;
 
 
         // MEDIDAS
@@ -89,10 +96,12 @@ namespace GlassFlowAyF.Models
         public string? Observaciones { get; set; }
 
         [StringLength(40)]
-        public string Estado { get; set; } = "Solicitado";
+        public string Estado { get; set; }
+            = "Solicitado";
 
         [Display(Name = "Fecha de solicitud")]
-        public DateTime FechaSolicitud { get; set; } = DateTime.Now;
+        public DateTime FechaSolicitud { get; set; }
+            = DateTime.Now;
 
         [Column(TypeName = "decimal(12,2)")]
         [Display(Name = "Cotización estimada")]
@@ -101,13 +110,25 @@ namespace GlassFlowAyF.Models
 
         // FOTOGRAFÍAS
 
-        public ICollection<SolicitudFotografia> Fotografias { get; set; }
-            = new List<SolicitudFotografia>();
+        public ICollection<SolicitudFotografia>
+            Fotografias
+        { get; set; }
+                = new List<SolicitudFotografia>();
 
 
         // COTIZACIONES
 
-        public ICollection<Cotizacion> Cotizaciones { get; set; }
-            = new List<Cotizacion>();
+        public ICollection<Cotizacion>
+            Cotizaciones
+        { get; set; }
+                = new List<Cotizacion>();
+
+
+        // DISEÑOS IA
+
+        public ICollection<DisenoIA>
+            DisenosIA
+        { get; set; }
+                = new List<DisenoIA>();
     }
 }
