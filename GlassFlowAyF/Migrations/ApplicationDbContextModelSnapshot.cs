@@ -101,6 +101,338 @@ namespace GlassFlowAyF.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.Compra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClienteId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("CotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("FechaCompra")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaPago")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MetodoPago")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("NumeroOrden")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("CotizacionId")
+                        .IsUnique();
+
+                    b.ToTable("Compras");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ComentarioCliente")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Condiciones")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<decimal>("CostoInstalacion")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("CostoMateriales")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("Descuento")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("DetalleTecnico")
+                        .HasMaxLength(1500)
+                        .HasColumnType("varchar(1500)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaRespuestaCliente")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("FechaVencimiento")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("Impuesto")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("ManoObra")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("OtrosCostos")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("PorcentajeImpuesto")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SolicitudCotizacionId");
+
+                    b.ToTable("Cotizaciones");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.DisenoIA", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Ambiente")
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("ColorPerfil")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<bool>("EsFavorito")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Estilo")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<DateTime>("FechaGeneracion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("FotografiaBaseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModeloImagen")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ModeloTexto")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Preferencias")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("PromptGeneracion")
+                        .HasMaxLength(5000)
+                        .HasColumnType("varchar(5000)");
+
+                    b.Property<string>("Recomendacion")
+                        .HasMaxLength(5000)
+                        .HasColumnType("varchar(5000)");
+
+                    b.Property<string>("RutaImagenGenerada")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FotografiaBaseId");
+
+                    b.HasIndex("SolicitudCotizacionId");
+
+                    b.ToTable("DisenosIA");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Factura", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompraId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Descuento")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("FechaEmision")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("Impuesto")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("NumeroFactura")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompraId")
+                        .IsUnique();
+
+                    b.ToTable("Facturas");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Material", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Acabado")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<decimal?>("Grosor")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Perfil")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<decimal>("PrecioAdicional")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Materiales");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Acabado = "Brillante",
+                            Activo = true,
+                            Color = "Transparente",
+                            Grosor = 10m,
+                            Nombre = "Vidrio templado claro 10 mm",
+                            Perfil = "Aluminio negro",
+                            PrecioAdicional = 0m,
+                            Tipo = "Vidrio templado"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Acabado = "Brillante",
+                            Activo = true,
+                            Color = "Bronce",
+                            Grosor = 10m,
+                            Nombre = "Vidrio templado bronce 10 mm",
+                            Perfil = "Aluminio negro",
+                            PrecioAdicional = 25000m,
+                            Tipo = "Vidrio templado"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Acabado = "Natural",
+                            Activo = true,
+                            Color = "Transparente",
+                            Grosor = 12m,
+                            Nombre = "Vidrio laminado 12 mm",
+                            Perfil = "Aluminio natural",
+                            PrecioAdicional = 35000m,
+                            Tipo = "Vidrio laminado"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Acabado = "Mate",
+                            Activo = true,
+                            Color = "Esmerilado",
+                            Grosor = 8m,
+                            Nombre = "Vidrio esmerilado 8 mm",
+                            Perfil = "Aluminio negro",
+                            PrecioAdicional = 30000m,
+                            Tipo = "Vidrio templado"
+                        });
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -118,13 +450,23 @@ namespace GlassFlowAyF.Migrations
                         .HasColumnType("varchar(80)");
 
                     b.Property<string>("Descripcion")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImagenUrl")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<bool>("PermiteInstalacion")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<decimal>("PrecioBase")
                         .HasColumnType("decimal(12,2)");
@@ -138,37 +480,112 @@ namespace GlassFlowAyF.Migrations
                         {
                             Id = 1,
                             Activo = true,
-                            Categoria = "Puertas",
-                            Descripcion = "Puerta corrediza en vidrio templado.",
+                            Categoria = "Divisiones de baño",
+                            Descripcion = "Sistema corredizo en vidrio templado para baño.",
+                            FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Puerta de baño corrediza",
-                            PrecioBase = 350000m
+                            PermiteInstalacion = true,
+                            PrecioBase = 185000m
                         },
                         new
                         {
                             Id = 2,
                             Activo = true,
                             Categoria = "Ventanas",
-                            Descripcion = "Ventana personalizada en aluminio y vidrio.",
-                            Nombre = "Ventana en vidrio",
-                            PrecioBase = 180000m
+                            Descripcion = "Ventana corrediza fabricada a medida.",
+                            FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Ventana corrediza en aluminio y vidrio",
+                            PermiteInstalacion = true,
+                            PrecioBase = 95000m
                         },
                         new
                         {
                             Id = 3,
                             Activo = true,
                             Categoria = "Espejos",
-                            Descripcion = "Espejo fabricado según medidas del cliente.",
+                            Descripcion = "Espejo elaborado según las medidas del espacio.",
+                            FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Espejo personalizado",
-                            PrecioBase = 95000m
+                            PermiteInstalacion = true,
+                            PrecioBase = 65000m
                         },
                         new
                         {
                             Id = 4,
                             Activo = true,
-                            Categoria = "Estructuras",
-                            Descripcion = "Estructura personalizada para interiores.",
-                            Nombre = "Estructura en vidrio",
-                            PrecioBase = 420000m
+                            Categoria = "Barandas",
+                            Descripcion = "Baranda moderna en vidrio templado de seguridad.",
+                            FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Baranda de vidrio templado",
+                            PermiteInstalacion = true,
+                            PrecioBase = 190000m
+                        });
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.ProductoMaterial", b =>
+                {
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductoId", "MaterialId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.ToTable("ProductoMateriales");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductoId = 1,
+                            MaterialId = 1
+                        },
+                        new
+                        {
+                            ProductoId = 1,
+                            MaterialId = 2
+                        },
+                        new
+                        {
+                            ProductoId = 1,
+                            MaterialId = 4
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            MaterialId = 1
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            MaterialId = 2
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            MaterialId = 3
+                        },
+                        new
+                        {
+                            ProductoId = 3,
+                            MaterialId = 1
+                        },
+                        new
+                        {
+                            ProductoId = 3,
+                            MaterialId = 4
+                        },
+                        new
+                        {
+                            ProductoId = 4,
+                            MaterialId = 1
+                        },
+                        new
+                        {
+                            ProductoId = 4,
+                            MaterialId = 3
                         });
                 });
 
@@ -181,10 +598,13 @@ namespace GlassFlowAyF.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("Alto")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal?>("Ancho")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
 
                     b.Property<string>("Correo")
                         .IsRequired()
@@ -208,6 +628,9 @@ namespace GlassFlowAyF.Migrations
                     b.Property<DateTime>("FechaSolicitud")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("MaterialId")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("MontoEstimado")
                         .HasColumnType("decimal(12,2)");
 
@@ -219,6 +642,12 @@ namespace GlassFlowAyF.Migrations
                     b.Property<string>("Observaciones")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<int?>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Profundidad")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<bool>("RequiereInstalacion")
                         .HasColumnType("tinyint(1)");
@@ -235,7 +664,45 @@ namespace GlassFlowAyF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("ProductoId");
+
                     b.ToTable("SolicitudesCotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.SolicitudFotografia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCarga")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NombreOriginal")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("RutaArchivo")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoContenido")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SolicitudCotizacionId");
+
+                    b.ToTable("SolicitudFotografias");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.TrabajoInstalacion", b =>
@@ -251,6 +718,9 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("varchar(120)");
 
+                    b.Property<int?>("CompraId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Direccion")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -261,16 +731,20 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
+                    b.Property<DateTime?>("FechaFinalizacion")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("FechaInstalacion")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("InstalacionIniciada")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("InstalacionRealizada")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("Instalador")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("varchar(120)");
+                    b.Property<string>("InstaladorId")
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool>("LimpiezaFinal")
                         .HasColumnType("tinyint(1)");
@@ -282,8 +756,8 @@ namespace GlassFlowAyF.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Observaciones")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<string>("Producto")
                         .IsRequired()
@@ -293,7 +767,17 @@ namespace GlassFlowAyF.Migrations
                     b.Property<bool>("RevisionAcabados")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int?>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CompraId")
+                        .IsUnique();
+
+                    b.HasIndex("InstaladorId");
+
+                    b.HasIndex("SolicitudCotizacionId");
 
                     b.ToTable("TrabajosInstalacion");
                 });
@@ -470,6 +954,136 @@ namespace GlassFlowAyF.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.Compra", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "Cliente")
+                        .WithMany("Compras")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GlassFlowAyF.Models.Cotizacion", "Cotizacion")
+                        .WithOne("Compra")
+                        .HasForeignKey("GlassFlowAyF.Models.Compra", "CotizacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Cotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany("Cotizaciones")
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.DisenoIA", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.SolicitudFotografia", "FotografiaBase")
+                        .WithMany()
+                        .HasForeignKey("FotografiaBaseId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany("DisenosIA")
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FotografiaBase");
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Factura", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.Compra", "Compra")
+                        .WithOne("Factura")
+                        .HasForeignKey("GlassFlowAyF.Models.Factura", "CompraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Compra");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.ProductoMaterial", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.Material", "Material")
+                        .WithMany("ProductoMateriales")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GlassFlowAyF.Models.Producto", "Producto")
+                        .WithMany("ProductoMateriales")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.SolicitudCotizacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.Material", "Material")
+                        .WithMany("Solicitudes")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GlassFlowAyF.Models.Producto", "Producto")
+                        .WithMany("Solicitudes")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.SolicitudFotografia", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany("Fotografias")
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.TrabajoInstalacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.Compra", "Compra")
+                        .WithOne("TrabajoInstalacion")
+                        .HasForeignKey("GlassFlowAyF.Models.TrabajoInstalacion", "CompraId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "Instalador")
+                        .WithMany("TrabajosAsignados")
+                        .HasForeignKey("InstaladorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany()
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Compra");
+
+                    b.Navigation("Instalador");
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.VisitaTecnica", b =>
                 {
                     b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
@@ -530,6 +1144,48 @@ namespace GlassFlowAyF.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Compras");
+
+                    b.Navigation("TrabajosAsignados");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Compra", b =>
+                {
+                    b.Navigation("Factura");
+
+                    b.Navigation("TrabajoInstalacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
+                {
+                    b.Navigation("Compra");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Material", b =>
+                {
+                    b.Navigation("ProductoMateriales");
+
+                    b.Navigation("Solicitudes");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Producto", b =>
+                {
+                    b.Navigation("ProductoMateriales");
+
+                    b.Navigation("Solicitudes");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.SolicitudCotizacion", b =>
+                {
+                    b.Navigation("Cotizaciones");
+
+                    b.Navigation("DisenosIA");
+
+                    b.Navigation("Fotografias");
                 });
 #pragma warning restore 612, 618
         }

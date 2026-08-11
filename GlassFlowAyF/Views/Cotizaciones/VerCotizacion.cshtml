@@ -1,0 +1,527 @@
+﻿@model GlassFlowAyF.Models.Cotizacion
+
+@{
+    ViewData["Title"] = "Cotización";
+}
+
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            PROPUESTA ECONÓMICA
+        </span>
+
+        <div class="request-id">
+            COT-@Model.Id.ToString("D5")
+        </div>
+
+        <h1>
+            Cotización del proyecto
+        </h1>
+
+        <p>
+            Revisa los costos,
+            condiciones y vigencia.
+        </p>
+
+    </div>
+
+
+    <a asp-action="ExportarCotizacionExcel"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-success">
+
+        <i class="bi bi-file-earmark-excel me-1">
+        </i>
+
+        Descargar Excel
+
+    </a>
+
+</div>
+
+
+<div class="row g-4">
+
+
+    <div class="col-lg-8">
+
+
+        <div class="glass-card mb-4">
+
+            <div class="d-flex
+                justify-content-between
+                align-items-start">
+
+                <div>
+
+                    <span class="text-muted small">
+                        Proyecto
+                    </span>
+
+                    <h3 class="mt-1">
+
+                        @(Model
+                            .SolicitudCotizacion?
+                            .Producto?
+                            .Nombre
+                            ??
+                            Model
+                            .SolicitudCotizacion?
+                            .TipoProducto)
+
+                    </h3>
+
+                </div>
+
+
+                <span class="status-badge">
+                    @Model.Estado
+                </span>
+
+            </div>
+
+
+            <div class="row g-3 mt-3">
+
+                <div class="col-md-6">
+
+                    <span class="text-muted small">
+                        Cliente
+                    </span>
+
+                    <strong class="d-block">
+
+                        @Model
+                        .SolicitudCotizacion?
+                        .NombreCliente
+
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <span class="text-muted small">
+                        Material
+                    </span>
+
+                    <strong class="d-block">
+
+                        @(Model
+                            .SolicitudCotizacion?
+                            .Material?
+                            .Nombre
+                            ?? "No especificado")
+
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <span class="text-muted small">
+                        Emitida
+                    </span>
+
+                    <strong class="d-block">
+
+                        @Model.FechaCreacion
+                        .ToString("dd/MM/yyyy")
+
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <span class="text-muted small">
+                        Vigente hasta
+                    </span>
+
+                    <strong class="d-block">
+
+                        @Model.FechaVencimiento
+                        .ToString("dd/MM/yyyy")
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="glass-card">
+
+            <h4>
+                Desglose económico
+            </h4>
+
+
+            <div class="table-responsive mt-3">
+
+                <table class="table align-middle">
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Materiales
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.CostoMateriales.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Mano de obra
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.ManoObra.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Instalación
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.CostoInstalacion.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Otros costos
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.OtrosCostos.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr class="border-top">
+
+                            <td>
+                                Subtotal
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.Subtotal.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+
+                                Impuesto
+                                (@Model.PorcentajeImpuesto%)
+
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.Impuesto.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Descuento
+                            </td>
+
+                            <td class="text-end text-success">
+
+                                - ₡@Model.Descuento.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr class="fw-bold fs-5">
+
+                            <td>
+                                TOTAL
+                            </td>
+
+                            <td class="text-end">
+
+                                ₡@Model.Total.ToString("N2")
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.DetalleTecnico))
+            {
+                <hr />
+
+                <h5>
+                    Detalle técnico
+                </h5>
+
+                <p class="text-muted">
+                    @Model.DetalleTecnico
+                </p>
+            }
+
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.Condiciones))
+            {
+                <h5 class="mt-4">
+                    Condiciones
+                </h5>
+
+                <p class="text-muted">
+                    @Model.Condiciones
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-4">
+
+
+        <div class="glass-card mb-4">
+
+            <h4>
+                Estado de cotización
+            </h4>
+
+
+            <div class="mt-3">
+
+                <span class="status-badge">
+                    @Model.Estado
+                </span>
+
+            </div>
+
+
+            <p class="small text-muted mt-3 mb-0">
+
+                Cotización válida hasta
+                <strong>
+                    @Model.FechaVencimiento
+                    .ToString("dd/MM/yyyy")
+                </strong>.
+
+            </p>
+
+        </div>
+
+
+        @if (User.IsInRole("Cliente") &&
+             Model.Estado == "Pendiente")
+        {
+            <div class="glass-card">
+
+                <h4>
+                    Responder cotización
+                </h4>
+
+                <p class="text-muted">
+                    Selecciona qué deseas hacer
+                    con esta propuesta.
+                </p>
+
+
+                <form asp-action="ResponderCotizacion"
+                      method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.Id" />
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Comentario
+                            <span class="text-muted">
+                                (opcional)
+                            </span>
+
+                        </label>
+
+                        <textarea name="comentario"
+                              class="form-control"
+                              rows="3"
+                                  placeholder="Puedes agregar una observación...">
+                        </textarea>
+
+                    </div>
+
+
+                    <button name="respuesta"
+                            value="Aprobar"
+                            type="submit"
+                            class="btn btn-success w-100 mb-2">
+
+                        <i class="bi bi-check-circle me-1">
+                        </i>
+
+                        Aprobar cotización
+
+                    </button>
+
+
+                    <button name="respuesta"
+                            value="Cambios"
+                            type="submit"
+                            class="btn btn-outline-primary w-100 mb-2">
+
+                        <i class="bi bi-pencil me-1">
+                        </i>
+
+                        Solicitar cambios
+
+                    </button>
+
+
+                    <button name="respuesta"
+                            value="Rechazar"
+                            type="submit"
+                            class="btn btn-outline-danger w-100">
+
+                        <i class="bi bi-x-circle me-1">
+                        </i>
+
+                        Rechazar
+
+                    </button>
+
+                </form>
+
+            </div>
+        }
+
+
+        @if (User.IsInRole("Cliente") &&
+             Model.Estado == "Aprobada" &&
+             Model.Compra == null)
+        {
+            <div class="glass-card">
+
+                <div class="text-center">
+
+                    <div class="stat-icon mx-auto">
+
+                        <i class="bi bi-bag-check">
+                        </i>
+
+                    </div>
+
+                    <h4 class="mt-3">
+                        Cotización aprobada
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Puedes continuar
+                        con la confirmación
+                        de tu compra.
+
+                    </p>
+
+                </div>
+
+
+                <a asp-controller="Compras"
+                       asp-action="Confirmar"
+                       asp-route-cotizacionId="@Model.Id"
+                       class="btn btn-glassflow w-100">
+
+                    Continuar con compra
+
+                </a>
+
+            </div>
+        }
+
+
+        @if (Model.Compra != null)
+        {
+            <div class="glass-card">
+
+                <h4>
+                    Orden generada
+                </h4>
+
+                <p class="text-muted">
+
+                    Esta cotización ya fue
+                    convertida en compra.
+
+                </p>
+
+
+                <a asp-controller="Compras"
+                       asp-action="Details"
+                       asp-route-id="@Model.Compra.Id"
+                       class="btn btn-outline-primary w-100">
+
+                    Ver orden de compra
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>

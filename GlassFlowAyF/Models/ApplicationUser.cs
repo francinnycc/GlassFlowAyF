@@ -17,5 +17,13 @@ namespace GlassFlowAyF.Models
             = DateTime.Now;
 
         public bool Activo { get; set; } = true;
+
+        public ICollection<TrabajoInstalacion> TrabajosAsignados
+        { get; set; }
+            = new List<TrabajoInstalacion>();
+
+        public ICollection<Compra> Compras
+        { get; set; }
+            = new List<Compra>();
     }
 }

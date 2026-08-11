@@ -1,0 +1,532 @@
+﻿@model GlassFlowAyF.Models.ViewModels.GenerarDisenoIAViewModel
+
+@{
+    ViewData["Title"] =
+        "Crear diseño con IA";
+
+
+    var solicitud =
+        ViewBag.Solicitud
+        as GlassFlowAyF.Models.SolicitudCotizacion;
+
+
+    var fotografias =
+        ViewBag.Fotografias
+        as IEnumerable<GlassFlowAyF.Models.SolicitudFotografia>
+        ?? Enumerable.Empty<
+            GlassFlowAyF.Models.SolicitudFotografia>();
+}
+
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            GLASSFLOW AI STUDIO
+        </span>
+
+        <h1>
+            Crear propuesta visual
+        </h1>
+
+        <p>
+            Personaliza el estilo y deja que la IA
+            prepare una recomendación y un concepto
+            visual para tu espacio.
+        </p>
+
+    </div>
+
+
+    <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+        Volver
+
+    </a>
+
+</div>
+
+
+@if (solicitud == null)
+{
+    <div class="alert alert-danger">
+
+        No fue posible cargar la solicitud.
+
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+
+        <div class="col-lg-5">
+
+
+            <div class="glass-card ai-sticky-card">
+
+
+                <span class="request-id">
+
+                    #SOL-@solicitud.Id.ToString("D5")
+
+                </span>
+
+
+                <h3 class="mt-2">
+
+                    @(solicitud.Producto?.Nombre
+                        ?? solicitud.TipoProducto)
+
+                </h3>
+
+
+                <div class="ai-summary-list mt-4">
+
+
+                    <div>
+
+                        <span>
+                            Material actual
+                        </span>
+
+                        <strong>
+
+                            @(solicitud.Material?.Nombre
+                                ?? "No registrado")
+
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Medidas aproximadas
+                        </span>
+
+                        <strong>
+
+
+                            @if (solicitud.Ancho.HasValue &&
+                                 solicitud.Alto.HasValue)
+                            {
+                                <text>
+
+                                    @solicitud.Ancho.Value.ToString("0.00") m
+                                    ×
+                                    @solicitud.Alto.Value.ToString("0.00") m
+
+                                </text>
+                            }
+                            else
+                            {
+                                <text>
+                                    No registradas
+                                </text>
+                            }
+
+
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Instalación
+                        </span>
+
+                        <strong>
+
+                            @(solicitud.RequiereInstalacion
+                                ? "Sí"
+                                : "No")
+
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="ai-concept-note mt-4">
+
+                    <i class="bi bi-shield-check">
+                    </i>
+
+                    <span>
+
+                        La imagen será una propuesta conceptual.
+
+                        No sustituye planos,
+                        cálculos ni validación técnica.
+
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="col-lg-7">
+
+
+            <form asp-action="Generar"
+                  method="post"
+                  class="glass-card">
+
+
+                <input asp-for="SolicitudId"
+                       type="hidden" />
+
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+
+                <!-- FOTOGRAFÍA -->
+
+
+                <div class="section-title">
+
+                    <span class="section-number">
+                        1
+                    </span>
+
+                    <div>
+
+                        <h4>
+                            Fotografía base
+                        </h4>
+
+                        <p>
+                            Elige la fotografía del espacio
+                            que deseas transformar.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                @if (fotografias.Any())
+                {
+                    <div class="ai-photo-selector mb-4">
+
+
+                        @foreach (var foto in fotografias)
+                        {
+                            var inputId =
+                                $"foto-{foto.Id}";
+
+
+                            <label class="ai-photo-choice"
+                                   for="@inputId">
+
+
+                                <input type="radio"
+                                       asp-for="FotografiaBaseId"
+                                       id="@inputId"
+                                       value="@foto.Id" />
+
+
+                                <img src="@foto.RutaArchivo"
+                                     alt="@foto.NombreOriginal" />
+
+
+                                <span class="ai-photo-check">
+
+                                    <i class="bi bi-check-lg">
+                                    </i>
+
+                                </span>
+
+
+                            </label>
+                        }
+
+
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mb-4">
+
+                        <i class="bi bi-info-circle me-1">
+                        </i>
+
+                        Esta solicitud no tiene fotografías.
+
+                        La IA puede crear un concepto genérico
+                        basado en los datos del proyecto,
+                        aunque obtendrás un resultado más
+                        personalizado si usas una solicitud
+                        con una fotografía del espacio.
+
+                    </div>
+                }
+
+
+                <!-- ESTILO -->
+
+
+                <div class="section-title mt-4">
+
+                    <span class="section-number">
+                        2
+                    </span>
+
+                    <div>
+
+                        <h4>
+                            Estilo del diseño
+                        </h4>
+
+                        <p>
+                            Define la apariencia que deseas explorar.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-3">
+
+
+                    <div class="col-md-6">
+
+                        <label asp-for="Estilo"
+                               class="form-label">
+                        </label>
+
+
+                        <select asp-for="Estilo"
+                                class="form-select">
+
+                            <option>
+                                Moderno
+                            </option>
+
+                            <option>
+                                Minimalista
+                            </option>
+
+                            <option>
+                                Elegante
+                            </option>
+
+                            <option>
+                                Industrial
+                            </option>
+
+                            <option>
+                                Contemporáneo
+                            </option>
+
+                            <option>
+                                Clásico
+                            </option>
+
+                        </select>
+
+
+                        <span asp-validation-for="Estilo"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label asp-for="ColorPerfil"
+                               class="form-label">
+                        </label>
+
+
+                        <select asp-for="ColorPerfil"
+                                class="form-select">
+
+                            <option>
+                                Negro mate
+                            </option>
+
+                            <option>
+                                Aluminio natural
+                            </option>
+
+                            <option>
+                                Blanco
+                            </option>
+
+                            <option>
+                                Gris oscuro
+                            </option>
+
+                            <option>
+                                Acero inoxidable
+                            </option>
+
+                            <option>
+                                Sin perfil visible
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-12">
+
+                        <label asp-for="Ambiente"
+                               class="form-label">
+                        </label>
+
+
+                        <select asp-for="Ambiente"
+                                class="form-select">
+
+                            <option>
+                                Elegante y luminoso
+                            </option>
+
+                            <option>
+                                Cálido y acogedor
+                            </option>
+
+                            <option>
+                                Moderno y sobrio
+                            </option>
+
+                            <option>
+                                Amplio y minimalista
+                            </option>
+
+                            <option>
+                                Industrial y sofisticado
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-12">
+
+                        <label asp-for="Preferencias"
+                               class="form-label">
+                        </label>
+
+
+                        <textarea asp-for="Preferencias"
+                                  class="form-control"
+                                  rows="4"
+                                      placeholder="Ej. Quiero que se vea moderno, con el mayor paso de luz posible y perfilería discreta.">
+                        </textarea>
+
+
+                            <span asp-validation-for="Preferencias"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="ai-generation-box mt-4">
+
+
+                        <div>
+
+                            <i class="bi bi-stars">
+                            </i>
+
+
+                            <div>
+
+                                <strong>
+                                    Se generarán dos resultados
+                                </strong>
+
+                                <small>
+                                    Recomendación personalizada
+                                    + propuesta visual.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <button type="submit"
+                                class="btn btn-glassflow btn-lg"
+                                id="btnGenerarIA">
+
+                            <i class="bi bi-magic me-1">
+                            </i>
+
+                            Generar con IA
+
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+        </div>
+    }
+
+
+    @section Scripts
+    {
+        <partial name="_ValidationScriptsPartial" />
+
+
+        <script>
+
+            const formulario =
+                document.querySelector("form");
+
+            const boton =
+                document.getElementById(
+                    "btnGenerarIA");
+
+
+            if (formulario && boton) {
+
+                formulario.addEventListener(
+                    "submit",
+                    function () {
+
+                        boton.disabled =
+                            true;
+
+                        boton.innerHTML =
+                            '<span class="spinner-border spinner-border-sm me-2"></span>Generando propuesta...';
+
+                    });
+            }
+
+        </script>
+    }

@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GlassFlowAyF.Controllers
 {
     [Authorize(Roles = "Administrador")]
-    public class VisitasTecnicasController : Controller
+    public class VisitasTecnicasController
+        : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,53 +19,59 @@ namespace GlassFlowAyF.Controllers
             _context = context;
         }
 
+
         public async Task<IActionResult> Index()
         {
-            var visitas = await _context.VisitasTecnicas
-                .Include(v => v.SolicitudCotizacion)
-                .OrderBy(v => v.FechaHora)
-                .ToListAsync();
+            var visitas =
+                await _context.VisitasTecnicas
+                    .Include(v =>
+                        v.SolicitudCotizacion)
+                    .OrderBy(v => v.FechaHora)
+                    .ToListAsync();
 
             return View(visitas);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Create(
             int? solicitudId)
         {
-            await CargarSolicitudes(solicitudId);
+            await CargarSolicitudes(
+                solicitudId);
 
-            var model = new VisitaTecnica
-            {
-                SolicitudCotizacionId =
-                    solicitudId ?? 0,
+            return View(
+                new VisitaTecnica
+                {
+                    SolicitudCotizacionId =
+                        solicitudId ?? 0,
 
-                FechaHora =
-                    DateTime.Now.AddDays(1)
-            };
-
-            return View(model);
+                    FechaHora =
+                        DateTime.Now.AddDays(1)
+                });
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             VisitaTecnica visita)
         {
-            if (visita.FechaHora <= DateTime.Now)
+            if (visita.FechaHora <=
+                DateTime.Now)
             {
                 ModelState.AddModelError(
                     nameof(visita.FechaHora),
                     "La visita debe programarse para una fecha futura.");
             }
 
-            bool conflicto =
+            var conflicto =
                 await _context.VisitasTecnicas
                     .AnyAsync(v =>
                         v.TecnicoAsignado ==
-                        visita.TecnicoAsignado &&
+                            visita.TecnicoAsignado &&
                         v.FechaHora ==
-                        visita.FechaHora &&
+                            visita.FechaHora &&
                         v.Estado != "Cancelada");
 
             if (conflicto)
@@ -82,12 +89,15 @@ namespace GlassFlowAyF.Controllers
                 return View(visita);
             }
 
-            _context.VisitasTecnicas.Add(visita);
+            _context.VisitasTecnicas
+                .Add(visita);
 
             var solicitud =
-                await _context.SolicitudesCotizacion
+                await _context
+                    .SolicitudesCotizacion
                     .FindAsync(
-                        visita.SolicitudCotizacionId);
+                        visita
+                            .SolicitudCotizacionId);
 
             if (solicitud != null)
             {
@@ -95,26 +105,31 @@ namespace GlassFlowAyF.Controllers
                     "Visita programada";
             }
 
-            await _context.SaveChangesAsync();
+            await _context
+                .SaveChangesAsync();
 
             TempData["Mensaje"] =
                 "Visita técnica programada correctamente.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(Index));
         }
+
 
         private async Task CargarSolicitudes(
             int? seleccionada)
         {
             var solicitudes =
-                await _context.SolicitudesCotizacion
+                await _context
+                    .SolicitudesCotizacion
                     .OrderByDescending(
                         s => s.FechaSolicitud)
                     .Select(s => new
                     {
                         s.Id,
+
                         Texto =
-                            $"#{s.Id} - " +
+                            $"#SOL-{s.Id:D5} - " +
                             $"{s.NombreCliente} - " +
                             $"{s.TipoProducto}"
                     })

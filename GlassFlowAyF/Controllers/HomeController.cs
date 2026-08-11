@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using GlassFlowAyF.Data;
+using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +11,8 @@ namespace GlassFlowAyF.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(
+            ApplicationDbContext context)
         {
             _context = context;
         }
@@ -24,47 +27,76 @@ namespace GlassFlowAyF.Controllers
         {
             if (User.IsInRole("Administrador"))
             {
-                return RedirectToAction(nameof(Admin));
+                return RedirectToAction(
+                    nameof(Admin));
+            }
+
+            if (User.IsInRole("Instalador"))
+            {
+                return RedirectToAction(
+                    "MiPanel",
+                    "Instalador");
             }
 
             if (User.IsInRole("Cliente"))
             {
-                return RedirectToAction(nameof(Cliente));
+                return RedirectToAction(
+                    nameof(Cliente));
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(Index));
         }
+
 
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Admin()
         {
             ViewBag.TotalProductos =
-                await _context.Productos.CountAsync(p => p.Activo);
+                await _context.Productos
+                    .CountAsync(p => p.Activo);
 
             ViewBag.TotalSolicitudes =
-                await _context.SolicitudesCotizacion.CountAsync();
+                await _context
+                    .SolicitudesCotizacion
+                    .CountAsync();
 
             ViewBag.SolicitudesPendientes =
-                await _context.SolicitudesCotizacion.CountAsync(
-                    s => s.Estado == "Solicitado" ||
-                         s.Estado == "En revisión");
+                await _context
+                    .SolicitudesCotizacion
+                    .CountAsync(s =>
+                        s.Estado == "Solicitado" ||
+                        s.Estado == "En revisión");
 
             ViewBag.Visitas =
-                await _context.VisitasTecnicas.CountAsync(
-                    v => v.Estado == "Programada");
+                await _context.VisitasTecnicas
+                    .CountAsync(v =>
+                        v.Estado == "Programada");
 
             ViewBag.Instalaciones =
-                await _context.TrabajosInstalacion.CountAsync(
-                    t => t.Estado != "Finalizada");
+                await _context
+                    .TrabajosInstalacion
+                    .CountAsync(t =>
+                        t.Estado != "Finalizada");
+
+            ViewBag.ComprasPendientes =
+                await _context.Compras
+                    .CountAsync(c =>
+                        c.Estado ==
+                        "Pendiente de pago");
 
             ViewBag.SolicitudesRecientes =
-                await _context.SolicitudesCotizacion
-                    .OrderByDescending(s => s.FechaSolicitud)
+                await _context
+                    .SolicitudesCotizacion
+                    .Include(s => s.Producto)
+                    .OrderByDescending(
+                        s => s.FechaSolicitud)
                     .Take(5)
                     .ToListAsync();
 
             return View();
         }
+
 
         [Authorize(Roles = "Cliente")]
         public async Task<IActionResult> Cliente()
@@ -72,10 +104,27 @@ namespace GlassFlowAyF.Controllers
             ViewBag.Productos =
                 await _context.Productos
                     .Where(p => p.Activo)
+                    .OrderBy(p => p.Nombre)
                     .Take(4)
                     .ToListAsync();
 
             return View();
+        }
+
+
+        [ResponseCache(
+            Duration = 0,
+            Location = ResponseCacheLocation.None,
+            NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(
+                new ErrorViewModel
+                {
+                    RequestId =
+                        Activity.Current?.Id ??
+                        HttpContext.TraceIdentifier
+                });
         }
     }
 }

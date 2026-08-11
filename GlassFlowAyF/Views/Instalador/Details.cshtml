@@ -1,0 +1,163 @@
+﻿@model GlassFlowAyF.Models.TrabajoInstalacion
+
+@{
+    ViewData["Title"] = "Trabajo asignado";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+
+            #INS-@Model.Id.ToString("D5")
+
+        </span>
+
+        <h1>
+            @Model.Producto
+        </h1>
+
+        <p>
+            @Model.Cliente
+        </p>
+
+    </div>
+
+    <span class="status-badge">
+        @Model.Estado
+    </span>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="glass-card">
+
+            <h4>
+                Información del trabajo
+            </h4>
+
+            <dl class="row mt-4">
+
+                <dt class="col-sm-4">
+                    Cliente
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Cliente
+                </dd>
+
+                <dt class="col-sm-4">
+                    Dirección
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Direccion
+                </dd>
+
+                <dt class="col-sm-4">
+                    Fecha
+                </dt>
+
+                <dd class="col-sm-8">
+
+                    @Model.FechaInstalacion
+                    .ToString("dd/MM/yyyy hh:mm tt")
+
+                </dd>
+
+                @if (Model.SolicitudCotizacion != null)
+                {
+                    <dt class="col-sm-4">
+                        Medidas
+                    </dt>
+
+                    <dd class="col-sm-8">
+
+                        @Model.SolicitudCotizacion
+                        .Ancho?.ToString("0.00") m
+                        ×
+                        @Model.SolicitudCotizacion
+                        .Alto?.ToString("0.00") m
+
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Material
+                    </dt>
+
+                    <dd class="col-sm-8">
+
+                        @Model
+                        .SolicitudCotizacion
+                        .Material?
+                        .Nombre
+
+                    </dd>
+                }
+
+            </dl>
+
+
+            @if (Model
+                .SolicitudCotizacion?
+                .Fotografias.Any() == true)
+            {
+                <hr />
+
+                <h5>
+                    Fotografías del espacio
+                </h5>
+
+                <div class="evidence-grid mt-3">
+
+                    @foreach (var foto
+                        in Model
+                            .SolicitudCotizacion
+                            .Fotografias)
+                    {
+                        <a href="@foto.RutaArchivo"
+                               target="_blank"
+                               class="evidence-image">
+
+                            <img src="@foto.RutaArchivo" />
+
+                        </a>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-5">
+
+        <div class="glass-card">
+
+            <h4>
+                Progreso
+            </h4>
+
+            <a asp-action="Checklist"
+                   asp-route-id="@Model.Id"
+                   class="btn
+                btn-glassflow
+                w-100
+                mt-3">
+
+                Abrir checklist
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

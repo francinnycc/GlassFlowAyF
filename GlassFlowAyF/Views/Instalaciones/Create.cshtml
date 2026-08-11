@@ -4,101 +4,247 @@
     ViewData["Title"] = "Asignar instalación";
 }
 
+
 <div class="page-header">
 
     <div>
-        <h1>Asignación de instalador</h1>
+
+        <span class="eyebrow">
+            INSTALACIONES
+        </span>
+
+        <h1>
+            Asignación de instalador
+        </h1>
 
         <p>
-            Programa una instalación
-            y asigna al responsable.
+            Selecciona una compra con pago confirmado
+            y asigna al instalador responsable.
         </p>
+
     </div>
+
+
+    <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+        Volver
+
+    </a>
 
 </div>
 
-<form asp-action="Create"
+
+<form asp-controller="Instalaciones"
+      asp-action="Create"
       method="post"
       class="glass-card">
 
+    @Html.AntiForgeryToken()
+
+
     <div asp-validation-summary="ModelOnly"
-         class="text-danger">
+         class="alert alert-danger"
+         role="alert">
     </div>
 
-    <div class="row g-3">
 
-        <div class="col-md-6">
+    <div class="row g-4">
 
-            <label asp-for="Cliente"
-                   class="form-label">
-            </label>
 
-            <input asp-for="Cliente"
-                   class="form-control" />
-
-        </div>
-
-        <div class="col-md-6">
-
-            <label asp-for="Producto"
-                   class="form-label">
-            </label>
-
-            <input asp-for="Producto"
-                   class="form-control" />
-
-        </div>
+        <!-- ========================================== -->
+        <!-- COMPRA -->
+        <!-- ========================================== -->
 
         <div class="col-12">
 
-            <label asp-for="Direccion"
-                   class="form-label">
+            <label asp-for="CompraId"
+                   class="form-label fw-semibold">
+
+                Orden / Compra
+
             </label>
 
-            <input asp-for="Direccion"
-                   class="form-control" />
 
-        </div>
+            <select asp-for="CompraId"
+                    asp-items="ViewBag.Compras"
+                    class="form-select">
 
-        <div class="col-md-6">
+                <option value="">
+                    Seleccione una compra...
+                </option>
 
-            <label asp-for="FechaInstalacion"
-                   class="form-label">
-            </label>
+            </select>
 
-            <input asp-for="FechaInstalacion"
-                   class="form-control" />
 
-        </div>
+            <span asp-validation-for="CompraId"
+                  class="text-danger small">
+            </span>
 
-        <div class="col-md-6">
 
-            <label asp-for="Instalador"
-                   class="form-label">
-            </label>
+            <div class="form-text">
 
-            <input asp-for="Instalador"
-                   class="form-control" />
-
-        </div>
-
-        <div class="col-12">
-
-            <label asp-for="Observaciones"
-                   class="form-label">
-            </label>
-
-            <textarea asp-for="Observaciones"
-                      class="form-control"
-                          rows="3">
-            </textarea>
+                Solo aparecen compras con pago confirmado,
+                estado "En producción" y sin instalación asignada.
 
             </div>
 
         </div>
 
-        <button class="btn btn-glassflow mt-4">
-            Guardar asignación
-        </button>
+
+
+        <!-- ========================================== -->
+        <!-- FECHA -->
+        <!-- ========================================== -->
+
+        <div class="col-md-6">
+
+            <label asp-for="FechaInstalacion"
+                   class="form-label fw-semibold">
+            </label>
+
+
+            <input asp-for="FechaInstalacion"
+                   type="datetime-local"
+                   class="form-control" />
+
+
+            <span asp-validation-for="FechaInstalacion"
+                  class="text-danger small">
+            </span>
+
+        </div>
+
+
+
+        <!-- ========================================== -->
+        <!-- INSTALADOR -->
+        <!-- ========================================== -->
+
+        <div class="col-md-6">
+
+            <label asp-for="InstaladorId"
+                   class="form-label fw-semibold">
+
+                Instalador responsable
+
+            </label>
+
+
+            <select asp-for="InstaladorId"
+                    asp-items="ViewBag.Instaladores"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione un instalador...
+                </option>
+
+            </select>
+
+
+            <span asp-validation-for="InstaladorId"
+                  class="text-danger small">
+            </span>
+
+        </div>
+
+
+
+        <!-- ========================================== -->
+        <!-- OBSERVACIONES -->
+        <!-- ========================================== -->
+
+        <div class="col-12">
+
+            <label asp-for="Observaciones"
+                   class="form-label fw-semibold">
+            </label>
+
+
+            <textarea asp-for="Observaciones"
+                      class="form-control"
+                      rows="4"
+                          placeholder="Indicaciones para el instalador, acceso al lugar, contacto, observaciones del proyecto...">
+            </textarea>
+
+
+                <span asp-validation-for="Observaciones"
+                      class="text-danger small">
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ============================================== -->
+        <!-- INFORMACIÓN -->
+        <!-- ============================================== -->
+
+        <div class="alert alert-info mt-4 mb-0">
+
+            <div class="d-flex gap-2">
+
+                <i class="bi bi-info-circle">
+                </i>
+
+
+                <div>
+
+                    <strong>
+                        ¿Qué ocurrirá al guardar?
+                    </strong>
+
+
+                    <div class="small mt-1">
+
+                        El sistema tomará automáticamente
+                        el cliente, producto y dirección de
+                        la compra seleccionada y enviará el
+                        trabajo al panel del instalador.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ============================================== -->
+        <!-- BOTONES -->
+        <!-- ============================================== -->
+
+        <div class="d-flex gap-2 mt-4">
+
+            <button type="submit"
+                    class="btn btn-glassflow">
+
+                <i class="bi bi-person-check me-1">
+                </i>
+
+                Guardar asignación
+
+            </button>
+
+
+            <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                Cancelar
+
+            </a>
+
+        </div>
 
     </form>
+
+
+    @section Scripts
+    {
+        <partial name="_ValidationScriptsPartial" />
+    }

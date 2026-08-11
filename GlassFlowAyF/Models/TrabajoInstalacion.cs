@@ -6,6 +6,14 @@ namespace GlassFlowAyF.Models
     {
         public int Id { get; set; }
 
+        public int? CompraId { get; set; }
+
+        public Compra? Compra { get; set; }
+
+        public int? SolicitudCotizacionId { get; set; }
+
+        public SolicitudCotizacion? SolicitudCotizacion { get; set; }
+
         [Required]
         [StringLength(120)]
         public string Cliente { get; set; } = string.Empty;
@@ -22,9 +30,10 @@ namespace GlassFlowAyF.Models
         [Display(Name = "Fecha de instalación")]
         public DateTime FechaInstalacion { get; set; }
 
-        [Required]
-        [StringLength(120)]
-        public string Instalador { get; set; } = string.Empty;
+        [Display(Name = "Instalador")]
+        public string? InstaladorId { get; set; }
+
+        public ApplicationUser? Instalador { get; set; }
 
         [StringLength(40)]
         public string Estado { get; set; } = "Programada";
@@ -35,6 +44,9 @@ namespace GlassFlowAyF.Models
         [Display(Name = "Material recibido")]
         public bool MaterialListo { get; set; }
 
+        [Display(Name = "Instalación iniciada")]
+        public bool InstalacionIniciada { get; set; }
+
         [Display(Name = "Instalación realizada")]
         public bool InstalacionRealizada { get; set; }
 
@@ -44,7 +56,9 @@ namespace GlassFlowAyF.Models
         [Display(Name = "Limpieza final")]
         public bool LimpiezaFinal { get; set; }
 
-        [StringLength(500)]
+        [StringLength(1000)]
         public string? Observaciones { get; set; }
+
+        public DateTime? FechaFinalizacion { get; set; }
     }
 }

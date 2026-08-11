@@ -1,0 +1,221 @@
+﻿@model GlassFlowAyF.Models.Producto
+
+@{
+    ViewData["Title"] = "Editar producto";
+
+    var materiales =
+        ViewBag.Materiales
+        as IEnumerable<GlassFlowAyF.Models.Material>
+        ?? Enumerable.Empty<GlassFlowAyF.Models.Material>();
+
+    var seleccionados =
+        ViewBag.MaterialIds
+        as List<int>
+        ?? new List<int>();
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            CATÁLOGO
+        </span>
+
+        <h1>
+            Editar producto
+        </h1>
+
+        <p>
+            Actualiza su información,
+            imagen y materiales disponibles.
+        </p>
+
+    </div>
+
+</div>
+
+
+<form asp-action="Edit"
+      method="post"
+      enctype="multipart/form-data"
+      class="glass-card">
+
+    <input asp-for="Id"
+           type="hidden" />
+
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3">
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <label asp-for="Nombre"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Nombre"
+                   class="form-control" />
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label asp-for="Categoria"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Categoria"
+                   class="form-control" />
+
+        </div>
+
+
+        <div class="col-12">
+
+            <label asp-for="Descripcion"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="Descripcion"
+                      class="form-control"
+                          rows="4">
+            </textarea>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label asp-for="PrecioBase"
+                       class="form-label">
+                </label>
+
+                <input asp-for="PrecioBase"
+                       class="form-control" />
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Nueva imagen
+                </label>
+
+                <input type="file"
+                       name="imagen"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       class="form-control" />
+
+            </div>
+
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.ImagenUrl))
+            {
+                <div class="col-12">
+
+                    <p class="form-label">
+                        Imagen actual
+                    </p>
+
+                    <img src="@Model.ImagenUrl"
+                         class="edit-product-image"
+                         alt="@Model.Nombre" />
+
+                </div>
+            }
+
+
+            <div class="col-12">
+
+                <div class="form-check">
+
+                    <input asp-for="PermiteInstalacion"
+                           class="form-check-input" />
+
+                    <label asp-for="PermiteInstalacion"
+                           class="form-check-label">
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <hr class="my-4" />
+
+
+        <h4>
+            Materiales y acabados
+        </h4>
+
+
+        <div class="row g-3 mt-1">
+
+            @foreach (var material in materiales)
+            {
+                <div class="col-md-6">
+
+                    <label class="material-checkbox">
+
+                        <input type="checkbox"
+                               name="materialIds"
+                               value="@material.Id"
+                        @(seleccionados.Contains(material.Id)
+                                                       ? "checked"
+                                                       : "") />
+
+                        <div>
+
+                            <strong>
+                                @material.Nombre
+                            </strong>
+
+                            <div class="small text-muted">
+
+                                @material.Color
+                                ·
+                                @material.Perfil
+                                ·
+                                @material.Grosor mm
+
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                </div>
+            }
+
+        </div>
+
+
+        <div class="d-flex gap-2 mt-4">
+
+            <button type="submit"
+                    class="btn btn-glassflow">
+
+                Guardar cambios
+
+            </button>
+
+            <a asp-action="Administrar"
+                   class="btn btn-outline-secondary">
+
+                Cancelar
+
+            </a>
+
+        </div>
+
+    </form>

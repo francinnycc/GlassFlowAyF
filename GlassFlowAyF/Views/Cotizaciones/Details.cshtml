@@ -2,178 +2,1086 @@
 
 @{
     ViewData["Title"] = "Detalle de solicitud";
+
+
+    var etapas = new[]
+    {
+        "Solicitado",
+        "En revisión",
+        "Visita programada",
+        "Cotizado",
+        "Aprobado",
+        "En producción",
+        "Instalación programada",
+        "Instalado",
+        "Finalizado"
+    };
+
+
+    var indiceActual =
+        Array.IndexOf(
+            etapas,
+            Model.Estado);
+
+
+    if (indiceActual < 0)
+    {
+        indiceActual = 0;
+    }
+
+
+    var ultimaCotizacion =
+        Model.Cotizaciones?
+            .OrderByDescending(
+                c => c.FechaCreacion)
+            .FirstOrDefault();
 }
+
+
 
 <div class="page-header">
 
+
     <div>
 
+
         <span class="request-id">
+
             #SOL-@Model.Id.ToString("D5")
+
         </span>
+
 
         <h1>
-            @Model.TipoProducto
+
+            @(Model.Producto?.Nombre
+                ?? Model.TipoProducto)
+
         </h1>
 
+
         <span class="status-badge">
+
             @Model.Estado
+
         </span>
 
+
     </div>
+
+
+
+    <div class="d-flex gap-2">
+
+
+        @if (User.IsInRole("Administrador"))
+        {
+            <a asp-controller="Cotizaciones"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1">
+                </i>
+
+                Solicitudes
+
+            </a>
+        }
+
+
+        @if (User.IsInRole("Cliente"))
+        {
+            <a asp-controller="Cotizaciones"
+                   asp-action="MisSolicitudes"
+                   class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left me-1">
+                </i>
+
+                Mis solicitudes
+
+            </a>
+        }
+
+
+    </div>
+
 
 </div>
 
+
+
 <div class="row g-4">
+
+
+
+    <!-- ====================================================== -->
+    <!-- COLUMNA IZQUIERDA -->
+    <!-- ====================================================== -->
+
 
     <div class="col-lg-7">
 
-        <div class="glass-card">
 
-            <h4>
-                Información del proyecto
-            </h4>
 
-            <dl class="row mt-4">
+        <!-- INFORMACIÓN GENERAL -->
 
-                <dt class="col-sm-4">
-                    Cliente
-                </dt>
 
-                <dd class="col-sm-8">
-                    @Model.NombreCliente
-                </dd>
+        <div class="glass-card mb-4">
 
-                <dt class="col-sm-4">
-                    Producto
-                </dt>
 
-                <dd class="col-sm-8">
-                    @Model.TipoProducto
-                </dd>
+            <div class="d-flex
+                justify-content-between
+                align-items-center">
 
-                <dt class="col-sm-4">
-                    Medidas
-                </dt>
 
-                <dd class="col-sm-8">
-                    @Model.Ancho m × @Model.Alto m
-                </dd>
+                <h4 class="mb-0">
 
-                <dt class="col-sm-4">
-                    Instalación
-                </dt>
+                    Información del proyecto
 
-                <dd class="col-sm-8">
-                    @(Model.RequiereInstalacion
-                        ? "Sí"
-                        : "No")
-                </dd>
+                </h4>
 
-                <dt class="col-sm-4">
-                    Dirección
-                </dt>
 
-                <dd class="col-sm-8">
-                    @Model.Direccion
-                </dd>
+                <span class="request-id">
 
-                <dt class="col-sm-4">
-                    Descripción
-                </dt>
+                    #SOL-@Model.Id.ToString("D5")
 
-                <dd class="col-sm-8">
-                    @Model.Descripcion
-                </dd>
+                </span>
 
-            </dl>
-
-        </div>
-
-    </div>
-
-    <div class="col-lg-5">
-
-        <div class="glass-card">
-
-            <h4>
-                Seguimiento
-            </h4>
-
-            @{
-                var etapas = new[]
-                {
-                    "Solicitado",
-                    "En revisión",
-                    "Cotizado",
-                    "Aprobado",
-                    "En producción",
-                    "Instalación programada",
-                    "Instalado",
-                    "Finalizado"
-                };
-            }
-
-            <div class="timeline mt-4">
-
-                @foreach (var etapa in etapas)
-                {
-                    <div class="timeline-item">
-
-                        <div class="timeline-dot">
-                        </div>
-
-                        <div>
-                            <strong>
-                                @etapa
-                            </strong>
-                        </div>
-
-                    </div>
-                }
 
             </div>
 
-            @if (User.IsInRole("Administrador"))
+
+
+            <dl class="row mt-4 mb-0">
+
+
+                <dt class="col-sm-4">
+
+                    Cliente
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.NombreCliente
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Correo
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.Correo
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Teléfono
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.Telefono
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Producto
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @(Model.Producto?.Nombre
+                        ?? Model.TipoProducto)
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Material
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+
+                    @if (Model.Material != null)
+                    {
+                        <strong>
+
+                            @Model.Material.Nombre
+
+                        </strong>
+
+
+                        <div class="small text-muted mt-1">
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                Model.Material.Tipo))
+                            {
+                                <span>
+
+                                    @Model.Material.Tipo
+
+                                </span>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                Model.Material.Color))
+                            {
+                                <span>
+
+                                    · @Model.Material.Color
+
+                                </span>
+                            }
+
+
+                            @if (Model.Material.Grosor.HasValue)
+                            {
+                                <span>
+
+                                    · @Model.Material.Grosor.Value.ToString("0.##") mm
+
+                                </span>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                Model.Material.Perfil))
+                            {
+                                <span>
+
+                                    · @Model.Material.Perfil
+
+                                </span>
+                            }
+
+
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+
+                            No registrado
+
+                        </span>
+                    }
+
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Medidas aproximadas
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+
+                    @if (Model.Ancho.HasValue &&
+                         Model.Alto.HasValue)
+                    {
+                        <span>
+
+                            @Model.Ancho.Value.ToString("0.00") m
+                            ×
+                            @Model.Alto.Value.ToString("0.00") m
+
+
+                            @if (Model.Profundidad.HasValue)
+                            {
+                                <text>
+
+                                    ×
+                                    @Model.Profundidad.Value.ToString("0.00") m
+
+                                </text>
+                            }
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">
+
+                            No registradas
+
+                        </span>
+                    }
+
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Cantidad
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.Cantidad
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Requiere instalación
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+
+                    @if (Model.RequiereInstalacion)
+                    {
+                        <span class="text-success">
+
+                            <i class="bi bi-check-circle me-1">
+                            </i>
+
+                            Sí
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+
+                            No
+
+                        </span>
+                    }
+
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Dirección
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @(string.IsNullOrWhiteSpace(
+                        Model.Direccion)
+                        ? "No indicada"
+                        : Model.Direccion)
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Descripción
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.Descripcion
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Observaciones
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @(string.IsNullOrWhiteSpace(
+                        Model.Observaciones)
+                        ? "Sin observaciones"
+                        : Model.Observaciones)
+
+                </dd>
+
+
+
+                <dt class="col-sm-4">
+
+                    Fecha de solicitud
+
+                </dt>
+
+
+                <dd class="col-sm-8">
+
+                    @Model.FechaSolicitud
+                    .ToString(
+                    "dd/MM/yyyy hh:mm tt")
+
+                </dd>
+
+
+            </dl>
+
+
+        </div>
+
+
+
+        <!-- FOTOGRAFÍAS -->
+
+
+        <div class="glass-card mb-4">
+
+
+            <h4>
+
+                Fotografías del espacio
+
+            </h4>
+
+
+            <p class="text-muted">
+
+                Evidencias proporcionadas
+                por el cliente.
+
+            </p>
+
+
+            @if (Model.Fotografias != null &&
+                 Model.Fotografias.Any())
             {
-                <hr />
+
+                <div class="evidence-grid mt-3">
+
+
+                    @foreach (var foto
+                        in Model.Fotografias)
+                    {
+
+                        <a href="@foto.RutaArchivo"
+                               target="_blank"
+                               class="evidence-image"
+                               title="@foto.NombreOriginal">
+
+
+                            <img src="@foto.RutaArchivo"
+                                 alt="@foto.NombreOriginal" />
+
+
+                        </a>
+
+                    }
+
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="text-center py-4">
+
+
+                    <i class="bi bi-images
+                        fs-1
+                        text-muted">
+                    </i>
+
+
+                    <p class="text-muted mt-2 mb-0">
+
+                        No se adjuntaron fotografías.
+
+                    </p>
+
+
+                </div>
+
+            }
+
+
+        </div>
+
+
+
+        <!-- COTIZACIÓN -->
+        @if (ultimaCotizacion != null)
+        {
+
+            <div class="glass-card">
+
+
+                <div class="d-flex
+                    justify-content-between
+                    align-items-start">
+
+
+                    <div>
+
+
+                        <span class="eyebrow">
+
+                            COTIZACIÓN
+
+                        </span>
+
+
+                        <h4 class="mt-1">
+
+                            COT-@ultimaCotizacion.Id.ToString("D5")
+
+                        </h4>
+
+
+                    </div>
+
+
+                    <span class="status-badge">
+
+                        @ultimaCotizacion.Estado
+
+                    </span>
+
+
+                </div>
+
+
+
+                <div class="row mt-4">
+
+
+                    <div class="col-md-6">
+
+
+                        <span class="text-muted small">
+
+                            Total cotizado
+
+                        </span>
+
+
+                        <div class="fs-4 fw-bold">
+
+                            ₡@ultimaCotizacion.Total.ToString("N2")
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="col-md-6">
+
+
+                        <span class="text-muted small">
+
+                            Vigente hasta
+
+                        </span>
+
+
+                        <div class="fw-semibold">
+
+                            @ultimaCotizacion
+                            .FechaVencimiento
+                            .ToString("dd/MM/yyyy")
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="d-flex gap-2 mt-4">
+
+
+                    <a asp-action="VerCotizacion"
+                           asp-route-id="@ultimaCotizacion.Id"
+                           class="btn btn-outline-primary">
+
+
+                        <i class="bi bi-eye me-1">
+                        </i>
+
+                        Ver cotización
+
+
+                    </a>
+
+
+
+                    <a asp-action="ExportarCotizacionExcel"
+                           asp-route-id="@ultimaCotizacion.Id"
+                           class="btn btn-outline-success">
+
+
+                        <i class="bi bi-file-earmark-excel me-1">
+                        </i>
+
+                        Descargar Excel
+
+
+                    </a>
+
+
+                </div>
+
+
+            </div>
+
+        }
+
+
+
+    </div>
+
+
+
+
+    <!-- ====================================================== -->
+    <!-- COLUMNA DERECHA -->
+    <!-- ====================================================== -->
+
+
+    <div class="col-lg-5">
+
+
+
+        <!-- SEGUIMIENTO -->
+
+
+        <div class="glass-card mb-4">
+
+
+            <h4>
+
+                Seguimiento
+
+            </h4>
+
+
+            <p class="text-muted">
+
+                Estado actual del proyecto.
+
+            </p>
+
+
+
+            <div class="timeline mt-4">
+
+
+                @for (var i = 0;
+                    i < etapas.Length;
+                    i++)
+                {
+
+                    var completado =
+                        i <= indiceActual;
+
+
+                    var actual =
+                        i == indiceActual;
+
+
+
+                    <div class="timeline-item
+                        @(completado
+                                                     ? "completed"
+                                                     : "")">
+
+
+                        <div class="timeline-dot">
+
+
+                            @if (completado)
+                            {
+
+                                <i class="bi bi-check">
+                                </i>
+
+                            }
+
+
+                        </div>
+
+
+
+                        <div>
+
+
+                            <strong>
+
+                                @etapas[i]
+
+                            </strong>
+
+
+                            @if (actual)
+                            {
+
+                                <div class="small
+                                    text-muted">
+
+                                    Estado actual
+
+                                </div>
+
+                            }
+
+
+                        </div>
+
+
+                    </div>
+
+                }
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ACCIONES ADMINISTRATIVAS -->
+        @if (User.IsInRole("Administrador"))
+        {
+
+            <div class="glass-card mb-4">
+
+
+                <h4>
+
+                    Gestión administrativa
+
+                </h4>
+
+
+                <p class="text-muted">
+
+                    Actualiza el estado
+                    o continúa el proceso.
+
+                </p>
+
+
 
                 <form asp-action="CambiarEstado"
-                      method="post">
+                      method="post"
+                      class="mb-3">
+
 
                     <input type="hidden"
                            name="id"
                            value="@Model.Id" />
 
+
+
                     <label class="form-label">
-                        Cambiar estado
+
+                        Estado
+
                     </label>
+
+
 
                     <select name="estado"
                             class="form-select mb-3">
 
-                        @foreach (var etapa in etapas)
+
+                        @foreach (var estado
+                            in new[]
+                            {
+                                "Solicitado",
+                                "En revisión",
+                                "Pendiente de información",
+                                "Visita programada",
+                                "Cotizado",
+                                "Aprobado",
+                                "En producción",
+                                "Instalación programada",
+                                "Instalado",
+                                "Finalizado"
+                            })
                         {
-                            <option value="@etapa">
-                                @etapa
-                            </option>
+
+                            if (estado ==
+                                Model.Estado)
+                            {
+
+                                <option value="@estado"
+                                        selected>
+
+                                    @estado
+
+                                </option>
+
+                            }
+                            else
+                            {
+
+                                <option value="@estado">
+
+                                    @estado
+
+                                </option>
+
+                            }
+
                         }
+
 
                     </select>
 
-                    <button class="btn
-                        btn-glassflow
+
+
+                    <button type="submit"
+                            class="btn
+                        btn-outline-primary
                         w-100">
 
                         Actualizar estado
 
                     </button>
 
-                </form>
-            }
 
-        </div>
+                </form>
+
+
+
+                <hr />
+
+
+
+                <!-- VISITA TÉCNICA -->
+                @if (Model.Estado == "Solicitado" ||
+                                     Model.Estado == "En revisión" ||
+                                     Model.Estado == "Pendiente de información")
+                {
+
+                    <a asp-controller="VisitasTecnicas"
+                           asp-action="Create"
+                           asp-route-solicitudId="@Model.Id"
+                           class="btn
+                        btn-outline-primary
+                        w-100
+                        mb-2">
+
+
+                        <i class="bi bi-calendar3 me-1">
+                        </i>
+
+                        Programar visita técnica
+
+
+                    </a>
+
+                }
+
+
+
+                <!-- GENERAR COTIZACIÓN -->
+                @if (ultimaCotizacion == null ||
+                                     ultimaCotizacion.Estado ==
+                                     "Rechazada")
+                {
+
+                    <a asp-controller="Cotizaciones"
+                           asp-action="CrearCotizacion"
+                           asp-route-solicitudId="@Model.Id"
+                           class="btn
+                        btn-glassflow
+                        w-100">
+
+
+                        <i class="bi bi-cash-coin me-1">
+                        </i>
+
+                        Generar cotización
+
+
+                    </a>
+
+                }
+                else
+                {
+
+                    <a asp-controller="Cotizaciones"
+                           asp-action="VerCotizacion"
+                           asp-route-id="@ultimaCotizacion.Id"
+                           class="btn
+                        btn-glassflow
+                        w-100">
+
+
+                        <i class="bi bi-receipt me-1">
+                        </i>
+
+                        Ver cotización
+
+
+                    </a>
+
+                }
+
+
+            </div>
+
+        }
+
+
+
+        <!-- ACCIONES CLIENTE -->
+        @if (User.IsInRole("Cliente") &&
+                     ultimaCotizacion != null)
+        {
+
+            <div class="glass-card">
+
+
+                <h4>
+
+                    Tu cotización
+
+                </h4>
+
+
+                <p class="text-muted">
+
+                    Consulta la propuesta
+                    preparada para tu proyecto.
+
+                </p>
+
+
+
+                <div class="mb-3">
+
+
+                    <span class="text-muted small">
+
+                        Total
+
+                    </span>
+
+
+                    <div class="fs-3 fw-bold">
+
+                        ₡@ultimaCotizacion.Total.ToString("N2")
+
+                    </div>
+
+
+                </div>
+
+
+
+                <a asp-controller="Cotizaciones"
+                       asp-action="VerCotizacion"
+                       asp-route-id="@ultimaCotizacion.Id"
+                       class="btn
+                    btn-glassflow
+                    w-100
+                    mb-2">
+
+                    Ver cotización
+
+                </a>
+
+
+
+                <a asp-controller="Cotizaciones"
+                       asp-action="ExportarCotizacionExcel"
+                       asp-route-id="@ultimaCotizacion.Id"
+                       class="btn
+                    btn-outline-success
+                    w-100">
+
+                    <i class="bi bi-file-earmark-excel me-1">
+                    </i>
+
+                    Descargar Excel
+
+                </a>
+
+
+
+                @if (ultimaCotizacion.Compra != null)
+                {
+
+                    <a asp-controller="Compras"
+                           asp-action="Details"
+                           asp-route-id="@ultimaCotizacion.Compra.Id"
+                           class="btn
+                        btn-outline-primary
+                        w-100
+                        mt-2">
+
+                        <i class="bi bi-bag-check me-1">
+                        </i>
+
+                        Ver compra
+
+                    </a>
+
+                }
+
+
+            </div>
+
+        }
+
 
     </div>
+
 
 </div>

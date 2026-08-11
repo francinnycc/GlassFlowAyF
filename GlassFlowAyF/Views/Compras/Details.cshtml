@@ -1,0 +1,165 @@
+﻿@model GlassFlowAyF.Models.Compra
+
+@{
+    ViewData["Title"] = "Detalle de compra";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+            @Model.NumeroOrden
+        </span>
+
+        <h1>
+            Detalle de compra
+        </h1>
+
+        <span class="status-badge">
+            @Model.Estado
+        </span>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="glass-card">
+
+            <h4>
+                Información
+            </h4>
+
+
+            <dl class="row mt-4">
+
+                <dt class="col-sm-4">
+                    Producto
+                </dt>
+
+                <dd class="col-sm-8">
+
+                    @(
+                        Model.Cotizacion?
+                            .SolicitudCotizacion?
+                            .Producto?
+                            .Nombre
+                        ??
+                        Model.Cotizacion?
+                            .SolicitudCotizacion?
+                            .TipoProducto
+                    )
+
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Método de pago
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.MetodoPago
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Total
+                </dt>
+
+                <dd class="col-sm-8 fw-bold">
+                    ₡@Model.Total.ToString("N2")
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Fecha
+                </dt>
+
+                <dd class="col-sm-8">
+
+                    @Model.FechaCompra
+                    .ToString("dd/MM/yyyy hh:mm tt")
+
+                </dd>
+
+            </dl>
+
+
+            @if (Model.Factura != null)
+            {
+                <hr />
+
+                <h5>
+                    Factura
+                </h5>
+
+                <p>
+                    @Model.Factura.NumeroFactura
+                </p>
+
+
+                <a asp-action="ExportarFacturaExcel"
+                       asp-route-id="@Model.Factura.Id"
+                       class="btn btn-outline-success">
+
+                    <i class="bi bi-file-earmark-excel">
+                    </i>
+
+                    Descargar factura Excel
+
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+
+    @if (User.IsInRole("Administrador") &&
+         Model.Estado == "Pendiente de pago")
+    {
+        <div class="col-lg-5">
+
+            <div class="glass-card">
+
+                <h4>
+                    Confirmar pago
+                </h4>
+
+                <p class="text-muted">
+
+                    Esta acción emitirá
+                    automáticamente la factura.
+
+                </p>
+
+
+                <form asp-action="MarcarPagada"
+                      method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.Id" />
+
+
+                    <button class="btn
+                        btn-success
+                        w-100">
+
+                        Confirmar pago
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+    }
+
+</div>

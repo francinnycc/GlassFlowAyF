@@ -18,15 +18,18 @@ namespace GlassFlowAyF.Controllers
             _signInManager = signInManager;
         }
 
+
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(
+            RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -34,7 +37,8 @@ namespace GlassFlowAyF.Controllers
             }
 
             var existe =
-                await _userManager.FindByEmailAsync(model.Email);
+                await _userManager.FindByEmailAsync(
+                    model.Email);
 
             if (existe != null)
             {
@@ -72,7 +76,7 @@ namespace GlassFlowAyF.Controllers
                     isPersistent: false);
 
                 return RedirectToAction(
-                    "Index",
+                    "Dashboard",
                     "Home");
             }
 
@@ -86,13 +90,16 @@ namespace GlassFlowAyF.Controllers
             return View(model);
         }
 
+
         [HttpGet]
         public IActionResult Login(
             string? returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl;
+
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -109,7 +116,8 @@ namespace GlassFlowAyF.Controllers
                 await _userManager.FindByEmailAsync(
                     model.Email);
 
-            if (usuario == null || !usuario.Activo)
+            if (usuario == null ||
+                !usuario.Activo)
             {
                 ModelState.AddModelError(
                     string.Empty,
@@ -137,12 +145,23 @@ namespace GlassFlowAyF.Controllers
                     "Dashboard",
                     "Home");
             }
+
+            if (resultado.IsLockedOut)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "La cuenta está temporalmente bloqueada por varios intentos fallidos.");
+
+                return View(model);
+            }
+
             ModelState.AddModelError(
                 string.Empty,
                 "Correo o contraseña incorrectos.");
 
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -154,6 +173,7 @@ namespace GlassFlowAyF.Controllers
                 "Index",
                 "Home");
         }
+
 
         public IActionResult AccessDenied()
         {

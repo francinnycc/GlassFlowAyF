@@ -7,179 +7,594 @@
 <div class="page-header">
 
     <div>
+
         <span class="eyebrow">
-            Cotización personalizada
+            COTIZACIÓN PERSONALIZADA
         </span>
 
-        <h1>Nueva solicitud</h1>
+        <h1>
+            Nueva solicitud
+        </h1>
 
         <p>
-            Cuéntanos qué necesitas y
-            nosotros revisaremos tu proyecto.
+            Configura tu proyecto paso a paso.
         </p>
+
     </div>
 
 </div>
 
+
+<div class="request-progress mb-4">
+
+    <div class="request-step active">
+        <span>1</span>
+        Producto
+    </div>
+
+    <div class="request-step">
+        <span>2</span>
+        Material
+    </div>
+
+    <div class="request-step">
+        <span>3</span>
+        Medidas
+    </div>
+
+    <div class="request-step">
+        <span>4</span>
+        Fotografías
+    </div>
+
+    <div class="request-step">
+        <span>5</span>
+        Detalles
+    </div>
+
+</div>
+
+
 <form asp-action="Create"
       method="post"
-      class="glass-card">
+      enctype="multipart/form-data">
 
     <div asp-validation-summary="ModelOnly"
-         class="text-danger mb-3">
+         class="alert alert-danger">
     </div>
 
-    <h4>
-        1. Producto o servicio
-    </h4>
 
-    <div class="row g-3 mt-1">
+    <section class="glass-card mb-4">
 
-        <div class="col-md-6">
+        <div class="section-title">
 
-            <label asp-for="TipoProducto"
-                   class="form-label">
-            </label>
-
-            <select asp-for="TipoProducto"
-                    class="form-select">
-
-                <option value="">
-                    Seleccione...
-                </option>
-
-                <option>Puerta de baño</option>
-                <option>Ventana</option>
-                <option>Espejo</option>
-                <option>Estructura en vidrio</option>
-                <option>Baranda</option>
-                <option>Otro</option>
-
-            </select>
-
-            <span asp-validation-for="TipoProducto"
-                  class="text-danger">
+            <span class="section-number">
+                1
             </span>
 
-        </div>
+            <div>
 
-        <div class="col-md-3">
+                <h4>
+                    Producto
+                </h4>
 
-            <label asp-for="Ancho"
-                   class="form-label">
-            </label>
-
-            <input asp-for="Ancho"
-                   class="form-control"
-                   placeholder="Ej. 1.80" />
-
-        </div>
-
-        <div class="col-md-3">
-
-            <label asp-for="Alto"
-                   class="form-label">
-            </label>
-
-            <input asp-for="Alto"
-                   class="form-control"
-                   placeholder="Ej. 2.10" />
-
-        </div>
-
-    </div>
-
-    <hr class="my-4" />
-
-    <h4>
-        2. Detalles del trabajo
-    </h4>
-
-    <div class="row g-3 mt-1">
-
-        <div class="col-12">
-
-            <label asp-for="Descripcion"
-                   class="form-label">
-            </label>
-
-            <textarea asp-for="Descripcion"
-                      class="form-control"
-                      rows="4"
-                          placeholder="Describe lo que deseas realizar...">
-            </textarea>
-
-                <span asp-validation-for="Descripcion"
-                      class="text-danger">
-                </span>
+                <p>
+                    Selecciona lo que deseas instalar
+                    o fabricar.
+                </p>
 
             </div>
 
-            <div class="col-md-4">
+        </div>
 
-                <div class="form-check
-                    glass-check
-                    mt-4">
 
-                    <input asp-for="RequiereInstalacion"
-                           class="form-check-input" />
+        <label asp-for="ProductoId"
+               class="form-label">
+        </label>
 
-                    <label asp-for="RequiereInstalacion"
-                           class="form-check-label">
-                    </label>
+        <select asp-for="ProductoId"
+                asp-items="ViewBag.Productos"
+                id="productoSelect"
+                class="form-select">
 
-                </div>
+            <option value="">
+                Seleccione un producto...
+            </option>
+
+        </select>
+
+        <span asp-validation-for="ProductoId"
+              class="text-danger">
+        </span>
+
+    </section>
+
+
+    <section class="glass-card mb-4">
+
+        <div class="section-title">
+
+            <span class="section-number">
+                2
+            </span>
+
+            <div>
+
+                <h4>
+                    Material y acabado
+                </h4>
+
+                <p>
+                    Las opciones dependen
+                    del producto seleccionado.
+                </p>
 
             </div>
 
-            <div class="col-md-8">
+        </div>
 
-                <label asp-for="Direccion"
+
+        <label asp-for="MaterialId"
+               class="form-label">
+        </label>
+
+        <select asp-for="MaterialId"
+                asp-items="ViewBag.Materiales"
+                id="materialSelect"
+                class="form-select">
+
+            <option value="">
+                Seleccione un material...
+            </option>
+
+        </select>
+
+        <span asp-validation-for="MaterialId"
+              class="text-danger">
+        </span>
+
+    </section>
+
+
+    <section class="glass-card mb-4">
+
+        <div class="section-title">
+
+            <span class="section-number">
+                3
+            </span>
+
+            <div>
+
+                <h4>
+                    Medidas aproximadas
+                </h4>
+
+                <p>
+                    Estas medidas serán verificadas
+                    técnicamente antes de producción.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="measure-warning">
+
+            <i class="bi bi-info-circle"></i>
+
+            Las medidas proporcionadas son
+            aproximadas y no sustituyen
+            una validación técnica.
+
+        </div>
+
+
+        <div class="row g-3 mt-1">
+
+            <div class="col-md-3">
+
+                <label asp-for="Ancho"
                        class="form-label">
                 </label>
 
-                <input asp-for="Direccion"
+                <input asp-for="Ancho"
                        class="form-control"
-                       placeholder="Dirección donde se realizará el trabajo" />
-
-                <span asp-validation-for="Direccion"
-                      class="text-danger">
-                </span>
+                       placeholder="Ej. 1.80" />
 
             </div>
+
+
+            <div class="col-md-3">
+
+                <label asp-for="Alto"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Alto"
+                       class="form-control"
+                       placeholder="Ej. 2.10" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label asp-for="Profundidad"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Profundidad"
+                       class="form-control"
+                       placeholder="Opcional" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label asp-for="Cantidad"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Cantidad"
+                       class="form-control"
+                       min="1" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="glass-card mb-4">
+
+        <div class="section-title">
+
+            <span class="section-number">
+                4
+            </span>
+
+            <div>
+
+                <h4>
+                    Fotografías del espacio
+                </h4>
+
+                <p>
+                    Puedes subir hasta 6 imágenes.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="upload-zone">
+
+            <i class="bi bi-cloud-arrow-up"></i>
+
+            <h5>
+                Sube fotografías del espacio
+            </h5>
+
+            <p>
+                JPG, PNG o WEBP · máximo 5 MB por foto
+            </p>
+
+            <input type="file"
+                   id="fotosInput"
+                   name="fotos"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   multiple
+                   class="form-control" />
+
+        </div>
+
+
+        <div id="previewFotos"
+             class="photo-preview-grid mt-3">
+        </div>
+
+    </section>
+
+
+    <section class="glass-card mb-4">
+
+        <div class="section-title">
+
+            <span class="section-number">
+                5
+            </span>
+
+            <div>
+
+                <h4>
+                    Detalles finales
+                </h4>
+
+                <p>
+                    Cuéntanos qué necesitas.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="row g-3">
+
 
             <div class="col-12">
 
-                <label asp-for="Observaciones"
+                <label asp-for="Descripcion"
                        class="form-label">
                 </label>
 
-                <textarea asp-for="Observaciones"
+                <textarea asp-for="Descripcion"
                           class="form-control"
-                          rows="3"
-                              placeholder="Información adicional...">
-            </textarea>
+                          rows="4"
+                              placeholder="Describe cómo deseas que quede el trabajo...">
+                </textarea>
+
+                    <span asp-validation-for="Descripcion"
+                          class="text-danger">
+                    </span>
 
                 </div>
 
-            </div>
 
-            <div class="d-flex gap-2 mt-4">
+                <div class="col-md-4">
 
-                <button class="btn btn-glassflow"
-                        type="submit">
+                    <div class="form-check installation-option">
 
-                    Enviar solicitud
+                        <input asp-for="RequiereInstalacion"
+                               class="form-check-input" />
 
-                </button>
+                        <label asp-for="RequiereInstalacion"
+                               class="form-check-label">
+                        </label>
 
-                <a class="btn btn-outline-secondary"
-                       asp-action="MisSolicitudes">
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-8">
+
+                    <label asp-for="Direccion"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Direccion"
+                           class="form-control"
+                           placeholder="Dirección del proyecto" />
+
+                    <span asp-validation-for="Direccion"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="col-12">
+
+                    <label asp-for="Observaciones"
+                           class="form-label">
+                    </label>
+
+                    <textarea asp-for="Observaciones"
+                              class="form-control"
+                              rows="3"
+                                  placeholder="Información adicional...">
+                </textarea>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="request-submit-bar">
+
+                <a asp-action="MisSolicitudes"
+                       class="btn btn-outline-secondary">
 
                     Cancelar
 
                 </a>
 
+                <button type="submit"
+                        class="btn btn-glassflow">
+
+                    <i class="bi bi-send me-1"></i>
+                    Enviar solicitud
+
+                </button>
+
             </div>
 
         </form>
+
+
+        @section Scripts {
+
+            <partial name="_ValidationScriptsPartial" />
+
+
+            <script>
+
+                const productoSelect =
+                    document.getElementById(
+                        "productoSelect");
+
+                const materialSelect =
+                    document.getElementById(
+                        "materialSelect");
+
+
+                productoSelect.addEventListener(
+                    "change",
+                    async function () {
+
+                        const productoId =
+                            this.value;
+
+                        materialSelect.innerHTML =
+                            '<option value="">Cargando...</option>';
+
+
+                        if (!productoId) {
+
+                            materialSelect.innerHTML =
+                                '<option value="">Seleccione un material...</option>';
+
+                            return;
+                        }
+
+
+                        const response =
+                            await fetch(
+                                `/Productos/MaterialesPorProducto?productoId=${productoId}`);
+
+
+                        const materiales =
+                            await response.json();
+
+
+                        materialSelect.innerHTML =
+                            '<option value="">Seleccione un material...</option>';
+
+
+                        materiales.forEach(
+                            material => {
+
+                                const option =
+                                    document.createElement(
+                                        "option");
+
+                                option.value =
+                                    material.id;
+
+                                option.textContent =
+                                    material.nombre +
+                                    (material.precio > 0
+                                        ? ` (+₡${material.precio.toLocaleString()})`
+                                        : "");
+
+                                materialSelect.appendChild(
+                                    option);
+                            });
+
+                    });
+
+
+                const inputFotos =
+                    document.getElementById(
+                        "fotosInput");
+
+                const preview =
+                    document.getElementById(
+                        "previewFotos");
+
+                let archivos =
+                    new DataTransfer();
+
+
+                inputFotos.addEventListener(
+                    "change",
+                    function () {
+
+                        for (const archivo
+                            of this.files) {
+
+                            if (archivos.files.length >= 6) {
+                                break;
+                            }
+
+                            archivos.items.add(
+                                archivo);
+                        }
+
+                        inputFotos.files =
+                            archivos.files;
+
+                        renderPreview();
+                    });
+
+
+                function renderPreview() {
+
+                    preview.innerHTML = "";
+
+                    Array.from(
+                        archivos.files)
+                        .forEach(
+                            (archivo, index) => {
+
+                                const reader =
+                                    new FileReader();
+
+                                reader.onload =
+                                    function (event) {
+
+                                        const card =
+                                            document.createElement(
+                                                "div");
+
+                                        card.className =
+                                            "photo-preview-item";
+
+                                        card.innerHTML = `
+                                            <img src="${event.target.result}" />
+
+                                            <button type="button"
+                                                    class="photo-remove"
+                                                    onclick="eliminarFoto(${index})">
+
+                                                <i class="bi bi-x"></i>
+
+                                            </button>
+                                        `;
+
+                                        preview.appendChild(
+                                            card);
+                                    };
+
+                                reader.readAsDataURL(
+                                    archivo);
+                            });
+                }
+
+
+                window.eliminarFoto =
+                    function (index) {
+
+                        const nuevo =
+                            new DataTransfer();
+
+                        Array.from(
+                            archivos.files)
+                            .forEach(
+                                (archivo, i) => {
+
+                                    if (i !== index) {
+                                        nuevo.items.add(
+                                            archivo);
+                                    }
+                                });
+
+                        archivos = nuevo;
+
+                        inputFotos.files =
+                            archivos.files;
+
+                        renderPreview();
+                    };
+
+            </script>
+
+        }

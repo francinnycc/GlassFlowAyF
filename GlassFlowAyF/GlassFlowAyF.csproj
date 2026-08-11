@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -21,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Productos\" />
+    <Folder Include="Services\NewFolder\" />
   </ItemGroup>
 
 </Project>
