@@ -1,0 +1,147 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.TrabajoInstalacion>
+
+@{
+    ViewData["Title"] = "Mis trabajos";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            PANEL DEL INSTALADOR
+        </span>
+
+        <h1>
+            Mis trabajos
+        </h1>
+
+        <p>
+            Consulta instalaciones
+            y registra su avance.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-number">
+                @ViewBag.Pendientes
+            </div>
+
+            <div class="stat-label">
+                Pendientes
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-number">
+                @ViewBag.EnProceso
+            </div>
+
+            <div class="stat-label">
+                En proceso
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-number">
+                @ViewBag.Finalizados
+            </div>
+
+            <div class="stat-label">
+                Finalizados
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    @foreach (var trabajo in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+
+            <div class="glass-card h-100">
+
+                <div class="d-flex
+                    justify-content-between">
+
+                    <span class="request-id">
+
+                        #INS-@trabajo.Id.ToString("D5")
+
+                    </span>
+
+                    <span class="status-badge">
+
+                        @trabajo.Estado
+
+                    </span>
+
+                </div>
+
+
+                <h4 class="mt-3">
+                    @trabajo.Producto
+                </h4>
+
+                <p>
+                    @trabajo.Cliente
+                </p>
+
+                <p class="small">
+                    <i class="bi bi-calendar3"></i>
+
+                    @trabajo.FechaInstalacion
+                    .ToString("dd/MM/yyyy hh:mm tt")
+                </p>
+
+                <p class="small">
+                    <i class="bi bi-geo-alt"></i>
+
+                    @trabajo.Direccion
+                </p>
+
+
+                <a asp-action="Details"
+                       asp-route-id="@trabajo.Id"
+                       class="btn
+                    btn-outline-primary
+                    w-100">
+
+                    Ver trabajo
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+
+</div>

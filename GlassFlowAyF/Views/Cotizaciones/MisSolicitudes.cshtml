@@ -7,10 +7,15 @@
 <div class="page-header">
 
     <div>
-        <h1>Mis solicitudes</h1>
+
+        <h1>
+            Mis solicitudes
+        </h1>
+
         <p>
             Consulta el avance de tus proyectos.
         </p>
+
     </div>
 
     <a class="btn btn-glassflow"
@@ -22,56 +27,109 @@
 
 </div>
 
-<div class="row g-4">
 
-    @foreach (var item in Model)
-    {
-        <div class="col-md-6 col-xl-4">
+@if (!Model.Any())
+{
+    <div class="glass-card text-center py-5">
 
-            <div class="glass-card h-100">
+        <i class="bi bi-clipboard fs-1 text-muted">
+        </i>
 
-                <div class="d-flex
-                    justify-content-between
-                    align-items-start">
+        <h4 class="mt-3">
+            Aún no tienes solicitudes
+        </h4>
 
-                    <span class="request-id">
-                        #SOL-@item.Id.ToString("D5")
-                    </span>
+        <p class="text-muted">
+            Empieza configurando tu primer proyecto.
+        </p>
 
-                    <span class="status-badge">
-                        @item.Estado
-                    </span>
+        <a asp-action="Create"
+               class="btn btn-glassflow">
+
+            Crear solicitud
+
+        </a>
+
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+
+                <div class="glass-card h-100">
+
+                    <div class="d-flex
+                        justify-content-between
+                        align-items-start">
+
+                        <span class="request-id">
+
+                            #SOL-@item.Id.ToString("D5")
+
+                        </span>
+
+                        <span class="status-badge">
+
+                            @item.Estado
+
+                        </span>
+
+                    </div>
+
+
+                    <h4 class="mt-3">
+
+                        @(item.Producto?.Nombre
+                            ?? item.TipoProducto)
+
+                    </h4>
+
+
+                    @if (item.Material != null)
+                    {
+                        <div class="small text-muted mb-2">
+
+                            <i class="bi bi-layers"></i>
+
+                            @item.Material.Nombre
+
+                        </div>
+                    }
+
+
+                    <p class="text-muted">
+
+                        @item.Descripcion
+
+                    </p>
+
+
+                    <div class="small mb-3">
+
+                        <strong>Fecha:</strong>
+
+                        @(item.FechaSolicitud
+                            .ToString("dd/MM/yyyy"))
+
+                    </div>
+
+
+                    <a class="btn btn-outline-primary w-100"
+                           asp-action="Details"
+                           asp-route-id="@item.Id">
+
+                        Ver seguimiento
+
+                    </a>
 
                 </div>
-
-                <h4 class="mt-3">
-                    @item.TipoProducto
-                </h4>
-
-                <p class="text-muted">
-                    @item.Descripcion
-                </p>
-
-                <div class="small mb-3">
-
-                    <strong>Fecha:</strong>
-
-                    @item.FechaSolicitud
-                    .ToString("dd/MM/yyyy")
-
-                </div>
-
-                <a class="btn btn-outline-primary w-100"
-                       asp-action="Details"
-                       asp-route-id="@item.Id">
-
-                    Ver seguimiento
-
-                </a>
 
             </div>
+        }
 
-        </div>
-    }
-
-</div>
+    </div>
+}

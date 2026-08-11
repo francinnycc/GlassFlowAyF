@@ -7,58 +7,53 @@
 <div class="page-header">
 
     <div>
-        <h1>Asignación de instalador</h1>
+
+        <h1>
+            Asignación de instalador
+        </h1>
 
         <p>
-            Programa una instalación
-            y asigna al responsable.
+            Selecciona una compra pagada
+            y el instalador responsable.
         </p>
+
     </div>
 
 </div>
+
 
 <form asp-action="Create"
       method="post"
       class="glass-card">
 
     <div asp-validation-summary="ModelOnly"
-         class="text-danger">
+         class="text-danger mb-3">
     </div>
 
-    <div class="row g-3">
 
-        <div class="col-md-6">
-
-            <label asp-for="Cliente"
-                   class="form-label">
-            </label>
-
-            <input asp-for="Cliente"
-                   class="form-control" />
-
-        </div>
-
-        <div class="col-md-6">
-
-            <label asp-for="Producto"
-                   class="form-label">
-            </label>
-
-            <input asp-for="Producto"
-                   class="form-control" />
-
-        </div>
+    <div class="row g-4">
 
         <div class="col-12">
 
-            <label asp-for="Direccion"
+            <label asp-for="CompraId"
                    class="form-label">
+
+                Orden / Compra
+
             </label>
 
-            <input asp-for="Direccion"
-                   class="form-control" />
+            <select asp-for="CompraId"
+                    asp-items="ViewBag.Compras"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione...
+                </option>
+
+            </select>
 
         </div>
+
 
         <div class="col-md-6">
 
@@ -67,20 +62,33 @@
             </label>
 
             <input asp-for="FechaInstalacion"
+                   type="datetime-local"
                    class="form-control" />
 
         </div>
+
 
         <div class="col-md-6">
 
-            <label asp-for="Instalador"
+            <label asp-for="InstaladorId"
                    class="form-label">
+
+                Instalador
+
             </label>
 
-            <input asp-for="Instalador"
-                   class="form-control" />
+            <select asp-for="InstaladorId"
+                    asp-items="ViewBag.Instaladores"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione un instalador...
+                </option>
+
+            </select>
 
         </div>
+
 
         <div class="col-12">
 
@@ -90,15 +98,18 @@
 
             <textarea asp-for="Observaciones"
                       class="form-control"
-                          rows="3">
+                          rows="4">
             </textarea>
 
             </div>
 
         </div>
 
+
         <button class="btn btn-glassflow mt-4">
+
             Guardar asignación
+
         </button>
 
     </form>

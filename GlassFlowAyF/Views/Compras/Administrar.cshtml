@@ -1,0 +1,108 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.Compra>
+
+@{
+    ViewData["Title"] = "Compras";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            ADMINISTRACIÓN
+        </span>
+
+        <h1>
+            Compras y órdenes
+        </h1>
+
+        <p>
+            Consulta pagos,
+            órdenes y facturación.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="glass-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Orden</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Método</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @foreach (var compra in Model)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>
+                                @compra.NumeroOrden
+                            </strong>
+                        </td>
+
+                        <td>
+                            @compra.Cliente?.NombreCompleto
+                        </td>
+
+                        <td>
+                            @compra.FechaCompra
+                            .ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td>
+                            @compra.MetodoPago
+                        </td>
+
+                        <td>
+                            ₡@compra.Total.ToString("N2")
+                        </td>
+
+                        <td>
+                            <span class="status-badge">
+                                @compra.Estado
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <a asp-action="Details"
+                                   asp-route-id="@compra.Id"
+                                   class="btn
+                                btn-sm
+                                btn-outline-primary">
+
+                                Ver
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

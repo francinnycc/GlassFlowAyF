@@ -1,0 +1,125 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.SolicitudCotizacion>
+
+@{
+    ViewData["Title"] = "Solicitudes";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            ADMINISTRACIÓN
+        </span>
+
+        <h1>
+            Solicitudes
+        </h1>
+
+        <p>
+            Revisa las solicitudes
+            enviadas por los clientes.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="glass-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Material</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                #SOL-@item.Id.ToString("D5")
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            @item.NombreCliente
+
+                            <div class="small text-muted">
+                                @item.Correo
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            @(item.Producto?.Nombre
+                                ?? item.TipoProducto)
+
+                        </td>
+
+                        <td>
+
+                            @(item.Material?.Nombre
+                                ?? "—")
+
+                        </td>
+
+                        <td>
+
+                            @item.FechaSolicitud
+                            .ToString("dd/MM/yyyy")
+
+                        </td>
+
+                        <td>
+
+                            <span class="status-badge">
+                                @item.Estado
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                Revisar
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,57 @@
+﻿@model GlassFlowAyF.Models.Material
+
+@{
+    ViewData["Title"] = "Editar material";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            MATERIALES
+        </span>
+
+        <h1>
+            Editar material
+        </h1>
+
+        <p>
+            Modifica las características
+            del material.
+        </p>
+
+    </div>
+
+</div>
+
+
+<form asp-action="Edit"
+      method="post"
+      class="glass-card">
+
+    <input asp-for="Id"
+           type="hidden" />
+
+    <partial name="_MaterialForm"
+             model="Model" />
+
+    <div class="d-flex gap-2 mt-4">
+
+        <button type="submit"
+                class="btn btn-glassflow">
+
+            Guardar cambios
+
+        </button>
+
+        <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+            Cancelar
+
+        </a>
+
+    </div>
+
+</form>

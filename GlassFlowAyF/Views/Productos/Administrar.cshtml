@@ -1,0 +1,179 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.Producto>
+
+@{
+    ViewData["Title"] = "Gestión de productos";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            ADMINISTRACIÓN
+        </span>
+
+        <h1>
+            Gestión de productos
+        </h1>
+
+        <p>
+            Administra el catálogo disponible
+            para tus clientes.
+        </p>
+
+    </div>
+
+    <a asp-action="Create"
+           class="btn btn-glassflow">
+
+        <i class="bi bi-plus-lg me-1"></i>
+        Nuevo producto
+
+    </a>
+
+</div>
+
+
+<div class="glass-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Instalación</th>
+                    <th>Estado</th>
+
+                    <th class="text-end">
+                        Acciones
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var producto in Model)
+                {
+                    <tr>
+
+                        <td>
+
+                            <div class="d-flex
+                                align-items-center
+                                gap-3">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    producto.ImagenUrl))
+                                {
+                                    <img src="@producto.ImagenUrl"
+                                         class="product-admin-img"
+                                         alt="@producto.Nombre" />
+                                }
+                                else
+                                {
+                                    <div class="product-admin-placeholder">
+
+                                        <i class="bi bi-image"></i>
+
+                                    </div>
+                                }
+
+                                <div>
+
+                                    <strong>
+                                        @producto.Nombre
+                                    </strong>
+
+                                    <div class="small text-muted">
+                                        @producto.Descripcion
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+                            @producto.Categoria
+                        </td>
+
+                        <td>
+                            ₡@producto.PrecioBase.ToString("N0")
+                        </td>
+
+                        <td>
+                            @(producto.PermiteInstalacion
+                                ? "Sí"
+                                : "No")
+                        </td>
+
+                        <td>
+
+                            @if (producto.Activo)
+                            {
+                                <span class="badge bg-success">
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactivo
+                                </span>
+                            }
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <a asp-action="Edit"
+                                   asp-route-id="@producto.Id"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                Editar
+
+                            </a>
+
+                            <form asp-action="CambiarEstado"
+                                  method="post"
+                                  class="d-inline">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@producto.Id" />
+
+                                <button type="submit"
+                                        class="btn btn-sm
+                                    @(producto.Activo
+                                                                                ? "btn-outline-danger"
+                                                                                : "btn-outline-success")">
+
+                                    @(producto.Activo
+                                        ? "Desactivar"
+                                        : "Activar")
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

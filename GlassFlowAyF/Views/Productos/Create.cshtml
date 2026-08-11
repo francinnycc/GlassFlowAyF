@@ -1,0 +1,246 @@
+﻿@model GlassFlowAyF.Models.Producto
+
+@{
+    ViewData["Title"] = "Nuevo producto";
+
+    var materiales =
+        ViewBag.Materiales
+        as IEnumerable<GlassFlowAyF.Models.Material>
+        ?? Enumerable.Empty<GlassFlowAyF.Models.Material>();
+
+    var seleccionados =
+        ViewBag.MaterialIds
+        as List<int>
+        ?? new List<int>();
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            CATÁLOGO
+        </span>
+
+        <h1>
+            Nuevo producto
+        </h1>
+
+        <p>
+            Registra un producto y
+            selecciona sus materiales disponibles.
+        </p>
+
+    </div>
+
+</div>
+
+
+<form asp-action="Create"
+      method="post"
+      enctype="multipart/form-data"
+      class="glass-card">
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3">
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <label asp-for="Nombre"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Nombre"
+                   class="form-control" />
+
+            <span asp-validation-for="Nombre"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label asp-for="Categoria"
+                   class="form-label">
+            </label>
+
+            <select asp-for="Categoria"
+                    class="form-select">
+
+                <option value="">
+                    Seleccione...
+                </option>
+
+                <option>Puertas</option>
+                <option>Ventanas</option>
+                <option>Espejos</option>
+                <option>Divisiones de baño</option>
+                <option>Barandas</option>
+                <option>Estructuras</option>
+                <option>Otros</option>
+
+            </select>
+
+            <span asp-validation-for="Categoria"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <div class="col-12">
+
+            <label asp-for="Descripcion"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="Descripcion"
+                      class="form-control"
+                          rows="4">
+            </textarea>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label asp-for="PrecioBase"
+                       class="form-label">
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        ₡
+                    </span>
+
+                    <input asp-for="PrecioBase"
+                           class="form-control" />
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Imagen
+                </label>
+
+                <input type="file"
+                       name="imagen"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       class="form-control" />
+
+                <span class="text-danger">
+                    @Html.ValidationMessage("imagen")
+                </span>
+
+            </div>
+
+
+            <div class="col-12">
+
+                <div class="form-check">
+
+                    <input asp-for="PermiteInstalacion"
+                           class="form-check-input" />
+
+                    <label asp-for="PermiteInstalacion"
+                           class="form-check-label">
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <hr class="my-4" />
+
+
+        <h4>
+            Materiales y acabados
+        </h4>
+
+        <p class="text-muted">
+            Selecciona las opciones que pueden
+            utilizarse con este producto.
+        </p>
+
+
+        <div class="row g-3">
+
+            @foreach (var material in materiales)
+            {
+                <div class="col-md-6">
+
+                    <label class="material-checkbox">
+
+                        <input type="checkbox"
+                               name="materialIds"
+                               value="@material.Id"
+                        @(seleccionados.Contains(material.Id)
+                                                       ? "checked"
+                                                       : "") />
+
+                        <div>
+
+                            <strong>
+                                @material.Nombre
+                            </strong>
+
+                            <div class="small text-muted">
+
+                                @material.Color
+                                ·
+                                @material.Perfil
+                                ·
+                                @material.Grosor mm
+
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                </div>
+            }
+
+        </div>
+
+
+        <div class="d-flex gap-2 mt-4">
+
+            <button type="submit"
+                    class="btn btn-glassflow">
+
+                Guardar producto
+
+            </button>
+
+            <a asp-action="Administrar"
+                   class="btn btn-outline-secondary">
+
+                Cancelar
+
+            </a>
+
+        </div>
+
+    </form>
+
+
+    @section Scripts {
+
+        <partial name="_ValidationScriptsPartial" />
+
+    }

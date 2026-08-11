@@ -3,7 +3,8 @@ using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder =
+    WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
@@ -17,20 +18,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     options =>
         options.UseMySql(
             connectionString,
-            ServerVersion.AutoDetect(connectionString)));
+            ServerVersion.AutoDetect(
+                connectionString)));
 
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>(
         options =>
         {
             options.Password.RequiredLength = 6;
-
             options.Password.RequireDigit = true;
-
             options.Password.RequireUppercase = true;
-
             options.Password.RequireLowercase = true;
-
             options.Password.RequireNonAlphanumeric = false;
 
             options.User.RequireUniqueEmail = true;
@@ -62,23 +60,16 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler(
+        "/Home/Error");
 
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
-
-/*
- * MUY IMPORTANTE:
- * Authentication debe ir antes de Authorization.
- */
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -86,12 +77,12 @@ app.MapControllerRoute(
     pattern:
         "{controller=Home}/{action=Index}/{id?}");
 
-await CrearRolesYAdministradorAsync(app);
+await CrearRolesYUsuariosAsync(app);
 
 app.Run();
 
 
-static async Task CrearRolesYAdministradorAsync(
+static async Task CrearRolesYUsuariosAsync(
     WebApplication app)
 {
     using var scope =
@@ -107,60 +98,136 @@ static async Task CrearRolesYAdministradorAsync(
             .GetRequiredService<
                 UserManager<ApplicationUser>>();
 
+    var configuration =
+        scope.ServiceProvider
+            .GetRequiredService<IConfiguration>();
+
+
     string[] roles =
     {
         "Administrador",
-        "Cliente"
+        "Cliente",
+        "Instalador"
     };
+
 
     foreach (var rol in roles)
     {
         if (!await roleManager
             .RoleExistsAsync(rol))
         {
-            await roleManager
-                .CreateAsync(
-                    new IdentityRole(rol));
+            await roleManager.CreateAsync(
+                new IdentityRole(rol));
         }
     }
 
-    const string adminEmail =
-        "admin@glassflowaf.com";
 
-    var admin =
-        await userManager
-            .FindByEmailAsync(adminEmail);
+    var adminEmail =
+        configuration["SeedAdmin:Email"];
 
-    if (admin == null)
+    var adminPassword =
+        configuration["SeedAdmin:Password"];
+
+
+    if (!string.IsNullOrWhiteSpace(adminEmail) &&
+        !string.IsNullOrWhiteSpace(adminPassword))
     {
-        admin =
+        var admin =
+            await userManager.FindByEmailAsync(
+                adminEmail);
+
+        if (admin == null)
+        {
+            admin =
+                new ApplicationUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+
+                    NombreCompleto =
+                        "Administrador GlassFlow",
+
+                    EmailConfirmed = true,
+                    Activo = true,
+                    FechaRegistro = DateTime.Now
+                };
+
+            var resultado =
+                await userManager.CreateAsync(
+                    admin,
+                    adminPassword);
+
+            if (resultado.Succeeded)
+            {
+                await userManager.AddToRoleAsync(
+                    admin,
+                    "Administrador");
+            }
+        }
+    }
+
+
+    var installerPassword =
+        configuration[
+            "SeedInstaller:Password"];
+
+    if (!string.IsNullOrWhiteSpace(
+        installerPassword))
+    {
+        await CrearInstalador(
+            userManager,
+            "instalador1@glassflowaf.com",
+            "Carlos Ramírez",
+            installerPassword);
+
+        await CrearInstalador(
+            userManager,
+            "instalador2@glassflowaf.com",
+            "Andrés Rodríguez",
+            installerPassword);
+
+        await CrearInstalador(
+            userManager,
+            "instalador3@glassflowaf.com",
+            "Luis Fernández",
+            installerPassword);
+    }
+}
+
+
+static async Task CrearInstalador(
+    UserManager<ApplicationUser> userManager,
+    string correo,
+    string nombre,
+    string password)
+{
+    var usuario =
+        await userManager
+            .FindByEmailAsync(correo);
+
+    if (usuario == null)
+    {
+        usuario =
             new ApplicationUser
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-
-                NombreCompleto =
-                    "Administrador GlassFlow",
-
+                UserName = correo,
+                Email = correo,
+                NombreCompleto = nombre,
                 EmailConfirmed = true,
-
                 Activo = true,
-
-                FechaRegistro =
-                    DateTime.Now
+                FechaRegistro = DateTime.Now
             };
 
         var resultado =
             await userManager.CreateAsync(
-                admin,
-                "Admin123");
+                usuario,
+                password);
 
         if (resultado.Succeeded)
         {
-            await userManager
-                .AddToRoleAsync(
-                    admin,
-                    "Administrador");
+            await userManager.AddToRoleAsync(
+                usuario,
+                "Instalador");
         }
     }
 }

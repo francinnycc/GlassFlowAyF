@@ -1,0 +1,148 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.Material>
+
+@{
+    ViewData["Title"] = "Materiales y acabados";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            CONFIGURACIÓN
+        </span>
+
+        <h1>
+            Materiales y acabados
+        </h1>
+
+        <p>
+            Administra vidrios, colores,
+            perfiles y acabados.
+        </p>
+
+    </div>
+
+    <a asp-action="Create"
+           class="btn btn-glassflow">
+
+        Nuevo material
+
+    </a>
+
+</div>
+
+
+<div class="glass-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Material</th>
+                    <th>Color</th>
+                    <th>Perfil</th>
+                    <th>Grosor</th>
+                    <th>Adicional</th>
+                    <th>Estado</th>
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var material in Model)
+                {
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                @material.Nombre
+                            </strong>
+
+                            <div class="small text-muted">
+                                @material.Tipo
+                            </div>
+
+                        </td>
+
+                        <td>
+                            @material.Color
+                        </td>
+
+                        <td>
+                            @material.Perfil
+                        </td>
+
+                        <td>
+                            @material.Grosor mm
+                        </td>
+
+                        <td>
+                            ₡@material.PrecioAdicional.ToString("N0")
+                        </td>
+
+                        <td>
+
+                            @if (material.Activo)
+                            {
+                                <span class="badge bg-success">
+                                    Disponible
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactivo
+                                </span>
+                            }
+
+                        </td>
+
+                        <td class="text-end">
+
+                            <a asp-action="Edit"
+                                   asp-route-id="@material.Id"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                Editar
+
+                            </a>
+
+                            <form asp-action="CambiarEstado"
+                                  method="post"
+                                  class="d-inline">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@material.Id" />
+
+                                <button class="btn btn-sm btn-outline-secondary">
+
+                                    @(material.Activo
+                                        ? "Desactivar"
+                                        : "Activar")
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,401 @@
+﻿@model GlassFlowAyF.Models.Cotizacion
+
+@{
+    ViewData["Title"] = "Generar cotización";
+
+    var solicitud =
+        ViewBag.Solicitud
+        as GlassFlowAyF.Models.SolicitudCotizacion;
+}
+
+
+<div class="page-header">
+
+    <div>
+
+        <span class="eyebrow">
+            COTIZACIÓN COMERCIAL
+        </span>
+
+        <h1>
+            Generar cotización
+        </h1>
+
+        <p>
+            Define los costos y condiciones
+            económicas del proyecto.
+        </p>
+
+    </div>
+
+</div>
+
+
+@if (solicitud != null)
+{
+    <div class="glass-card mb-4">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <span class="text-muted small">
+                    Solicitud
+                </span>
+
+                <strong class="d-block mt-1">
+                    #SOL-@solicitud.Id.ToString("D5")
+                </strong>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <span class="text-muted small">
+                    Cliente
+                </span>
+
+                <strong class="d-block mt-1">
+                    @solicitud.NombreCliente
+                </strong>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <span class="text-muted small">
+                    Producto
+                </span>
+
+                <strong class="d-block mt-1">
+
+                    @(solicitud.Producto?.Nombre
+                        ?? solicitud.TipoProducto)
+
+                </strong>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <span class="text-muted small">
+                    Material
+                </span>
+
+                <strong class="d-block mt-1">
+
+                    @(solicitud.Material?.Nombre
+                        ?? "No especificado")
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+
+<form asp-action="CrearCotizacion"
+      method="post"
+      class="glass-card">
+
+    <input asp-for="SolicitudCotizacionId"
+           type="hidden" />
+
+
+    <div asp-validation-summary="ModelOnly"
+         class="alert alert-danger">
+    </div>
+
+
+    <div class="section-title">
+
+        <span class="section-number">
+            1
+        </span>
+
+        <div>
+
+            <h4>
+                Costos del proyecto
+            </h4>
+
+            <p>
+                Registra cada componente
+                de la propuesta.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+
+            <label asp-for="CostoMateriales"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+                    ₡
+                </span>
+
+                <input asp-for="CostoMateriales"
+                       class="form-control" />
+
+            </div>
+
+            <span asp-validation-for="CostoMateriales"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label asp-for="ManoObra"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+                    ₡
+                </span>
+
+                <input asp-for="ManoObra"
+                       class="form-control" />
+
+            </div>
+
+            <span asp-validation-for="ManoObra"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label asp-for="CostoInstalacion"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+                    ₡
+                </span>
+
+                <input asp-for="CostoInstalacion"
+                       class="form-control" />
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label asp-for="OtrosCostos"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+                    ₡
+                </span>
+
+                <input asp-for="OtrosCostos"
+                       class="form-control" />
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <hr class="my-4" />
+
+
+    <div class="section-title">
+
+        <span class="section-number">
+            2
+        </span>
+
+        <div>
+
+            <h4>
+                Impuestos y descuento
+            </h4>
+
+            <p>
+                Define los ajustes finales
+                del precio.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <label asp-for="PorcentajeImpuesto"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <input asp-for="PorcentajeImpuesto"
+                       class="form-control" />
+
+                <span class="input-group-text">
+                    %
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <label asp-for="Descuento"
+                   class="form-label">
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+                    ₡
+                </span>
+
+                <input asp-for="Descuento"
+                       class="form-control" />
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <label asp-for="FechaVencimiento"
+                   class="form-label">
+            </label>
+
+            <input asp-for="FechaVencimiento"
+                   type="date"
+                   class="form-control" />
+
+        </div>
+
+    </div>
+
+
+    <hr class="my-4" />
+
+
+    <div class="section-title">
+
+        <span class="section-number">
+            3
+        </span>
+
+        <div>
+
+            <h4>
+                Información técnica
+            </h4>
+
+            <p>
+                Agrega especificaciones
+                y condiciones de la propuesta.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-12">
+
+            <label asp-for="DetalleTecnico"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="DetalleTecnico"
+                      rows="4"
+                      class="form-control"
+                          placeholder="Ej. Vidrio templado de 10 mm, perfilería negra, sistema corredizo...">
+            </textarea>
+
+            </div>
+
+
+            <div class="col-12">
+
+                <label asp-for="Condiciones"
+                       class="form-label">
+                </label>
+
+                <textarea asp-for="Condiciones"
+                          rows="4"
+                              class="form-control">
+            </textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex
+                justify-content-end
+                gap-2
+                mt-4">
+
+                <a asp-action="Details"
+                       asp-route-id="@Model.SolicitudCotizacionId"
+                       class="btn btn-outline-secondary">
+
+                    Cancelar
+
+                </a>
+
+
+                <button type="submit"
+                        class="btn btn-glassflow">
+
+                    <i class="bi bi-send me-1"></i>
+
+                    Generar y enviar cotización
+
+                </button>
+
+            </div>
+
+        </form>
+
+
+        @section Scripts
+        {
+            <partial name="_ValidationScriptsPartial" />
+        }
