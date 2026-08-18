@@ -34,146 +34,255 @@
 </div>
 
 
-<div class="glass-card">
+@if (!Model.Any())
+{
+    <div class="glass-card text-center py-5">
 
-    <div class="table-responsive">
+        <i class="bi bi-box-seam fs-1 text-muted"></i>
 
-        <table class="table align-middle">
+        <h4 class="mt-3">
+            No existen productos
+        </h4>
 
-            <thead>
+        <p class="text-muted">
+            Crea el primer producto del catálogo.
+        </p>
 
-                <tr>
+        <a asp-action="Create"
+               class="btn btn-glassflow">
 
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Instalación</th>
-                    <th>Estado</th>
+            Crear producto
 
-                    <th class="text-end">
-                        Acciones
-                    </th>
+        </a>
 
-                </tr>
+    </div>
+}
+else
+{
+    <div class="glass-card">
 
-            </thead>
+        <div class="table-responsive">
 
-            <tbody>
+            <table class="table align-middle">
 
-                @foreach (var producto in Model)
-                {
+                <thead>
+
                     <tr>
 
-                        <td>
+                        <th>
+                            Producto
+                        </th>
 
-                            <div class="d-flex
-                                align-items-center
-                                gap-3">
+                        <th>
+                            Categoría
+                        </th>
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    producto.ImagenUrl))
-                                {
-                                    <img src="@producto.ImagenUrl"
-                                         class="product-admin-img"
-                                         alt="@producto.Nombre" />
-                                }
-                                else
-                                {
-                                    <div class="product-admin-placeholder">
+                        <th>
+                            Precio
+                        </th>
 
-                                        <i class="bi bi-image"></i>
+                        <th>
+                            Instalación
+                        </th>
+
+                        <th>
+                            Estado
+                        </th>
+
+                        <th class="text-end">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var producto in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="d-flex
+                                    align-items-center
+                                    gap-3">
+
+                                    <div style="width:52px;
+                                        height:52px;
+                                        flex:0 0 52px;">
+
+                                        @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
+                                        {
+                                            <img src="@producto.ImagenUrl"
+                                                 class="product-admin-img"
+                                                 alt="@producto.Nombre"
+                                                 onerror="
+                                            this.style.display='none';
+                                            this.nextElementSibling.style.display='flex';" />
+
+                                            <div class="product-admin-placeholder"
+                                                 style="display:none;
+                                                width:52px;
+                                                height:52px;">
+
+                                                <i class="bi bi-image"></i>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="product-admin-placeholder"
+                                                 style="width:52px;
+                                                height:52px;">
+
+                                                <i class="bi bi-image"></i>
+
+                                            </div>
+                                        }
 
                                     </div>
-                                }
 
-                                <div>
 
-                                    <strong>
-                                        @producto.Nombre
-                                    </strong>
+                                    <div>
 
-                                    <div class="small text-muted">
-                                        @producto.Descripcion
+                                        <strong>
+                                            @producto.Nombre
+                                        </strong>
+
+                                        <div class="small text-muted">
+
+                                            @(string.IsNullOrWhiteSpace(producto.Descripcion)
+                                                ? "Sin descripción."
+                                                : producto.Descripcion)
+
+                                        </div>
+
                                     </div>
 
                                 </div>
 
-                            </div>
+                            </td>
 
-                        </td>
 
-                        <td>
-                            @producto.Categoria
-                        </td>
+                            <td>
+                                @producto.Categoria
+                            </td>
 
-                        <td>
-                            ₡@producto.PrecioBase.ToString("N0")
-                        </td>
 
-                        <td>
-                            @(producto.PermiteInstalacion
-                                ? "Sí"
-                                : "No")
-                        </td>
+                            <td>
 
-                        <td>
+                                @if (producto.PrecioBase > 0)
+                                {
+                                    <strong>
+                                        ₡@producto.PrecioBase.ToString("N0")
+                                    </strong>
+                                }
+                                else
+                                {
+                                    <span class="text-warning">
+                                        Precio pendiente
+                                    </span>
+                                }
 
-                            @if (producto.Activo)
-                            {
-                                <span class="badge bg-success">
-                                    Activo
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    Inactivo
-                                </span>
-                            }
+                            </td>
 
-                        </td>
 
-                        <td class="text-end">
+                            <td>
 
-                            <a asp-action="Edit"
-                                   asp-route-id="@producto.Id"
-                                   class="btn btn-sm btn-outline-primary">
+                                @if (producto.PermiteInstalacion)
+                                {
+                                    <span class="text-success">
 
-                                Editar
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Sí
 
-                            </a>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
 
-                            <form asp-action="CambiarEstado"
-                                  method="post"
-                                  class="d-inline">
+                                        <i class="bi bi-dash-circle me-1"></i>
+                                        No
 
-                                <input type="hidden"
-                                       name="id"
-                                       value="@producto.Id" />
+                                    </span>
+                                }
 
-                                <button type="submit"
-                                        class="btn btn-sm
-                                    @(producto.Activo
-                                                                                ? "btn-outline-danger"
-                                                                                : "btn-outline-success")">
+                            </td>
 
-                                    @(producto.Activo
-                                        ? "Desactivar"
-                                        : "Activar")
 
-                                </button>
+                            <td>
 
-                            </form>
+                                @if (producto.Activo)
+                                {
+                                    <span class="badge bg-success">
+                                        Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Inactivo
+                                    </span>
+                                }
 
-                        </td>
+                            </td>
 
-                    </tr>
-                }
 
-            </tbody>
+                            <td class="text-end">
 
-        </table>
+                                <a asp-action="Details"
+                                       asp-route-id="@producto.Id"
+                                       class="btn btn-sm btn-outline-secondary">
+
+                                    Ver
+
+                                </a>
+
+                                <a asp-action="Edit"
+                                       asp-route-id="@producto.Id"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                    Editar
+
+                                </a>
+
+
+                                <form asp-action="CambiarEstado"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@producto.Id" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm @(producto.Activo
+                                                                                                                                    ? "btn-outline-danger"
+                                                                                                                                    : "btn-outline-success")">
+
+                                        @(producto.Activo
+                                            ? "Desactivar"
+                                            : "Activar")
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
-
-</div>
+}

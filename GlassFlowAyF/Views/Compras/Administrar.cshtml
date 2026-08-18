@@ -1,108 +1,193 @@
 ﻿@model IEnumerable<GlassFlowAyF.Models.Compra>
 
 @{
-    ViewData["Title"] = "Compras";
+    ViewData["Title"] = "Compras y facturación";
 }
 
 <div class="page-header">
 
     <div>
-
         <span class="eyebrow">
             ADMINISTRACIÓN
         </span>
 
         <h1>
-            Compras y órdenes
+            Compras y facturación
         </h1>
 
         <p>
-            Consulta pagos,
-            órdenes y facturación.
+            Administra órdenes, pagos,
+            facturas y estados de producción.
+        </p>
+    </div>
+
+</div>
+
+
+@if (!Model.Any())
+{
+    <div class="glass-card text-center py-5">
+
+        <i class="bi bi-bag fs-1 text-muted"></i>
+
+        <h4 class="mt-3">
+            No hay compras registradas
+        </h4>
+
+        <p class="text-muted mb-0">
+            Las compras aparecerán cuando
+            los clientes confirmen sus cotizaciones.
         </p>
 
     </div>
+}
+else
+{
+    <div class="glass-card">
 
-</div>
+        <div class="table-responsive">
 
+            <table class="table align-middle">
 
-<div class="glass-card">
-
-    <div class="table-responsive">
-
-        <table class="table align-middle">
-
-            <thead>
-
-                <tr>
-                    <th>Orden</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Método</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                    <th></th>
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @foreach (var compra in Model)
-                {
+                <thead>
                     <tr>
-
-                        <td>
-                            <strong>
-                                @compra.NumeroOrden
-                            </strong>
-                        </td>
-
-                        <td>
-                            @compra.Cliente?.NombreCompleto
-                        </td>
-
-                        <td>
-                            @compra.FechaCompra
-                            .ToString("dd/MM/yyyy")
-                        </td>
-
-                        <td>
-                            @compra.MetodoPago
-                        </td>
-
-                        <td>
-                            ₡@compra.Total.ToString("N2")
-                        </td>
-
-                        <td>
-                            <span class="status-badge">
-                                @compra.Estado
-                            </span>
-                        </td>
-
-                        <td>
-
-                            <a asp-action="Details"
-                                   asp-route-id="@compra.Id"
-                                   class="btn
-                                btn-sm
-                                btn-outline-primary">
-
-                                Ver
-
-                            </a>
-
-                        </td>
-
+                        <th>Orden</th>
+                        <th>Cliente</th>
+                        <th>Proyecto</th>
+                        <th>Fecha</th>
+                        <th>Método</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th class="text-end">
+                            Acciones
+                        </th>
                     </tr>
-                }
+                </thead>
 
-            </tbody>
+                <tbody>
 
-        </table>
+                    @foreach (var compra in Model)
+                    {
+                        var solicitud =
+                            compra.Cotizacion?
+                                .SolicitudCotizacion;
+
+                        var producto =
+                            solicitud?.Producto?.Nombre
+                            ?? solicitud?.TipoProducto
+                            ?? "Proyecto GlassFlow";
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    @compra.NumeroOrden
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                <strong>
+                                    @(compra.Cliente?.NombreCompleto
+                                        ?? solicitud?.NombreCliente
+                                        ?? "Cliente")
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    compra.Cliente?.Email))
+                                {
+                                    <div class="small text-muted">
+                                        @compra.Cliente.Email
+                                    </div>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @producto
+
+                                @if (solicitud?.Material != null)
+                                {
+                                    <div class="small text-muted">
+                                        <i class="bi bi-layers me-1"></i>
+                                        @solicitud.Material.Nombre
+                                    </div>
+                                }
+
+                            </td>
+
+                            <td>
+                                @(compra.FechaCompra.ToString(
+                                    "dd/MM/yyyy"))
+                            </td>
+
+                            <td>
+                                @compra.MetodoPago
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ₡@(compra.Total.ToString("N2"))
+                                </strong>
+                            </td>
+
+                            <td>
+                                <span class="status-badge">
+                                    @compra.Estado
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+
+                                <div class="d-flex
+                                    justify-content-end
+                                    gap-2">
+
+                                    <a asp-action="Details"
+                                           asp-route-id="@compra.Id"
+                                           class="btn btn-sm btn-outline-primary">
+
+                                        <i class="bi bi-eye"></i>
+                                        Ver
+
+                                    </a>
+
+
+                                    @if (compra.Estado == "Pendiente de pago")
+                                    {
+                                        <form asp-action="MarcarPagada"
+                                              method="post">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@compra.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-glassflow"
+                                                    onclick="return confirm('¿Confirmar el pago de esta orden?');">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                                Confirmar pago
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
-
-</div>
+}

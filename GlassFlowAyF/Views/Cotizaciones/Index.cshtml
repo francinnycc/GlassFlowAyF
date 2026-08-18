@@ -17,8 +17,8 @@
         </h1>
 
         <p>
-            Revisa las solicitudes
-            enviadas por los clientes.
+            Revisa y gestiona los proyectos
+            enviados por los clientes.
         </p>
 
     </div>
@@ -26,100 +26,125 @@
 </div>
 
 
-<div class="glass-card">
+@if (!Model.Any())
+{
+    <div class="glass-card text-center py-5">
 
-    <div class="table-responsive">
+        <i class="bi bi-files fs-1 text-muted"></i>
 
-        <table class="table align-middle">
+        <h4 class="mt-3">
+            No existen solicitudes
+        </h4>
 
-            <thead>
-
-                <tr>
-
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Producto</th>
-                    <th>Material</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th></th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @foreach (var item in Model)
-                {
-                    <tr>
-
-                        <td>
-
-                            <strong>
-                                #SOL-@item.Id.ToString("D5")
-                            </strong>
-
-                        </td>
-
-                        <td>
-
-                            @item.NombreCliente
-
-                            <div class="small text-muted">
-                                @item.Correo
-                            </div>
-
-                        </td>
-
-                        <td>
-
-                            @(item.Producto?.Nombre
-                                ?? item.TipoProducto)
-
-                        </td>
-
-                        <td>
-
-                            @(item.Material?.Nombre
-                                ?? "—")
-
-                        </td>
-
-                        <td>
-
-                            @item.FechaSolicitud
-                            .ToString("dd/MM/yyyy")
-
-                        </td>
-
-                        <td>
-
-                            <span class="status-badge">
-                                @item.Estado
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <a asp-action="Details"
-                                   asp-route-id="@item.Id"
-                                   class="btn btn-sm btn-outline-primary">
-
-                                Revisar
-
-                            </a>
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
+        <p class="text-muted mb-0">
+            Las solicitudes realizadas por los
+            clientes aparecerán aquí.
+        </p>
 
     </div>
+}
+else
+{
+    <div class="glass-card">
 
-</div>
+        <div class="table-responsive">
+
+            <table class="table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Material</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-end">
+                            Acción
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    #SOL-@(item.Id.ToString("D5"))
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                <strong>
+                                    @item.NombreCliente
+                                </strong>
+
+                                <div class="small text-muted">
+                                    @item.Correo
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                @(item.Producto?.Nombre
+                                    ?? item.TipoProducto)
+
+                            </td>
+
+                            <td>
+
+                                @if (item.Material != null)
+                                {
+                                    <span>
+                                        @item.Material.Nombre
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No registrado
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+                                @(item.FechaSolicitud.ToString(
+                                    "dd/MM/yyyy"))
+                            </td>
+
+                            <td>
+                                <span class="status-badge">
+                                    @item.Estado
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-action="Details"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-eye"></i>
+                                    Revisar
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

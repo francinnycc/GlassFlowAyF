@@ -1,10 +1,8 @@
 ﻿@model GlassFlowAyF.Models.DisenoIA
 
 @{
-    ViewData["Title"] =
-        "Resultado IA";
+    ViewData["Title"] = "Resultado IA";
 }
-
 
 <div class="page-header">
 
@@ -19,8 +17,8 @@
         </h1>
 
         <p>
-            Explora el concepto visual
-            y las recomendaciones para tu proyecto.
+            Explora el concepto visual y
+            las recomendaciones para tu proyecto.
         </p>
 
     </div>
@@ -28,15 +26,13 @@
 
     <div class="d-flex gap-2">
 
-
         @if (User.IsInRole("Cliente"))
         {
             <a asp-action="Generar"
                    asp-route-solicitudId="@Model.SolicitudCotizacionId"
                    class="btn btn-outline-primary">
 
-                <i class="bi bi-arrow-repeat me-1">
-                </i>
+                <i class="bi bi-arrow-repeat me-1"></i>
 
                 Generar otra
 
@@ -44,13 +40,14 @@
         }
 
 
-        <a asp-action="@(User.IsInRole("Cliente") ? "MisDisenos" : "Administrar")"
+        <a asp-action="@(User.IsInRole("Cliente")
+                                                   ? "MisDisenos"
+                                                   : "Administrar")"
                class="btn btn-outline-secondary">
 
             Volver
 
         </a>
-
 
     </div>
 
@@ -59,12 +56,9 @@
 
 <div class="row g-4">
 
-
     <div class="col-lg-7">
 
-
         <div class="ai-result-image-card">
-
 
             @if (!string.IsNullOrWhiteSpace(
                 Model.RutaImagenGenerada))
@@ -76,8 +70,7 @@
             {
                 <div class="ai-project-placeholder">
 
-                    <i class="bi bi-image">
-                    </i>
+                    <i class="bi bi-image"></i>
 
                 </div>
             }
@@ -85,13 +78,11 @@
 
             <div class="ai-generated-label">
 
-                <i class="bi bi-stars">
-                </i>
+                <i class="bi bi-stars"></i>
 
                 Concepto generado con IA
 
             </div>
-
 
         </div>
 
@@ -103,7 +94,6 @@
                 <h5>
                     Fotografía original utilizada
                 </h5>
-
 
                 <a href="@Model.FotografiaBase.RutaArchivo"
                        target="_blank">
@@ -117,38 +107,30 @@
             </div>
         }
 
-
     </div>
-
 
 
     <div class="col-lg-5">
 
-
         <div class="glass-card mb-4">
-
 
             <div class="d-flex
                 justify-content-between
                 align-items-start">
 
-
                 <div>
 
                     <span class="request-id">
-
-                        #SOL-@Model.SolicitudCotizacionId.ToString("D5")
-
+                        #SOL-@(Model.SolicitudCotizacionId.ToString("D5"))
                     </span>
-
 
                     <h4 class="mt-2">
 
                         @(Model.SolicitudCotizacion?
                             .Producto?.Nombre
-                            ??
-                            Model.SolicitudCotizacion?
-                            .TipoProducto)
+                            ?? Model.SolicitudCotizacion?
+                                .TipoProducto
+                            ?? "Proyecto GlassFlow")
 
                     </h4>
 
@@ -159,20 +141,17 @@
                 {
                     <span class="ai-favorite-badge static">
 
-                        <i class="bi bi-heart-fill">
-                        </i>
+                        <i class="bi bi-heart-fill"></i>
 
                         Preferido
 
                     </span>
                 }
 
-
             </div>
 
 
             <div class="ai-tags mt-3">
-
 
                 <span>
                     @Model.Estilo
@@ -196,39 +175,30 @@
                     </span>
                 }
 
-
             </div>
 
 
             <p class="small text-muted mt-3 mb-0">
 
                 Generado el
-                @Model.FechaGeneracion
-                .ToString("dd/MM/yyyy hh:mm tt")
+                @(Model.FechaGeneracion.ToString(
+                    "dd/MM/yyyy hh:mm tt"))
 
             </p>
-
 
         </div>
 
 
-
         <div class="glass-card mb-4">
-
 
             <div class="d-flex
                 align-items-center
                 gap-2
                 mb-3">
 
-
                 <div class="stat-icon">
-
-                    <i class="bi bi-lightbulb">
-                    </i>
-
+                    <i class="bi bi-lightbulb"></i>
                 </div>
-
 
                 <div>
 
@@ -242,27 +212,19 @@
 
                 </div>
 
-
             </div>
 
 
             <div class="ai-recommendation-text">
-
                 @Model.Recomendacion
-
             </div>
-
 
         </div>
 
 
-
         <div class="ai-technical-warning mb-4">
 
-
-            <i class="bi bi-shield-exclamation">
-            </i>
-
+            <i class="bi bi-shield-exclamation"></i>
 
             <div>
 
@@ -270,51 +232,40 @@
                     Propuesta conceptual
                 </strong>
 
-
                 <p class="mb-0">
 
                     Este resultado sirve como referencia visual.
-
                     Las medidas, espesores, soportes,
                     fijaciones y condiciones de seguridad
-                    deben ser confirmadas por personal técnico
-                    antes de fabricar.
+                    deben confirmarse técnicamente antes
+                    de fabricar o instalar.
 
                 </p>
 
             </div>
 
-
         </div>
-
 
 
         @if (User.IsInRole("Cliente"))
         {
-
             @if (!Model.EsFavorito)
             {
                 <form asp-action="SeleccionarFavorito"
                       method="post">
 
-
                     <input type="hidden"
                            name="id"
                            value="@Model.Id" />
 
+                    <button type="submit"
+                            class="btn btn-glassflow w-100 mb-2">
 
-                    <button class="btn
-                        btn-glassflow
-                        w-100
-                        mb-2">
-
-                        <i class="bi bi-heart me-1">
-                        </i>
+                        <i class="bi bi-heart me-1"></i>
 
                         Elegir como diseño preferido
 
                     </button>
-
 
                 </form>
             }
@@ -328,11 +279,9 @@
                 Ver solicitud relacionada
 
             </a>
-
         }
         else
         {
-
             <a asp-controller="Cotizaciones"
                    asp-action="Details"
                    asp-route-id="@Model.SolicitudCotizacionId"
@@ -341,11 +290,7 @@
                 Abrir solicitud del cliente
 
             </a>
-
         }
 
-
     </div>
-
-
 </div>

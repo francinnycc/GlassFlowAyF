@@ -129,9 +129,8 @@
                     </span>
 
                     <strong class="d-block">
-
-                        @Model.FechaCreacion
-                        .ToString("dd/MM/yyyy")
+                        @(Model.FechaCreacion.ToString(
+                            "dd/MM/yyyy"))
 
                     </strong>
 
@@ -145,10 +144,8 @@
                     </span>
 
                     <strong class="d-block">
-
-                        @Model.FechaVencimiento
-                        .ToString("dd/MM/yyyy")
-
+                        @(Model.FechaVencimiento.ToString(
+    "dd/MM/yyyy"))
                     </strong>
 
                 </div>

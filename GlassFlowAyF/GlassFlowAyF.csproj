@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Services\NewFolder\" />
+    <Folder Include="wwwroot\uploads\Instalaciones\" />
   </ItemGroup>
 
 </Project>
