@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Trabajo asignado";
+
+    var solicitud =
+        Model.SolicitudCotizacion;
 }
 
 <div class="page-header">
@@ -9,12 +12,10 @@
     <div>
 
         <span class="request-id">
-
-            #INS-@Model.Id.ToString("D5")
-
+            #INS-@(Model.Id.ToString("D5"))
         </span>
 
-        <h1>
+        <h1 class="mt-2">
             @Model.Producto
         </h1>
 
@@ -23,6 +24,7 @@
         </p>
 
     </div>
+
 
     <span class="status-badge">
         @Model.Estado
@@ -35,11 +37,12 @@
 
     <div class="col-lg-7">
 
-        <div class="glass-card">
+        <div class="glass-card mb-4">
 
             <h4>
                 Información del trabajo
             </h4>
+
 
             <dl class="row mt-4">
 
@@ -51,6 +54,16 @@
                     @Model.Cliente
                 </dd>
 
+
+                <dt class="col-sm-4">
+                    Producto
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Producto
+                </dd>
+
+
                 <dt class="col-sm-4">
                     Dirección
                 </dt>
@@ -59,18 +72,20 @@
                     @Model.Direccion
                 </dd>
 
+
                 <dt class="col-sm-4">
-                    Fecha
+                    Fecha de instalación
                 </dt>
 
                 <dd class="col-sm-8">
 
-                    @Model.FechaInstalacion
-                    .ToString("dd/MM/yyyy hh:mm tt")
+                    @(Model.FechaInstalacion.ToString(
+                        "dd/MM/yyyy hh:mm tt"))
 
                 </dd>
 
-                @if (Model.SolicitudCotizacion != null)
+
+                @if (solicitud != null)
                 {
                     <dt class="col-sm-4">
                         Medidas
@@ -78,13 +93,24 @@
 
                     <dd class="col-sm-8">
 
-                        @Model.SolicitudCotizacion
-                        .Ancho?.ToString("0.00") m
-                        ×
-                        @Model.SolicitudCotizacion
-                        .Alto?.ToString("0.00") m
+                        @if (solicitud.Ancho.HasValue &&
+                             solicitud.Alto.HasValue)
+                        {
+                            <span>
+                                @(solicitud.Ancho.Value.ToString("0.00")) m
+                                ×
+                                @(solicitud.Alto.Value.ToString("0.00")) m
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                No registradas
+                            </span>
+                        }
 
                     </dd>
+
 
                     <dt class="col-sm-4">
                         Material
@@ -92,47 +118,86 @@
 
                     <dd class="col-sm-8">
 
-                        @Model
-                        .SolicitudCotizacion
-                        .Material?
-                        .Nombre
+                        @(solicitud.Material?.Nombre
+                            ?? "No registrado")
 
+                    </dd>
+
+
+                    <dt class="col-sm-4">
+                        Cantidad
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @solicitud.Cantidad
+                    </dd>
+
+
+                    <dt class="col-sm-4">
+                        Observaciones del proyecto
+                    </dt>
+
+                    <dd class="col-sm-8">
+
+                        @(string.IsNullOrWhiteSpace(
+                            solicitud.Observaciones)
+                            ? "Sin observaciones"
+                            : solicitud.Observaciones)
+
+                    </dd>
+                }
+
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.Observaciones))
+                {
+                    <dt class="col-sm-4">
+                        Observaciones de instalación
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @Model.Observaciones
                     </dd>
                 }
 
             </dl>
 
+        </div>
 
-            @if (Model
-                .SolicitudCotizacion?
-                .Fotografias.Any() == true)
-            {
-                <hr />
 
-                <h5>
+        @if (solicitud?.Fotografias.Any() == true)
+        {
+            <div class="glass-card">
+
+                <h4>
                     Fotografías del espacio
-                </h5>
+                </h4>
+
+                <p class="text-muted">
+                    Evidencias proporcionadas
+                    por el cliente.
+                </p>
+
 
                 <div class="evidence-grid mt-3">
 
                     @foreach (var foto
-                        in Model
-                            .SolicitudCotizacion
-                            .Fotografias)
+                        in solicitud.Fotografias)
                     {
                         <a href="@foto.RutaArchivo"
                                target="_blank"
                                class="evidence-image">
 
-                            <img src="@foto.RutaArchivo" />
+                            <img src="@foto.RutaArchivo"
+                                 alt="@foto.NombreOriginal" />
 
                         </a>
                     }
 
                 </div>
-            }
 
-        </div>
+            </div>
+        }
 
     </div>
 
@@ -142,17 +207,124 @@
         <div class="glass-card">
 
             <h4>
-                Progreso
+                Progreso de instalación
             </h4>
+
+            <p class="text-muted">
+                Actualiza el checklist conforme
+                avances con el trabajo.
+            </p>
+
+
+            <div class="mt-4">
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.MedidasConfirmadas
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Medidas confirmadas
+                    </span>
+
+                </div>
+
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.MaterialListo
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Material recibido
+                    </span>
+
+                </div>
+
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.InstalacionIniciada
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Instalación iniciada
+                    </span>
+
+                </div>
+
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.InstalacionRealizada
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Instalación realizada
+                    </span>
+
+                </div>
+
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.RevisionAcabados
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Revisión de acabados
+                    </span>
+
+                </div>
+
+
+                <div class="checklist-row">
+
+                    <i class="bi
+                        @(Model.LimpiezaFinal
+                                                   ? "bi-check-circle-fill text-success"
+                                                   : "bi-circle text-muted")">
+                    </i>
+
+                    <span>
+                        Limpieza final
+                    </span>
+
+                </div>
+
+            </div>
+
 
             <a asp-action="Checklist"
                    asp-route-id="@Model.Id"
-                   class="btn
-                btn-glassflow
-                w-100
-                mt-3">
+                   class="btn btn-glassflow w-100 mt-4">
+
+                <i class="bi bi-clipboard-check me-1"></i>
 
                 Abrir checklist
+
+            </a>
+
+
+            <a asp-action="MiPanel"
+                   class="btn btn-outline-secondary w-100 mt-2">
+
+                Volver a mis trabajos
 
             </a>
 

@@ -1,10 +1,8 @@
 ﻿@model IEnumerable<GlassFlowAyF.Models.DisenoIA>
 
 @{
-    ViewData["Title"] =
-        "Mis diseños IA";
+    ViewData["Title"] = "Mis diseños IA";
 }
-
 
 <div class="page-header">
 
@@ -19,7 +17,7 @@
         </h1>
 
         <p>
-            Consulta todas las propuestas visuales
+            Consulta las propuestas visuales
             generadas para tus proyectos.
         </p>
 
@@ -29,8 +27,7 @@
     <a asp-action="Index"
            class="btn btn-glassflow">
 
-        <i class="bi bi-stars me-1">
-        </i>
+        <i class="bi bi-stars me-1"></i>
 
         Crear nuevo diseño
 
@@ -43,16 +40,15 @@
 {
     <div class="glass-card text-center py-5">
 
-        <i class="bi bi-images fs-1 text-muted">
-        </i>
+        <i class="bi bi-images fs-1 text-muted"></i>
 
         <h4 class="mt-3">
             Aún no tienes diseños
         </h4>
 
         <p class="text-muted">
-            Elige una solicitud y crea
-            tu primera propuesta visual con IA.
+            Selecciona una solicitud y genera
+            tu primera propuesta visual.
         </p>
 
         <a asp-action="Index"
@@ -68,23 +64,27 @@ else
 {
     <div class="row g-4">
 
-
         @foreach (var diseno in Model)
         {
             <div class="col-md-6 col-xl-4">
 
-
                 <div class="ai-design-card h-100">
 
-
                     <div class="ai-design-image">
-
 
                         @if (!string.IsNullOrWhiteSpace(
                             diseno.RutaImagenGenerada))
                         {
                             <img src="@diseno.RutaImagenGenerada"
-                                 alt="Diseño IA" />
+                                 alt="Diseño generado con IA" />
+                        }
+                        else
+                        {
+                            <div class="ai-project-placeholder">
+
+                                <i class="bi bi-image"></i>
+
+                            </div>
                         }
 
 
@@ -92,25 +92,20 @@ else
                         {
                             <span class="ai-favorite-badge">
 
-                                <i class="bi bi-heart-fill">
-                                </i>
+                                <i class="bi bi-heart-fill"></i>
 
                                 Preferido
 
                             </span>
                         }
 
-
                     </div>
 
 
                     <div class="p-4">
 
-
                         <span class="request-id">
-
-                            #SOL-@diseno.SolicitudCotizacionId.ToString("D5")
-
+                            #SOL-@(diseno.SolicitudCotizacionId.ToString("D5"))
                         </span>
 
 
@@ -118,15 +113,14 @@ else
 
                             @(diseno.SolicitudCotizacion?
                                 .Producto?.Nombre
-                                ??
-                                diseno.SolicitudCotizacion?
-                                .TipoProducto)
+                                ?? diseno.SolicitudCotizacion?
+                                    .TipoProducto
+                                ?? "Proyecto GlassFlow")
 
                         </h4>
 
 
                         <div class="ai-tags mb-3">
-
 
                             <span>
                                 @diseno.Estilo
@@ -141,27 +135,24 @@ else
                                 </span>
                             }
 
-
                         </div>
 
 
                         <p class="small text-muted">
 
-                            @diseno.FechaGeneracion
-                            .ToString(
-                            "dd/MM/yyyy hh:mm tt")
+                            <i class="bi bi-calendar3 me-1"></i>
+
+                            @(diseno.FechaGeneracion.ToString(
+                                "dd/MM/yyyy hh:mm tt"))
 
                         </p>
 
 
                         <div class="d-flex gap-2">
 
-
                             <a asp-action="Resultado"
                                    asp-route-id="@diseno.Id"
-                                   class="btn
-                                btn-outline-primary
-                                flex-fill">
+                                   class="btn btn-outline-primary flex-fill">
 
                                 Ver diseño
 
@@ -173,39 +164,29 @@ else
                                 <form asp-action="Eliminar"
                                       method="post">
 
-
                                     <input type="hidden"
                                            name="id"
                                            value="@diseno.Id" />
 
-
                                     <button type="submit"
-                                            class="btn
-                                        btn-outline-danger"
+                                            class="btn btn-outline-danger"
                                             onclick="return confirm('¿Eliminar este diseño?');">
 
-                                        <i class="bi bi-trash">
-                                        </i>
+                                        <i class="bi bi-trash"></i>
 
                                     </button>
-
 
                                 </form>
                             }
 
-
                         </div>
-
 
                     </div>
 
-
                 </div>
-
 
             </div>
         }
-
 
     </div>
 }

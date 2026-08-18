@@ -454,9 +454,8 @@
 
                 <dd class="col-sm-8">
 
-                    @Model.FechaSolicitud
-                    .ToString(
-                    "dd/MM/yyyy hh:mm tt")
+                    @(Model.FechaSolicitud.ToString(
+         "dd/MM/yyyy hh:mm tt"))
 
                 </dd>
 
@@ -624,10 +623,8 @@
 
 
                         <div class="fw-semibold">
-
-                            @ultimaCotizacion
-                            .FechaVencimiento
-                            .ToString("dd/MM/yyyy")
+                            @(ultimaCotizacion.FechaVencimiento.ToString(
+                                "dd/MM/yyyy"))
 
                         </div>
 
