@@ -1,23 +1,27 @@
 ﻿@model GlassFlowAyF.Models.SolicitudCotizacion
 
 @{
-    ViewData["Title"] = "Nueva solicitud";
+    ViewData["Title"] = "Editar solicitud";
 }
 
 <div class="page-header">
+
     <div>
+
         <span class="eyebrow">
             COTIZACIÓN PERSONALIZADA
         </span>
 
         <h1>
-            Nueva solicitud
+            Editar solicitud
         </h1>
 
         <p>
-            Configura tu proyecto paso a paso.
+            Modifica los datos de tu proyecto.
         </p>
+
     </div>
+
 </div>
 
 <div class="request-progress mb-4">
@@ -49,9 +53,13 @@
 
 </div>
 
-<form asp-action="Create"
+<form asp-action="Edit"
+      asp-route-id="@Model.Id"
       method="post"
       enctype="multipart/form-data">
+
+    <input asp-for="Id"
+           type="hidden" />
 
     <div asp-validation-summary="ModelOnly"
          class="alert alert-danger">
@@ -66,7 +74,9 @@
             </span>
 
             <div>
-                <h4>Producto</h4>
+                <h4>
+                    Producto
+                </h4>
 
                 <p>
                     Selecciona lo que deseas instalar
@@ -253,7 +263,8 @@
                 </h4>
 
                 <p>
-                    Puedes subir hasta 6 imágenes.
+                    Puedes agregar nuevas fotografías
+                    al proyecto.
                 </p>
             </div>
 
@@ -264,7 +275,7 @@
             <i class="bi bi-cloud-arrow-up"></i>
 
             <h5>
-                Sube fotografías del espacio
+                Agregar fotografías
             </h5>
 
             <p>
@@ -300,7 +311,8 @@
                 </h4>
 
                 <p>
-                    Cuéntanos qué necesitas.
+                    Actualiza la información
+                    necesaria para tu proyecto.
                 </p>
             </div>
 
@@ -405,7 +417,7 @@
                     class="btn btn-glassflow">
 
                 <i class="bi bi-send me-1"></i>
-                Enviar solicitud
+                Guardar y enviar
 
             </button>
 
@@ -436,6 +448,7 @@
                     '<option value="">Cargando...</option>';
 
                 if (!productoId) {
+
                     materialSelect.innerHTML =
                         '<option value="">Seleccione un material...</option>';
 
@@ -487,7 +500,8 @@
         const preview =
             document.getElementById("previewFotos");
 
-        let archivos = new DataTransfer();
+        let archivos =
+            new DataTransfer();
 
         inputFotos.addEventListener(
             "change",
@@ -502,7 +516,8 @@
                     archivos.items.add(archivo);
                 }
 
-                inputFotos.files = archivos.files;
+                inputFotos.files =
+                    archivos.files;
 
                 renderPreview();
             });

@@ -10,20 +10,37 @@ namespace GlassFlowAyF.Models
         public string NombreCompleto { get; set; }
             = string.Empty;
 
+
         [StringLength(300)]
         public string? Direccion { get; set; }
+
 
         public DateTime FechaRegistro { get; set; }
             = DateTime.Now;
 
+
         public bool Activo { get; set; } = true;
 
-        public ICollection<TrabajoInstalacion> TrabajosAsignados
+
+        public ICollection<TrabajoInstalacion>
+            TrabajosAsignados
         { get; set; }
             = new List<TrabajoInstalacion>();
 
-        public ICollection<Compra> Compras
+
+        public ICollection<Compra>
+            Compras
         { get; set; }
             = new List<Compra>();
+
+
+        // ============================================
+        // SOPORTE
+        // ============================================
+
+        public ICollection<SoporteSolicitud>
+            SolicitudesSoporte
+        { get; set; }
+            = new List<SoporteSolicitud>();
     }
 }
