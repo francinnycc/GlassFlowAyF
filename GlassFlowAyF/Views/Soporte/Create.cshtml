@@ -1,0 +1,154 @@
+﻿@model GlassFlowAyF.Models.ViewModels.CrearSoporteViewModel
+
+@{
+    ViewData["Title"] = "Contacto y soporte";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9">
+
+            <div class="mb-4">
+                <h1 class="h3 mb-2">
+                    <i class="bi bi-headset me-2"></i>
+                    Contacto y soporte
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Envíanos una consulta o registra un reclamo relacionado
+                    con los servicios de GlassFlow A&amp;F.
+                </p>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+
+                    <form asp-controller="Soporte"
+                          asp-action="Create"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Tipo"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <select asp-for="Tipo"
+                                    class="form-select">
+                                <option value="Consulta">
+                                    Consulta
+                                </option>
+
+                                <option value="Reclamo">
+                                    Reclamo
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="Tipo"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Categoria"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <select asp-for="Categoria"
+                                    class="form-select">
+                                <option value="">
+                                    Seleccione una categoría
+                                </option>
+
+                                <option value="Cotización">
+                                    Cotización
+                                </option>
+
+                                <option value="Producto o material">
+                                    Producto o material
+                                </option>
+
+                                <option value="Instalación">
+                                    Instalación
+                                </option>
+
+                                <option value="Facturación">
+                                    Facturación
+                                </option>
+
+                                <option value="Problema con la plataforma">
+                                    Problema con la plataforma
+                                </option>
+
+                                <option value="Otro">
+                                    Otro
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="Categoria"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Asunto"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Asunto"
+                                   class="form-control"
+                                   placeholder="Describe brevemente el motivo" />
+
+                            <span asp-validation-for="Asunto"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Mensaje"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="Mensaje"
+                                      class="form-control"
+                                      rows="6"
+                                      placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+
+                            <span asp-validation-for="Mensaje"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a asp-controller="Soporte"
+                               asp-action="MisSolicitudes"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg me-1"></i>
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-glassflow">
+                                <i class="bi bi-send me-1"></i>
+                                Enviar solicitud
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

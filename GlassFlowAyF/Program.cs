@@ -12,6 +12,11 @@ var builder =
 builder.Services
     .AddControllersWithViews();
 
+builder.Services
+    .AddScoped<
+        IEmailService,
+        EmailService>();
+
 
 // =======================================================
 // SERVICIO OPENAI

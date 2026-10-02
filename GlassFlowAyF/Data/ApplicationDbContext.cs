@@ -48,8 +48,17 @@ namespace GlassFlowAyF.Data
                 => Set<Compra>();
 
         public DbSet<Factura>
-            Facturas
-                => Set<Factura>();
+      Facturas
+          => Set<Factura>();
+
+
+        // =================================================
+        // CONTACTO Y SOPORTE
+        // =================================================
+
+        public DbSet<SoporteSolicitud>
+            SolicitudesSoporte
+                => Set<SoporteSolicitud>();
 
 
         // DISEÑOS IA
@@ -57,7 +66,7 @@ namespace GlassFlowAyF.Data
         public DbSet<DisenoIA>
             DisenosIA
                 => Set<DisenoIA>();
-
+   
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)

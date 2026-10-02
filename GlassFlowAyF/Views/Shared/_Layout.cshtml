@@ -70,27 +70,110 @@
 
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <span class="user-name">
+                        <div class="dropdown">
 
-                            <i class="bi bi-person-circle"></i>
+                            <button class="btn
+                                btn-outline-light
+                                btn-sm
+                                dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
 
-                            @User.Identity.Name
+                                <i class="bi bi-person-circle me-1"></i>
 
-                        </span>
-
-                        <form asp-controller="Account"
-                              asp-action="Logout"
-                              method="post">
-
-                            <button type="submit"
-                                    class="btn btn-outline-light btn-sm">
-
-                                Salir
+                                @User.Identity.Name
 
                             </button>
 
-                        </form>
+
+                            <ul class="dropdown-menu
+                                dropdown-menu-end
+                                shadow">
+
+                                <li>
+
+                                    <span class="dropdown-item-text">
+
+                                        <small class="text-muted">
+                                            Cuenta
+                                        </small>
+
+                                        <br />
+
+                                        <strong>
+                                            @User.Identity.Name
+                                        </strong>
+
+                                    </span>
+
+                                </li>
+
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+                                <li>
+
+                                    <a asp-controller="Account"
+                                       asp-action="Profile"
+                                       class="dropdown-item">
+
+                                        <i class="bi bi-person me-2"></i>
+
+                                        Mi perfil
+
+                                    </a>
+
+                                </li>
+
+                                <li>
+
+                                    <a asp-controller="Account"
+                                       asp-action="ChangePassword"
+                                       class="dropdown-item">
+
+                                        <i class="bi bi-shield-lock me-2"></i>
+
+                                        Cambiar contraseña
+
+                                    </a>
+
+                                </li>
+
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+
+
+                                <li class="px-3 pb-2">
+
+                                    <form asp-controller="Account"
+                                          asp-action="Logout"
+                                          method="post">
+
+                                        <button type="submit"
+                                                class="btn
+                                            btn-outline-danger
+                                            btn-sm
+                                            w-100">
+
+                                            <i class="bi bi-box-arrow-right me-1"></i>
+
+                                            Cerrar sesión
+
+                                        </button>
+
+                                    </form>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
                     }
+                   
                     else
                     {
                         <a asp-controller="Account"
@@ -191,6 +274,14 @@
                             Diseños con IA
 
                         </a>
+                        <a asp-controller="Soporte"
+                           asp-action="MisSolicitudes">
+
+                            <i class="bi bi-headset"></i>
+
+                            Soporte
+
+                        </a>
                     }
 
 
@@ -264,6 +355,14 @@
                             Diseños IA
 
                         </a>
+                        <a asp-controller="Soporte"
+                           asp-action="Administrar">
+
+                            <i class="bi bi-headset"></i>
+
+                            Contacto y soporte
+
+                        </a>
                     }
 
 
@@ -290,19 +389,28 @@
 
                 <div class="sidebar-bottom">
 
-                    <div class="support-card">
+                    @if (User.IsInRole("Cliente"))
+                    {
+                        <a asp-controller="Soporte"
+                           asp-action="Create"
+                           class="text-decoration-none">
 
-                        <i class="bi bi-chat-dots"></i>
+                            <div class="support-card">
 
-                        <strong>
-                            ¿Necesitas ayuda?
-                        </strong>
+                                <i class="bi bi-chat-dots"></i>
 
-                        <small>
-                            Contacta con soporte GlassFlow.
-                        </small>
+                                <strong>
+                                    ¿Necesitas ayuda?
+                                </strong>
 
-                    </div>
+                                <small>
+                                    Contacta con soporte GlassFlow.
+                                </small>
+
+                            </div>
+
+                        </a>
+                    }
 
                 </div>
 

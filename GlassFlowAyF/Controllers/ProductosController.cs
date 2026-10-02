@@ -19,63 +19,80 @@ namespace GlassFlowAyF.Controllers
             _environment = environment;
         }
 
+        // =========================================================
+        // CATÁLOGO PÚBLICO
+        // =========================================================
 
         [AllowAnonymous]
         public async Task<IActionResult> Index(
             string? categoria,
             string? buscar)
         {
-            var consulta =
-                _context.Productos
-                    .AsNoTracking()
-                    .Where(p => p.Activo);
+            var consulta = _context.Productos
+                .AsNoTracking()
+                .Where(p => p.Activo);
 
+            // FILTRO POR CATEGORÍA
             if (!string.IsNullOrWhiteSpace(categoria))
             {
-                consulta =
-                    consulta.Where(
-                        p => p.Categoria == categoria);
+                consulta = consulta.Where(
+                    p => p.Categoria == categoria);
             }
 
+            // BÚSQUEDA POR VARIAS PALABRAS
             if (!string.IsNullOrWhiteSpace(buscar))
             {
-                consulta =
-                    consulta.Where(p =>
-                        p.Nombre.Contains(buscar) ||
-                        p.Categoria.Contains(buscar) ||
-                        (p.Descripcion != null &&
-                         p.Descripcion.Contains(buscar)));
+                var terminos = buscar
+                    .Trim()
+                    .Split(
+                        ' ',
+                        StringSplitOptions.RemoveEmptyEntries |
+                        StringSplitOptions.TrimEntries);
+
+                foreach (var termino in terminos)
+                {
+                    var palabra = termino;
+
+                    consulta = consulta.Where(p =>
+                        p.Nombre.Contains(palabra) ||
+                        p.Categoria.Contains(palabra) ||
+                        (
+                            p.Descripcion != null &&
+                            p.Descripcion.Contains(palabra)
+                        ));
+                }
             }
 
-            ViewBag.Categorias =
-                await _context.Productos
-                    .Where(p => p.Activo)
-                    .Select(p => p.Categoria)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync();
+            // CATEGORÍAS REALES DE LOS PRODUCTOS ACTIVOS
+            ViewBag.Categorias = await _context.Productos
+                .Where(p => p.Activo)
+                .Select(p => p.Categoria)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToListAsync();
 
             ViewBag.Categoria = categoria;
             ViewBag.Buscar = buscar;
 
-            return View(
-                await consulta
-                    .OrderBy(p => p.Nombre)
-                    .ToListAsync());
+            var productos = await consulta
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
+
+            return View(productos);
         }
 
+        // =========================================================
+        // DETALLE DEL PRODUCTO
+        // =========================================================
 
         [AllowAnonymous]
-        public async Task<IActionResult> Details(
-            int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var producto =
-                await _context.Productos
-                    .AsNoTracking()
-                    .Include(p => p.ProductoMateriales)
-                    .ThenInclude(pm => pm.Material)
-                    .FirstOrDefaultAsync(
-                        p => p.Id == id);
+            var producto = await _context.Productos
+                .AsNoTracking()
+                .Include(p => p.ProductoMateriales)
+                .ThenInclude(pm => pm.Material)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (producto == null)
             {
@@ -85,33 +102,40 @@ namespace GlassFlowAyF.Controllers
             return View(producto);
         }
 
+        // =========================================================
+        // ADMINISTRACIÓN DE PRODUCTOS
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Administrar()
         {
-            var productos =
-                await _context.Productos
-                    .OrderBy(p => p.Categoria)
-                    .ThenBy(p => p.Nombre)
-                    .ToListAsync();
+            var productos = await _context.Productos
+                .OrderBy(p => p.Categoria)
+                .ThenBy(p => p.Nombre)
+                .ToListAsync();
 
             return View(productos);
         }
 
+        // =========================================================
+        // CREAR PRODUCTO - GET
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Materiales =
-                await _context.Materiales
-                    .Where(m => m.Activo)
-                    .OrderBy(m => m.Nombre)
-                    .ToListAsync();
+            ViewBag.Materiales = await _context.Materiales
+                .Where(m => m.Activo)
+                .OrderBy(m => m.Nombre)
+                .ToListAsync();
 
             return View(new Producto());
         }
 
+        // =========================================================
+        // CREAR PRODUCTO - POST
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         [HttpPost]
@@ -121,8 +145,7 @@ namespace GlassFlowAyF.Controllers
             IFormFile? imagen,
             List<int>? materialIds)
         {
-            if (imagen != null &&
-                !ImagenValida(imagen))
+            if (imagen != null && !ImagenValida(imagen))
             {
                 ModelState.AddModelError(
                     "imagen",
@@ -131,11 +154,10 @@ namespace GlassFlowAyF.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Materiales =
-                    await _context.Materiales
-                        .Where(m => m.Activo)
-                        .OrderBy(m => m.Nombre)
-                        .ToListAsync();
+                ViewBag.Materiales = await _context.Materiales
+                    .Where(m => m.Activo)
+                    .OrderBy(m => m.Nombre)
+                    .ToListAsync();
 
                 ViewBag.MaterialIds =
                     materialIds ?? new List<int>();
@@ -143,16 +165,13 @@ namespace GlassFlowAyF.Controllers
                 return View(producto);
             }
 
-            producto.FechaCreacion =
-                DateTime.Now;
-
+            producto.FechaCreacion = DateTime.Now;
             producto.Activo = true;
 
             if (imagen != null)
             {
                 producto.ImagenUrl =
-                    await GuardarImagenProducto(
-                        imagen);
+                    await GuardarImagenProducto(imagen);
             }
 
             _context.Productos.Add(producto);
@@ -161,8 +180,7 @@ namespace GlassFlowAyF.Controllers
 
             if (materialIds != null)
             {
-                foreach (var materialId
-                    in materialIds.Distinct())
+                foreach (var materialId in materialIds.Distinct())
                 {
                     _context.ProductoMateriales.Add(
                         new ProductoMaterial
@@ -178,41 +196,41 @@ namespace GlassFlowAyF.Controllers
             TempData["Mensaje"] =
                 "Producto creado correctamente.";
 
-            return RedirectToAction(
-                nameof(Administrar));
+            return RedirectToAction(nameof(Administrar));
         }
 
+        // =========================================================
+        // EDITAR PRODUCTO - GET
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         [HttpGet]
-        public async Task<IActionResult> Edit(
-            int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var producto =
-                await _context.Productos
-                    .Include(p => p.ProductoMateriales)
-                    .FirstOrDefaultAsync(
-                        p => p.Id == id);
+            var producto = await _context.Productos
+                .Include(p => p.ProductoMateriales)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (producto == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Materiales =
-                await _context.Materiales
-                    .Where(m => m.Activo)
-                    .OrderBy(m => m.Nombre)
-                    .ToListAsync();
+            ViewBag.Materiales = await _context.Materiales
+                .Where(m => m.Activo)
+                .OrderBy(m => m.Nombre)
+                .ToListAsync();
 
-            ViewBag.MaterialIds =
-                producto.ProductoMateriales
-                    .Select(pm => pm.MaterialId)
-                    .ToList();
+            ViewBag.MaterialIds = producto.ProductoMateriales
+                .Select(pm => pm.MaterialId)
+                .ToList();
 
             return View(producto);
         }
 
+        // =========================================================
+        // EDITAR PRODUCTO - POST
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         [HttpPost]
@@ -228,19 +246,16 @@ namespace GlassFlowAyF.Controllers
                 return NotFound();
             }
 
-            var productoActual =
-                await _context.Productos
-                    .Include(p => p.ProductoMateriales)
-                    .FirstOrDefaultAsync(
-                        p => p.Id == id);
+            var productoActual = await _context.Productos
+                .Include(p => p.ProductoMateriales)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (productoActual == null)
             {
                 return NotFound();
             }
 
-            if (imagen != null &&
-                !ImagenValida(imagen))
+            if (imagen != null && !ImagenValida(imagen))
             {
                 ModelState.AddModelError(
                     "imagen",
@@ -249,11 +264,10 @@ namespace GlassFlowAyF.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Materiales =
-                    await _context.Materiales
-                        .Where(m => m.Activo)
-                        .OrderBy(m => m.Nombre)
-                        .ToListAsync();
+                ViewBag.Materiales = await _context.Materiales
+                    .Where(m => m.Activo)
+                    .OrderBy(m => m.Nombre)
+                    .ToListAsync();
 
                 ViewBag.MaterialIds =
                     materialIds ?? new List<int>();
@@ -261,18 +275,10 @@ namespace GlassFlowAyF.Controllers
                 return View(producto);
             }
 
-            productoActual.Nombre =
-                producto.Nombre;
-
-            productoActual.Categoria =
-                producto.Categoria;
-
-            productoActual.Descripcion =
-                producto.Descripcion;
-
-            productoActual.PrecioBase =
-                producto.PrecioBase;
-
+            productoActual.Nombre = producto.Nombre;
+            productoActual.Categoria = producto.Categoria;
+            productoActual.Descripcion = producto.Descripcion;
+            productoActual.PrecioBase = producto.PrecioBase;
             productoActual.PermiteInstalacion =
                 producto.PermiteInstalacion;
 
@@ -286,8 +292,7 @@ namespace GlassFlowAyF.Controllers
                 }
 
                 productoActual.ImagenUrl =
-                    await GuardarImagenProducto(
-                        imagen);
+                    await GuardarImagenProducto(imagen);
             }
 
             _context.ProductoMateriales.RemoveRange(
@@ -295,17 +300,13 @@ namespace GlassFlowAyF.Controllers
 
             if (materialIds != null)
             {
-                foreach (var materialId
-                    in materialIds.Distinct())
+                foreach (var materialId in materialIds.Distinct())
                 {
                     productoActual.ProductoMateriales.Add(
                         new ProductoMaterial
                         {
-                            ProductoId =
-                                productoActual.Id,
-
-                            MaterialId =
-                                materialId
+                            ProductoId = productoActual.Id,
+                            MaterialId = materialId
                         });
                 }
             }
@@ -315,16 +316,17 @@ namespace GlassFlowAyF.Controllers
             TempData["Mensaje"] =
                 "Producto actualizado correctamente.";
 
-            return RedirectToAction(
-                nameof(Administrar));
+            return RedirectToAction(nameof(Administrar));
         }
 
+        // =========================================================
+        // ACTIVAR / DESACTIVAR PRODUCTO
+        // =========================================================
 
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CambiarEstado(
-            int id)
+        public async Task<IActionResult> CambiarEstado(int id)
         {
             var producto =
                 await _context.Productos.FindAsync(id);
@@ -334,8 +336,7 @@ namespace GlassFlowAyF.Controllers
                 return NotFound();
             }
 
-            producto.Activo =
-                !producto.Activo;
+            producto.Activo = !producto.Activo;
 
             await _context.SaveChangesAsync();
 
@@ -344,118 +345,117 @@ namespace GlassFlowAyF.Controllers
                     ? "Producto activado correctamente."
                     : "Producto desactivado correctamente.";
 
-            return RedirectToAction(
-                nameof(Administrar));
+            return RedirectToAction(nameof(Administrar));
         }
 
+        // =========================================================
+        // MATERIALES SEGÚN PRODUCTO
+        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> MaterialesPorProducto(
             int productoId)
         {
-            var materiales =
-                await _context.ProductoMateriales
-                    .Where(pm =>
-                        pm.ProductoId == productoId &&
-                        pm.Material != null &&
-                        pm.Material.Activo)
-                    .Select(pm => new
-                    {
-                        id = pm.MaterialId,
-                        nombre =
-                            pm.Material!.Nombre,
+            var materiales = await _context.ProductoMateriales
+                .Where(pm =>
+                    pm.ProductoId == productoId &&
+                    pm.Material != null &&
+                    pm.Material.Activo)
+                .Select(pm => new
+                {
+                    id = pm.MaterialId,
 
-                        descripcion =
-                            $"{pm.Material.Tipo} - " +
-                            $"{pm.Material.Color} - " +
-                            $"{pm.Material.Grosor} mm",
+                    nombre =
+                        pm.Material!.Nombre,
 
-                        precio =
-                            pm.Material.PrecioAdicional
-                    })
-                    .ToListAsync();
+                    descripcion =
+                        $"{pm.Material.Tipo} - " +
+                        $"{pm.Material.Color} - " +
+                        $"{pm.Material.Grosor} mm",
+
+                    precio =
+                        pm.Material.PrecioAdicional
+                })
+                .ToListAsync();
 
             return Json(materiales);
         }
 
+        // =========================================================
+        // VALIDAR IMAGEN
+        // =========================================================
 
-        private bool ImagenValida(
-            IFormFile imagen)
+        private bool ImagenValida(IFormFile imagen)
         {
-            var extensiones =
-                new[]
-                {
-                    ".jpg",
-                    ".jpeg",
-                    ".png",
-                    ".webp"
-                };
+            var extensiones = new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
 
-            var extension =
-                Path.GetExtension(imagen.FileName)
-                    .ToLowerInvariant();
+            var extension = Path
+                .GetExtension(imagen.FileName)
+                .ToLowerInvariant();
 
             return extensiones.Contains(extension) &&
                    imagen.Length <= 5 * 1024 * 1024;
         }
 
+        // =========================================================
+        // GUARDAR IMAGEN
+        // =========================================================
 
-        private async Task<string>
-            GuardarImagenProducto(
-                IFormFile imagen)
+        private async Task<string> GuardarImagenProducto(
+            IFormFile imagen)
         {
-            var extension =
-                Path.GetExtension(
-                    imagen.FileName)
-                    .ToLowerInvariant();
+            var extension = Path
+                .GetExtension(imagen.FileName)
+                .ToLowerInvariant();
 
-            var carpeta =
-                Path.Combine(
-                    _environment.WebRootPath,
-                    "uploads",
-                    "productos");
+            var carpeta = Path.Combine(
+                _environment.WebRootPath,
+                "uploads",
+                "productos");
 
             Directory.CreateDirectory(carpeta);
 
             var nombreArchivo =
                 $"{Guid.NewGuid()}{extension}";
 
-            var rutaFisica =
-                Path.Combine(
-                    carpeta,
-                    nombreArchivo);
+            var rutaFisica = Path.Combine(
+                carpeta,
+                nombreArchivo);
 
-            await using var stream =
-                new FileStream(
-                    rutaFisica,
-                    FileMode.Create);
+            await using var stream = new FileStream(
+                rutaFisica,
+                FileMode.Create);
 
             await imagen.CopyToAsync(stream);
 
-            return
-                $"/uploads/productos/{nombreArchivo}";
+            return $"/uploads/productos/{nombreArchivo}";
         }
 
+        // =========================================================
+        // ELIMINAR IMAGEN ANTERIOR
+        // =========================================================
 
-        private void EliminarImagenAnterior(
-            string imagenUrl)
+        private void EliminarImagenAnterior(string imagenUrl)
         {
-            var ruta =
-                imagenUrl.TrimStart('/')
-                    .Replace(
-                        '/',
-                        Path.DirectorySeparatorChar);
+            var ruta = imagenUrl
+                .TrimStart('/')
+                .Replace(
+                    '/',
+                    Path.DirectorySeparatorChar);
 
-            var rutaFisica =
-                Path.Combine(
-                    _environment.WebRootPath,
-                    ruta);
+            var rutaFisica = Path.Combine(
+                _environment.WebRootPath,
+                ruta);
 
-            if (System.IO.File.Exists(
-                rutaFisica))
+            if (System.IO.File.Exists(rutaFisica))
             {
-                System.IO.File.Delete(
-                    rutaFisica);
+                System.IO.File.Delete(rutaFisica);
             }
         }
     }
