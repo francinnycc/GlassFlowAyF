@@ -113,6 +113,128 @@
                         </div>
 
 
+                        <div class="mb-4">
+
+                            <label asp-for="Cedula"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+
+                                <input asp-for="Cedula"
+                                       class="form-control"
+                                       placeholder="Ejemplo: 123456789 o 123-456-789" />
+
+                            </div>
+
+                            <span asp-validation-for="Cedula"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label asp-for="NumeroContactoEmergencia"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone-plus"></i>
+                                </span>
+
+                                <input asp-for="NumeroContactoEmergencia"
+                                       class="form-control"
+                                       placeholder="Ejemplo: 8888-8888" />
+
+                            </div>
+
+                            <span asp-validation-for="NumeroContactoEmergencia"
+                                  class="text-danger small">
+                            </span>
+
+                            <div class="form-text">
+                                Persona a llamar en caso de emergencia.
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        <h2 class="h5 mb-3">
+                            <i class="bi bi-heart-pulse me-2"></i>
+                            Información de salud
+                        </h2>
+
+                        <p class="text-muted small">
+                            Completa estos campos solo si aplican para ti.
+                            Se muestran únicamente en tu perfil.
+                        </p>
+
+
+                        <div class="mb-4">
+
+                            <label asp-for="AlergiasMedicamentos"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="AlergiasMedicamentos"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Ejemplo: alergia a la penicilina"></textarea>
+
+                            <span asp-validation-for="AlergiasMedicamentos"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label asp-for="PadecimientosEnfermedades"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="PadecimientosEnfermedades"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Ejemplo: hipertensión, diabetes"></textarea>
+
+                            <span asp-validation-for="PadecimientosEnfermedades"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label asp-for="Medicamentos"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <textarea asp-for="Medicamentos"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Ejemplo: losartán 50 mg, 1 vez al día"></textarea>
+
+                            <span asp-validation-for="Medicamentos"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
                         <div class="alert alert-info">
 
                             <i class="bi bi-info-circle me-2"></i>
