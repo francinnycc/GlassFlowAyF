@@ -7,6 +7,7 @@ namespace GlassFlowAyF.Data
     public class ApplicationDbContext
         : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options)
             : base(options)

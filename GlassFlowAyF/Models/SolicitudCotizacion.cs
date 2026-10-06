@@ -5,6 +5,7 @@ namespace GlassFlowAyF.Models
 {
     public class SolicitudCotizacion
     {
+        public ICollection<ValidacionTecnica> ValidacionesTecnicas { get; set; } = new List<ValidacionTecnica>();
         public int Id { get; set; }
 
         [Required]

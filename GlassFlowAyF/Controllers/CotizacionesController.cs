@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using GlassFlowAyF.Data;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlassFlowAyF.Controllers
 {
     [Authorize]
-    public class CotizacionesController : Controller
+    public partial class CotizacionesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -130,7 +130,7 @@ namespace GlassFlowAyF.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            SolicitudCotizacion solicitud,
+            [Bind("ProductoId,MaterialId,Descripcion,Ancho,Alto,Profundidad,Cantidad,RequiereInstalacion,Direccion,Observaciones")] SolicitudCotizacion solicitud,
             List<IFormFile>? fotos,
             string accion = "enviar")
         {
@@ -520,7 +520,7 @@ namespace GlassFlowAyF.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            SolicitudCotizacion model,
+            [Bind("ProductoId,MaterialId,Descripcion,Ancho,Alto,Profundidad,Cantidad,RequiereInstalacion,Direccion,Observaciones")] SolicitudCotizacion model,
             List<IFormFile>? fotos,
             string accion = "enviar")
         {
@@ -909,6 +909,7 @@ namespace GlassFlowAyF.Controllers
         // DETALLE DE SOLICITUD
         // =========================================================
 
+        [Authorize(Roles = "Administrador,Cliente")]
         public async Task<IActionResult> Details(
             int id)
         {
@@ -918,6 +919,7 @@ namespace GlassFlowAyF.Controllers
                     .Include(s => s.Producto)
                     .Include(s => s.Material)
                     .Include(s => s.Fotografias)
+                    .Include(s => s.ValidacionesTecnicas)
                     .Include(s => s.Cotizaciones)
                         .ThenInclude(c => c.Compra)
                     .FirstOrDefaultAsync(
@@ -1061,8 +1063,7 @@ namespace GlassFlowAyF.Controllers
                         solicitud.Id,
 
                     CostoMateriales =
-                        precioProducto +
-                        adicionalMaterial,
+                        (precioProducto + adicionalMaterial) * solicitud.Cantidad,
 
                     ManoObra =
                         35000m,
@@ -1113,8 +1114,9 @@ namespace GlassFlowAyF.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearCotizacion(
-            Cotizacion cotizacion)
+            [Bind("SolicitudCotizacionId,CostoMateriales,ManoObra,CostoInstalacion,OtrosCostos,PorcentajeImpuesto,Descuento,FechaVencimiento,DetalleTecnico,Condiciones")] Cotizacion cotizacion)
         {
+            ValidarImportes(cotizacion);
             if (cotizacion.FechaVencimiento <
                 DateTime.Today)
             {
@@ -1242,7 +1244,8 @@ namespace GlassFlowAyF.Controllers
         public async Task<IActionResult> ResponderCotizacion(
             int id,
             string respuesta,
-            string? comentario)
+            string? comentario,
+            Guid version)
         {
             var usuario =
                 await _userManager
@@ -1271,6 +1274,9 @@ namespace GlassFlowAyF.Controllers
             {
                 return Forbid();
             }
+
+            if (version != cotizacion.Version) return Conflict("La cotización cambió. Recárguela antes de responder.");
+            if (comentario?.Length > 1000) return BadRequest("El comentario no puede exceder 1000 caracteres.");
 
             if (cotizacion.Estado !=
                 "Pendiente")
@@ -1337,10 +1343,11 @@ namespace GlassFlowAyF.Controllers
                     return BadRequest();
             }
 
-            await _context.SaveChangesAsync();
+            cotizacion.Version = Guid.NewGuid();
+            try { await _context.SaveChangesAsync(); }
+            catch (DbUpdateConcurrencyException) { return Conflict("La cotización cambió. Recárguela antes de responder."); }
 
-            TempData["Mensaje"] =
-                "Respuesta registrada correctamente.";
+            TempData["Mensaje"] = "Respuesta registrada correctamente.";
 
             return RedirectToAction(
                 nameof(VerCotizacion),
@@ -1747,12 +1754,7 @@ namespace GlassFlowAyF.Controllers
                 cotizacion.CostoInstalacion +
                 cotizacion.OtrosCostos;
 
-            cotizacion.Impuesto =
-                cotizacion.Subtotal *
-                (
-                    cotizacion.PorcentajeImpuesto /
-                    100m
-                );
+            cotizacion.Impuesto = decimal.Round(cotizacion.Subtotal * cotizacion.PorcentajeImpuesto / 100m, 2, MidpointRounding.AwayFromZero);
 
             cotizacion.Total =
                 cotizacion.Subtotal +
