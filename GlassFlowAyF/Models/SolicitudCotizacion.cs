@@ -62,23 +62,38 @@ namespace GlassFlowAyF.Models
         // MEDIDAS
 
         [Column(TypeName = "decimal(10,2)")]
-        [Range(0.01, 10000)]
-        [Display(Name = "Ancho aproximado (m)")]
+        [Range(0.01, 10000, ErrorMessage = "El ancho debe ser mayor que cero.")]
+        [Display(Name = "Ancho aproximado (metros)")]
         public decimal? Ancho { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
-        [Range(0.01, 10000)]
-        [Display(Name = "Alto aproximado (m)")]
+        [Range(0.01, 10000, ErrorMessage = "El alto debe ser mayor que cero.")]
+        [Display(Name = "Alto aproximado (metros)")]
         public decimal? Alto { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
-        [Range(0.01, 10000)]
-        [Display(Name = "Profundidad aproximada (m)")]
+        [Range(0.01, 10000, ErrorMessage = "La profundidad debe ser mayor que cero.")]
+        [Display(Name = "Profundidad (metros)")]
         public decimal? Profundidad { get; set; }
 
-        [Range(1, 100)]
+        [Range(1, 100, ErrorMessage = "La cantidad debe estar entre 1 y 100.")]
         [Display(Name = "Cantidad")]
         public int Cantidad { get; set; } = 1;
+
+        [Required(ErrorMessage = "Debe seleccionar una unidad de medida.")]
+        [StringLength(2)]
+        [Display(Name = "Unidad de medida")]
+        public string UnidadMedida { get; set; } = "m";
+
+        [Required(ErrorMessage = "Debe seleccionar el área de instalación.")]
+        [StringLength(100)]
+        [Display(Name = "Área de instalación")]
+        public string UbicacionInstalacion { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        [Display(Name = "Especifique la ubicación")]
+        public string? UbicacionPersonalizada { get; set; }
+
 
 
         // INSTALACIÓN

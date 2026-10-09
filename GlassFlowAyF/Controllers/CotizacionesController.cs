@@ -228,7 +228,11 @@ namespace GlassFlowAyF.Controllers
                 }
 
                 _context.SolicitudesCotizacion
-                    .Add(solicitud);
+                                .Add(solicitud);
+
+                await _context.SaveChangesAsync();
+
+                await RegistrarHistorialMedida(solicitud);
 
                 await _context.SaveChangesAsync();
 
@@ -412,6 +416,13 @@ namespace GlassFlowAyF.Controllers
 
             _context.SolicitudesCotizacion
                 .Add(solicitud);
+
+            _context.SolicitudesCotizacion
+    .Add(solicitud);
+
+            await _context.SaveChangesAsync();
+
+            await RegistrarHistorialMedida(solicitud);
 
             await _context.SaveChangesAsync();
 
@@ -652,6 +663,24 @@ namespace GlassFlowAyF.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Registrar las medidas en el historial.
+                var historialBorrador = new HistorialMedida
+                {
+                    SolicitudCotizacionId = solicitud.Id,
+                    Ancho = solicitud.Ancho,
+                    Alto = solicitud.Alto,
+                    Profundidad = solicitud.Profundidad,
+                    Cantidad = solicitud.Cantidad,
+                    UsuarioRegistro = usuario.Email,
+                    FechaRegistro = DateTime.Now,
+                    Observaciones = solicitud.Observaciones
+                };
+
+                _context.HistorialMedidas.Add(historialBorrador);
+
+                await _context.SaveChangesAsync();
+
+
                 if (fotos != null)
                 {
                     foreach (var foto in fotos)
@@ -859,6 +888,23 @@ namespace GlassFlowAyF.Controllers
 
             await _context.SaveChangesAsync();
 
+            // Registrar las medidas en el historial.
+            var historialEnviado = new HistorialMedida
+            {
+                SolicitudCotizacionId = solicitud.Id,
+                Ancho = solicitud.Ancho,
+                Alto = solicitud.Alto,
+                Profundidad = solicitud.Profundidad,
+                Cantidad = solicitud.Cantidad,
+                UsuarioRegistro = usuario.Email,
+                FechaRegistro = DateTime.Now,
+                Observaciones = solicitud.Observaciones
+            };
+
+            _context.HistorialMedidas.Add(historialEnviado);
+
+            await _context.SaveChangesAsync();
+
             // Fotografías nuevas agregadas durante edición.
             if (fotos != null)
             {
@@ -947,6 +993,33 @@ namespace GlassFlowAyF.Controllers
         }
 
         // =========================================================
+        // HISTORIAL DE MEDIDAS - HU 8.5
+        // =========================================================
+
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> HistorialMedidas(int id)
+        {
+            var solicitud = await _context.SolicitudesCotizacion
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            var historial = await _context.HistorialMedidas
+                .AsNoTracking()
+                .Where(h => h.SolicitudCotizacionId == id)
+                .OrderByDescending(h => h.FechaRegistro)
+                .ToListAsync();
+
+            ViewBag.Solicitud = solicitud;
+
+            return View(historial);
+        }
+
+        // =========================================================
         // CAMBIAR ESTADO MANUALMENTE
         // =========================================================
 
@@ -972,6 +1045,7 @@ namespace GlassFlowAyF.Controllers
                 "En revisión",
                 "Pendiente de información",
                 "Visita programada",
+                "Visita Técnica Completada",
                 "Cotizado",
                 "Aprobado",
                 "En producción",
@@ -997,6 +1071,51 @@ namespace GlassFlowAyF.Controllers
 
             TempData["Mensaje"] =
                 "Estado actualizado correctamente.";
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id });
+        }
+
+        // =======================================================
+        // REVISAR MEDIDAS - HU 8.4
+        // =======================================================
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RevisarMedidas(
+            int id,
+            string resultado)
+        {
+            var solicitud = await _context.SolicitudesCotizacion
+                .FindAsync(id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            if (resultado == "Suficientes")
+            {
+                solicitud.Estado = "En revisión";
+
+                TempData["Mensaje"] =
+                    "Las medidas fueron consideradas suficientes.";
+            }
+            else if (resultado == "Insuficientes")
+            {
+                solicitud.Estado = "Pendiente de información";
+
+                TempData["Mensaje"] =
+                    "Las medidas fueron consideradas insuficientes.";
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(
                 nameof(Details),
@@ -1764,5 +1883,32 @@ namespace GlassFlowAyF.Controllers
                 cotizacion.Total = 0;
             }
         }
+        private async Task RegistrarHistorialMedida(
+    SolicitudCotizacion solicitud)
+        {
+            var usuario =
+                await _userManager.GetUserAsync(User);
+
+            var historial = new HistorialMedida
+            {
+                SolicitudCotizacionId = solicitud.Id,
+
+                Ancho = solicitud.Ancho,
+                Alto = solicitud.Alto,
+                Profundidad = solicitud.Profundidad,
+                Cantidad = solicitud.Cantidad,
+
+                UsuarioRegistro =
+                    usuario?.Email ?? User.Identity?.Name,
+
+                FechaRegistro = DateTime.Now,
+
+                Observaciones =
+                    solicitud.Observaciones
+            };
+
+            _context.HistorialMedidas.Add(historial);
+        }
     }
+
 }

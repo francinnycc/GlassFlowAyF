@@ -1,0 +1,266 @@
+﻿@model GlassFlowAyF.Models.VisitaTecnica
+
+@{
+    ViewData["Title"] = "Resultado de visita técnica";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+            #SOL-@Model.SolicitudCotizacionId.ToString("D5")
+        </span>
+
+        <h1>
+            Resultado de visita técnica
+        </h1>
+
+        <p>
+            Registre las medidas definitivas y
+            las observaciones de la inspección.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="glass-card">
+
+            <h4>
+                Información de la visita
+            </h4>
+
+            <dl class="row mt-4">
+
+                <dt class="col-sm-4">
+                    Cliente
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.SolicitudCotizacion?.NombreCliente
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Fecha
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.FechaHora.ToString("dd/MM/yyyy hh:mm tt")
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Técnico
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.TecnicoAsignado
+                </dd>
+
+
+                <dt class="col-sm-4">
+                    Dirección
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.Direccion
+                </dd>
+
+            </dl>
+
+        </div>
+
+
+        <div class="glass-card mt-4">
+
+            <h4>
+                Medidas definitivas
+            </h4>
+
+            <p class="text-muted">
+                Registre las medidas verificadas durante la visita.
+            </p>
+
+
+            <form asp-action="Resultado" method="post" enctype="multipart/form-data">
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+                <div class="row g-3">
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Ancho
+                        </label>
+
+                        <input type="number"
+                               name="ancho"
+                               step="0.01"
+                               min="0"
+                               class="form-control"
+                               required />
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Alto
+                        </label>
+
+                        <input type="number"
+                               name="alto"
+                               step="0.01"
+                               min="0"
+                               class="form-control"
+                               required />
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Profundidad
+                        </label>
+
+                        <input type="number"
+                               name="profundidad"
+                               step="0.01"
+                               min="0"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Cantidad
+                        </label>
+
+                        <input type="number"
+                               name="cantidad"
+                               min="1"
+                               value="1"
+                               class="form-control"
+                               required />
+
+                    </div>
+
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Resultado de la visita
+                        </label>
+
+                        <textarea name="resultadoVisita"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Indique el resultado de la inspección..."></textarea>
+
+                    </div>
+
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+                            Observaciones técnicas
+                        </label>
+
+                        <textarea name="observaciones"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Anote condiciones, recomendaciones u observaciones..."></textarea>
+
+                    </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Evidencia fotográfica</label>
+                                <input type="file"
+                                       name="fotos"
+                                       class="form-control"
+                                       multiple
+                                       accept=".jpg,.jpeg,.png,.webp" />
+
+                                <div class="form-text">
+                                    Puede seleccionar varias fotografías. Formatos permitidos: JPG, JPEG, PNG y WEBP. Máximo 6 fotos.
+                                </div>
+                            </div>
+
+
+                </div>
+
+
+                <div class="d-flex gap-2 mt-4">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        Cancelar
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-glassflow">
+
+                        <i class="bi bi-check-circle me-1">
+                        </i>
+
+                        Guardar informe de visita
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+@if (Model.Fotografias != null && Model.Fotografias.Any())
+{
+    <div class="glass-card mt-4">
+        <h4>Fotografías de la visita técnica</h4>
+
+        <div class="row g-3 mt-2">
+            @foreach (var foto in Model.Fotografias)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <a href="@foto.RutaArchivo" target="_blank">
+                        <img src="@foto.RutaArchivo"
+                             alt="Fotografía de evidencia"
+                             class="img-fluid rounded"
+                             style="width: 100%; height: 220px; object-fit: cover;" />
+                    </a>
+
+                    <small class="text-muted d-block mt-2">
+                        @foto.FechaCarga.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+}

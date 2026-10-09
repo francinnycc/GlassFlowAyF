@@ -1,0 +1,47 @@
+﻿@model GlassFlowAyF.ViewModels.PaginacionViewModel
+
+@if (Model.TotalPaginas > 1)
+{
+    <nav class="mt-4">
+
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+
+                <a class="page-link"
+                   href="?pagina=@(Model.PaginaActual - 1)">
+                    Anterior
+                </a>
+
+            </li>
+
+
+            @for (
+                int i = 1;
+                i <= Model.TotalPaginas;
+                i++)
+            {
+                <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+
+                    <a class="page-link"
+                       href="?pagina=@i">
+                        @i
+                    </a>
+
+                </li>
+            }
+
+
+            <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+
+                <a class="page-link"
+                   href="?pagina=@(Model.PaginaActual + 1)">
+                    Siguiente
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+}

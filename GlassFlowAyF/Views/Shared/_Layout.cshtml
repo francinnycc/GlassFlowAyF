@@ -384,6 +384,20 @@
                         </a>
                     }
 
+                    @if (User.IsInRole("Tecnico"))
+                    {
+                        <div class="sidebar-label">
+                            VISITAS TÉCNICAS
+                        </div>
+
+                        <a asp-controller="Tecnico"
+                           asp-action="Index">
+                            <i class="bi bi-clipboard2-check"></i>
+                            Panel del Técnico
+                        </a>
+                    }
+                    
+
                 </nav>
 
 
@@ -410,6 +424,8 @@
                             </div>
 
                         </a>
+
+                        
                     }
 
                 </div>

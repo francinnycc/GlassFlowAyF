@@ -4,6 +4,7 @@ using GlassFlowAyF.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GlassFlowAyF.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007033709_AgregarFotografiasVisitaTecnica")]
+    partial class AgregarFotografiasVisitaTecnica
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -703,20 +706,6 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("varchar(120)");
 
-                    b.Property<string>("UbicacionInstalacion")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("UbicacionPersonalizada")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("UnidadMedida")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("varchar(2)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("MaterialId");
@@ -944,17 +933,12 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("varchar(120)");
 
-                    b.Property<string>("TecnicoId")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<bool>("VisitaCompletada")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SolicitudCotizacionId");
-
-                    b.HasIndex("TecnicoId");
 
                     b.ToTable("VisitasTecnicas");
                 });
@@ -1285,13 +1269,7 @@ namespace GlassFlowAyF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "Tecnico")
-                        .WithMany()
-                        .HasForeignKey("TecnicoId");
-
                     b.Navigation("SolicitudCotizacion");
-
-                    b.Navigation("Tecnico");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.VisitaTecnicaFotografia", b =>

@@ -6,11 +6,19 @@ namespace GlassFlowAyF.Models
     {
         public int Id { get; set; }
 
+        public string? TecnicoId { get; set; }
+
+        public ApplicationUser? Tecnico { get; set; }
+
         [Required]
         [Display(Name = "Solicitud")]
         public int SolicitudCotizacionId { get; set; }
 
         public SolicitudCotizacion? SolicitudCotizacion { get; set; }
+
+        public ICollection<VisitaTecnicaFotografia> Fotografias { get; set; }
+    = new List<VisitaTecnicaFotografia>();
+
 
         [Required]
         [Display(Name = "Fecha y hora")]
@@ -30,5 +38,13 @@ namespace GlassFlowAyF.Models
 
         [StringLength(40)]
         public string Estado { get; set; } = "Programada";
+
+        // Resultado de la visita
+        public bool VisitaCompletada { get; set; } = false;
+
+        [StringLength(1000)]
+        public string? ResultadoVisita { get; set; }
+
+        public DateTime? FechaFinalizacion { get; set; }
     }
 }
