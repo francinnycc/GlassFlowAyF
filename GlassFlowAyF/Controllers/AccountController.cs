@@ -457,6 +457,11 @@ namespace GlassFlowAyF.Controllers
                 Email = usuario.Email ?? string.Empty,
                 Telefono = usuario.PhoneNumber ?? string.Empty,
                 Direccion = usuario.Direccion ?? string.Empty,
+                Cedula = usuario.Cedula ?? string.Empty,
+                NumeroContactoEmergencia = usuario.NumeroContactoEmergencia ?? string.Empty,
+                AlergiasMedicamentos = usuario.AlergiasMedicamentos ?? string.Empty,
+                PadecimientosEnfermedades = usuario.PadecimientosEnfermedades ?? string.Empty,
+                Medicamentos = usuario.Medicamentos ?? string.Empty,
                 FechaRegistro = usuario.FechaRegistro,
                 Rol = roles.FirstOrDefault() ?? "Sin rol"
             };
@@ -488,7 +493,12 @@ namespace GlassFlowAyF.Controllers
             {
                 NombreCompleto = usuario.NombreCompleto ?? string.Empty,
                 Telefono = usuario.PhoneNumber ?? string.Empty,
-                Direccion = usuario.Direccion ?? string.Empty
+                Direccion = usuario.Direccion ?? string.Empty,
+                Cedula = usuario.Cedula ?? string.Empty,
+                NumeroContactoEmergencia = usuario.NumeroContactoEmergencia ?? string.Empty,
+                AlergiasMedicamentos = usuario.AlergiasMedicamentos ?? string.Empty,
+                PadecimientosEnfermedades = usuario.PadecimientosEnfermedades ?? string.Empty,
+                Medicamentos = usuario.Medicamentos ?? string.Empty
             };
 
 
@@ -526,6 +536,11 @@ namespace GlassFlowAyF.Controllers
             usuario.NombreCompleto = model.NombreCompleto.Trim();
             usuario.PhoneNumber = model.Telefono.Trim();
             usuario.Direccion = model.Direccion.Trim();
+            usuario.Cedula = NormalizarCedula(model.Cedula);
+            usuario.NumeroContactoEmergencia = NormalizarOpcional(model.NumeroContactoEmergencia);
+            usuario.AlergiasMedicamentos = NormalizarOpcional(model.AlergiasMedicamentos);
+            usuario.PadecimientosEnfermedades = NormalizarOpcional(model.PadecimientosEnfermedades);
+            usuario.Medicamentos = NormalizarOpcional(model.Medicamentos);
 
 
             var resultado =
@@ -673,6 +688,57 @@ namespace GlassFlowAyF.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+
+        // ===================================================
+        // NORMALIZACIÓN DE DATOS DEL PERFIL
+        // ===================================================
+
+        /*
+         * La cédula se almacena como texto de 9 dígitos.
+         * Se eliminan los guiones y espacios para que
+         * el formato sea siempre consistente en la
+         * base de datos.
+         */
+        private static string NormalizarCedula(
+            string? cedula)
+        {
+            if (string.IsNullOrWhiteSpace(cedula))
+            {
+                return string.Empty;
+            }
+
+
+            var valor = cedula
+                .Trim()
+                .Replace(
+                    "-",
+                    string.Empty)
+                .Replace(
+                    " ",
+                    string.Empty);
+
+
+            return valor;
+        }
+
+
+        /*
+         * Los campos de salud son opcionales.
+         * Si el usuario los deja vacíos se guardan
+         * como null y no como texto en blanco.
+         */
+        private static string? NormalizarOpcional(
+            string? valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                return null;
+            }
+
+
+            return valor.Trim();
         }
     }
 }
