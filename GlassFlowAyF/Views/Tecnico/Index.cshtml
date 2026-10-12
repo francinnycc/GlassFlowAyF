@@ -1,0 +1,82 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.VisitaTecnica>
+
+@{
+    ViewData["Title"] = "Panel del Técnico";
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <h1>Panel del Técnico</h1>
+        <p class="text-muted">
+            Consulta tus visitas técnicas y registra sus resultados.
+        </p>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3">Mis visitas técnicas</h4>
+
+            @if (Model == null || !Model.Any())
+            {
+                <div class="alert alert-info">
+                    No tienes visitas técnicas asignadas por el momento.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Solicitud</th>
+                                <th>Fecha y hora</th>
+                                <th>Dirección</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var visita in Model)
+                            {
+                                <tr>
+                                    <td>@visita.SolicitudCotizacionId</td>
+                                    <td>@visita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@visita.Direccion</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            @visita.Estado
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!visita.VisitaCompletada &&
+                                             visita.Estado != "Cancelada")
+                                        {
+                                            <a asp-controller="VisitasTecnicas"
+                                               asp-action="Resultado"
+                                               asp-route-id="@visita.Id"
+                                               class="btn btn-primary btn-sm">
+                                                Registrar resultado
+                                            </a>
+                                        }
+                                        else if (visita.VisitaCompletada)
+                                        {
+                                            <span class="text-success">
+                                                Completada
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Cancelada
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

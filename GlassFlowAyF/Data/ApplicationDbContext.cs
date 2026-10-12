@@ -27,9 +27,17 @@ namespace GlassFlowAyF.Data
             SolicitudesCotizacion
                 => Set<SolicitudCotizacion>();
 
+        public DbSet<HistorialMedida>
+            HistorialMedidas
+                => Set<HistorialMedida>();
+
         public DbSet<SolicitudFotografia>
             SolicitudFotografias
                 => Set<SolicitudFotografia>();
+
+        public DbSet<VisitaTecnicaFotografia> 
+            VisitaTecnicaFotografias
+            => Set<VisitaTecnicaFotografia>();
 
         public DbSet<VisitaTecnica>
             VisitasTecnicas

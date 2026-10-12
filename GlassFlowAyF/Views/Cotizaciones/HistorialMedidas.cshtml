@@ -1,0 +1,156 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.HistorialMedida>
+
+@{
+    ViewData["Title"] = "Historial de medidas";
+
+    var solicitud =
+        ViewBag.Solicitud as GlassFlowAyF.Models.SolicitudCotizacion;
+}
+
+<div class="page-header">
+
+    <div>
+
+        <span class="request-id">
+            #SOL-@solicitud?.Id.ToString("D5")
+        </span>
+
+        <h1>
+            Historial de medidas
+        </h1>
+
+        <p class="text-muted mb-0">
+            Registro histórico de las medidas de la solicitud.
+        </p>
+
+    </div>
+
+    <div>
+
+        <a asp-action="Details"
+           asp-route-id="@solicitud?.Id"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Volver a solicitud
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="glass-card">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Fecha
+                    </th>
+
+                    <th>
+                        Ancho
+                    </th>
+
+                    <th>
+                        Alto
+                    </th>
+
+                    <th>
+                        Profundidad
+                    </th>
+
+                    <th>
+                        Cantidad
+                    </th>
+
+                    <th>
+                        Usuario
+                    </th>
+
+                    <th>
+                        Observaciones
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @item.FechaRegistro.ToString(
+                                    "dd/MM/yyyy hh:mm tt")
+                            </td>
+
+                            <td>
+                                @(item.Ancho.HasValue
+                                    ? item.Ancho.Value.ToString("0.00") + " m"
+                                    : "-")
+                            </td>
+
+                            <td>
+                                @(item.Alto.HasValue
+                                    ? item.Alto.Value.ToString("0.00") + " m"
+                                    : "-")
+                            </td>
+
+                            <td>
+                                @(item.Profundidad.HasValue
+                                    ? item.Profundidad.Value.ToString("0.00") + " m"
+                                    : "-")
+                            </td>
+
+                            <td>
+                                @item.Cantidad
+                            </td>
+
+                            <td>
+                                @(item.UsuarioRegistro ?? "-")
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(
+                                    item.Observaciones)
+                                    ? "-"
+                                    : item.Observaciones)
+                            </td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+
+                        <td colspan="7"
+                            class="text-center text-muted py-4">
+
+                            No existen registros de medidas.
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
