@@ -1,4 +1,4 @@
-﻿@model GlassFlowAyF.Models.Cotizacion
+@model GlassFlowAyF.Models.Cotizacion
 
 @{
     ViewData["Title"] = "Cotización";
@@ -378,6 +378,7 @@
 
                 <form asp-action="ResponderCotizacion"
                       method="post">
+<input type="hidden" name="version" value="@Model.Version" />
 
                     <input type="hidden"
                            name="id"
@@ -522,3 +523,7 @@
     </div>
 
 </div>
+@if (User.IsInRole("Administrador") && Model.Compra == null && (Model.Estado == "Pendiente" || Model.Estado == "Cambios solicitados"))
+{
+    <a asp-action="EditCotizacion" asp-route-id="@Model.Id" class="btn btn-glassflow mt-3">Ajustar cotización</a>
+}

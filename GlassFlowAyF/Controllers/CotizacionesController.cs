@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlassFlowAyF.Controllers
 {
     [Authorize]
-    public class CotizacionesController : Controller
+    public partial class CotizacionesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
