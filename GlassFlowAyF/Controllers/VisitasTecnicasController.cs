@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿
+using DocumentFormat.OpenXml.InkML;
 using GlassFlowAyF.Data;
 using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
-
 
 namespace GlassFlowAyF.Controllers
 {
@@ -27,9 +27,8 @@ namespace GlassFlowAyF.Controllers
             _userManager = userManager;
         }
 
-
         public async Task<IActionResult> Index(
-    int pagina = 1)
+            int pagina = 1)
         {
             const int registrosPorPagina = 2;
 
@@ -38,7 +37,7 @@ namespace GlassFlowAyF.Controllers
                 .AsQueryable();
 
             // El administrador puede ver todas las visitas.
-            // El instalador solamente ve las visitas asignadas a él.
+            // El técnico solamente ve las visitas asignadas a él.
             if (!User.IsInRole("Administrador"))
             {
                 var usuario = await _userManager.GetUserAsync(User);
@@ -64,14 +63,50 @@ namespace GlassFlowAyF.Controllers
             return View(resultado);
         }
 
+        // =========================================================
+        // PROGRAMAR VISITA - MOSTRAR FORMULARIO
+        // =========================================================
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Create(int? solicitudId)
+        {
+            await CargarSolicitudes(solicitudId);
+            await CargarTecnicos();
+
+            var visita = new VisitaTecnica
+            {
+                SolicitudCotizacionId = solicitudId ?? 0,
+                FechaHora = DateTime.Now.AddDays(1)
+            };
+
+            if (solicitudId.HasValue)
+            {
+                var solicitud = await _context.SolicitudesCotizacion
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Id == solicitudId.Value);
+
+                if (solicitud == null)
+                {
+                    return NotFound();
+                }
+
+                visita.Direccion = solicitud.Direccion ?? string.Empty;
+            }
+
+            return View(visita);
+        }
+
+        // =========================================================
+        // PROGRAMAR VISITA - GUARDAR
+        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Create(VisitaTecnica visita)
         {
-            if (visita.FechaHora <=
-                DateTime.Now)
+            if (visita.FechaHora <= DateTime.Now)
             {
                 ModelState.AddModelError(
                     nameof(visita.FechaHora),
@@ -102,10 +137,8 @@ namespace GlassFlowAyF.Controllers
             var conflicto =
                 await _context.VisitasTecnicas
                     .AnyAsync(v =>
-                        v.TecnicoAsignado ==
-                            visita.TecnicoAsignado &&
-                        v.FechaHora ==
-                            visita.FechaHora &&
+                        v.TecnicoAsignado == visita.TecnicoAsignado &&
+                        v.FechaHora == visita.FechaHora &&
                         v.Estado != "Cancelada");
 
             if (conflicto)
@@ -123,35 +156,27 @@ namespace GlassFlowAyF.Controllers
                 return View(visita);
             }
 
-
-            _context.VisitasTecnicas
-                .Add(visita);
+            _context.VisitasTecnicas.Add(visita);
 
             var solicitud =
-                await _context
-                    .SolicitudesCotizacion
-                    .FindAsync(
-                        visita
-                            .SolicitudCotizacionId);
+                await _context.SolicitudesCotizacion
+                    .FindAsync(visita.SolicitudCotizacionId);
 
             if (solicitud != null)
             {
-                solicitud.Estado =
-                    "Visita programada";
+                solicitud.Estado = "Visita programada";
             }
 
-            await _context
-                .SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             TempData["Mensaje"] =
                 "Visita técnica programada correctamente.";
 
-            return RedirectToAction(
-                nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
 
         // =========================================================
-        // REGISTRAR RESULTADO DE VISITA
+        // REGISTRAR RESULTADO DE VISITA - GET
         // =========================================================
 
         [HttpGet]
@@ -189,7 +214,7 @@ namespace GlassFlowAyF.Controllers
         }
 
         // =========================================================
-        // GUARDAR RESULTADO DE VISITA
+        // GUARDAR RESULTADO DE VISITA - POST
         // =========================================================
 
         [HttpPost]
@@ -207,16 +232,14 @@ namespace GlassFlowAyF.Controllers
             var visita =
                 await _context.VisitasTecnicas
                     .Include(v => v.SolicitudCotizacion)
-                    .FirstOrDefaultAsync(v =>
-                        v.Id == id);
+                    .FirstOrDefaultAsync(v => v.Id == id);
 
             if (visita == null)
             {
                 return NotFound();
             }
 
-            if (!ancho.HasValue ||
-                !alto.HasValue)
+            if (!ancho.HasValue || !alto.HasValue)
             {
                 ModelState.AddModelError(
                     "",
@@ -232,7 +255,9 @@ namespace GlassFlowAyF.Controllers
 
             if (fotos != null && fotos.Count > 6)
             {
-                ModelState.AddModelError("", "Puede cargar un máximo de 6 fotografías.");
+                ModelState.AddModelError(
+                    "",
+                    "Puede cargar un máximo de 6 fotografías.");
             }
 
             if (fotos != null)
@@ -242,15 +267,16 @@ namespace GlassFlowAyF.Controllers
                     if (foto == null || foto.Length == 0)
                         continue;
 
-                    var extension = Path.GetExtension(foto.FileName).ToLowerInvariant();
+                    var extension = Path.GetExtension(foto.FileName)
+                        .ToLowerInvariant();
 
                     var extensionesPermitidas = new[]
                     {
-            ".jpg",
-            ".jpeg",
-            ".png",
-            ".webp"
-        };
+                        ".jpg",
+                        ".jpeg",
+                        ".png",
+                        ".webp"
+                    };
 
                     if (!extensionesPermitidas.Contains(extension))
                     {
@@ -280,8 +306,7 @@ namespace GlassFlowAyF.Controllers
                 return View(visita);
             }
 
-            var solicitud =
-                visita.SolicitudCotizacion;
+            var solicitud = visita.SolicitudCotizacion;
 
             if (solicitud == null)
             {
@@ -289,50 +314,25 @@ namespace GlassFlowAyF.Controllers
             }
 
             // Guardar medidas definitivas
-            var historial =
-                new HistorialMedida
-                {
-                    SolicitudCotizacionId =
-                        solicitud.Id,
+            var historial = new HistorialMedida
+            {
+                SolicitudCotizacionId = solicitud.Id,
+                Ancho = ancho,
+                Alto = alto,
+                Profundidad = profundidad,
+                Cantidad = cantidad,
+                UsuarioRegistro = User.Identity?.Name,
+                FechaRegistro = DateTime.Now,
+                Observaciones = observaciones
+            };
 
-                    Ancho =
-                        ancho,
-
-                    Alto =
-                        alto,
-
-                    Profundidad =
-                        profundidad,
-
-                    Cantidad =
-                        cantidad,
-
-                    UsuarioRegistro =
-                        User.Identity?.Name,
-
-                    FechaRegistro =
-                        DateTime.Now,
-
-                    Observaciones =
-                        observaciones
-                };
-
-            _context.HistorialMedidas
-                .Add(historial);
+            _context.HistorialMedidas.Add(historial);
 
             // Guardar resultado de la visita
-            visita.VisitaCompletada =
-                true;
-
-            visita.Estado =
-                "Visita Técnica Completada";
-
-            visita.ResultadoVisita =
-                resultadoVisita;
-
-            visita.Observaciones =
-                observaciones;
-
+            visita.VisitaCompletada = true;
+            visita.Estado = "Visita Técnica Completada";
+            visita.ResultadoVisita = resultadoVisita;
+            visita.Observaciones = observaciones;
             visita.FechaFinalizacion = DateTime.Now;
 
             solicitud.Estado = "Visita Técnica Completada";
@@ -357,7 +357,8 @@ namespace GlassFlowAyF.Controllers
                     var extension = Path.GetExtension(foto.FileName)
                         .ToLowerInvariant();
 
-                    var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                    var nombreArchivo =
+                        $"{Guid.NewGuid()}{extension}";
 
                     var rutaFisica = Path.Combine(
                         carpeta,
@@ -372,7 +373,8 @@ namespace GlassFlowAyF.Controllers
                     var fotografia = new VisitaTecnicaFotografia
                     {
                         VisitaTecnicaId = visita.Id,
-                        RutaArchivo = $"/uploads/visitas/{visita.Id}/{nombreArchivo}",
+                        RutaArchivo =
+                            $"/uploads/visitas/{visita.Id}/{nombreArchivo}",
                         NombreOriginal = foto.FileName,
                         TipoContenido = foto.ContentType,
                         FechaCarga = DateTime.Now
@@ -387,22 +389,21 @@ namespace GlassFlowAyF.Controllers
             TempData["Mensaje"] =
                 "El informe de la visita técnica se registró correctamente.";
 
-            return RedirectToAction(
-                nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
 
-        private async Task CargarSolicitudes(
-            int? seleccionada)
+        // =========================================================
+        // CARGAR SOLICITUDES PARA EL FORMULARIO
+        // =========================================================
+
+        private async Task CargarSolicitudes(int? seleccionada)
         {
             var solicitudes =
-                await _context
-                    .SolicitudesCotizacion
-                    .OrderByDescending(
-                        s => s.FechaSolicitud)
+                await _context.SolicitudesCotizacion
+                    .OrderByDescending(s => s.FechaSolicitud)
                     .Select(s => new
                     {
                         s.Id,
-
                         Texto =
                             $"#SOL-{s.Id:D5} - " +
                             $"{s.NombreCliente} - " +
@@ -410,24 +411,26 @@ namespace GlassFlowAyF.Controllers
                     })
                     .ToListAsync();
 
-            ViewBag.Solicitudes =
-                new SelectList(
-                    solicitudes,
-                    "Id",
-                    "Texto",
-                    seleccionada);
+            ViewBag.Solicitudes = new SelectList(
+                solicitudes,
+                "Id",
+                "Texto",
+                seleccionada);
         }
 
+        // =========================================================
+        // CARGAR TÉCNICOS DISPONIBLES
+        // =========================================================
 
         private async Task CargarTecnicos()
         {
-            var tecnicos = await _userManager.GetUsersInRoleAsync("Tecnico");
+            var tecnicos =
+                await _userManager.GetUsersInRoleAsync("Tecnico");
 
             ViewBag.Tecnicos = tecnicos
                 .Where(t => t.Activo)
                 .OrderBy(t => t.NombreCompleto)
                 .ToList();
         }
-
-    }    
+    }
 }

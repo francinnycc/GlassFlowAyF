@@ -8,6 +8,7 @@ namespace GlassFlowAyF.Data
         : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
+        public DbSet<RevisionFotografia> RevisionesFotografias => Set<RevisionFotografia>();
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -36,7 +37,7 @@ namespace GlassFlowAyF.Data
             SolicitudFotografias
                 => Set<SolicitudFotografia>();
 
-        public DbSet<VisitaTecnicaFotografia> 
+        public DbSet<VisitaTecnicaFotografia>
             VisitaTecnicaFotografias
             => Set<VisitaTecnicaFotografia>();
 
@@ -75,7 +76,7 @@ namespace GlassFlowAyF.Data
         public DbSet<DisenoIA>
             DisenosIA
                 => Set<DisenoIA>();
-   
+
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)

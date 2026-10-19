@@ -35,12 +35,23 @@ public class ValidacionesTecnicasController(ApplicationDbContext context, UserMa
         }
         context.ValidacionesTecnicas.Add(new ValidacionTecnica
         {
-            SolicitudCotizacionId = solicitudId, Autor = User.Identity?.Name ?? "Administrador",
-            Resultado = model.Resultado, Complejidad = model.Complejidad,
-            Observaciones = model.Observaciones.Trim(), RecomiendaVisita = model.RecomiendaVisita,
+            SolicitudCotizacionId = solicitudId,
+            Autor = User.Identity?.Name ?? "Administrador",
+            Resultado = model.Resultado,
+            Complejidad = model.Complejidad,
+            Observaciones = model.Observaciones.Trim(),
+            RecomiendaVisita = model.RecomiendaVisita,
             InformacionSolicitada = model.Resultado == "Pendiente de información" ? model.InformacionSolicitada!.Trim() : null
         });
-        solicitud.Estado = model.Resultado == "Pendiente de información" ? model.Resultado : "En revisión";
+        if (model.Resultado == "Pendiente de información")
+        {
+            solicitud.Estado = "Pendiente de información";
+        }
+        else if (solicitud.Estado == "Solicitado" ||
+                 solicitud.Estado == "Pendiente de información")
+        {
+            solicitud.Estado = "En revisión";
+        }
         await context.SaveChangesAsync();
         TempData["Mensaje"] = "Validación técnica registrada en el historial.";
         return RedirectToAction("Details", "Cotizaciones", new { id = solicitudId });
@@ -62,7 +73,15 @@ public class ValidacionesTecnicasController(ApplicationDbContext context, UserMa
             validacion.RespuestaCliente = respuesta.Trim();
             validacion.FechaRespuesta = DateTime.Now;
             validacion.Version = Guid.NewGuid();
-            validacion.SolicitudCotizacion!.Estado = "En revisión";
+            // Evitar retroceder una solicitud que ya tiene visita o cotización.
+            var solicitudId = validacion.SolicitudCotizacionId;
+            var tieneCotizacion = await context.Cotizaciones.AnyAsync(c => c.SolicitudCotizacionId == solicitudId);
+            var tieneVisitaCompletada = await context.VisitasTecnicas.AnyAsync(v =>
+                v.SolicitudCotizacionId == solicitudId && v.VisitaCompletada);
+            var tieneVisitaProgramada = await context.VisitasTecnicas.AnyAsync(v => v.SolicitudCotizacionId == solicitudId);
+            validacion.SolicitudCotizacion!.Estado = tieneCotizacion ? "Cotizado" :
+                tieneVisitaCompletada ? "Visita Técnica Completada" :
+                tieneVisitaProgramada ? "Visita programada" : "En revisión";
             try { await context.SaveChangesAsync(); }
             catch (DbUpdateConcurrencyException) { return Conflict("La respuesta ya fue registrada. Recargue la solicitud."); }
             TempData["Mensaje"] = "Respuesta enviada para revisión técnica.";

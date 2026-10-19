@@ -1,8 +1,13 @@
 @model GlassFlowAyF.Models.SolicitudCotizacion
-@{ var ultima = Model.ValidacionesTecnicas.OrderByDescending(v => v.Id).FirstOrDefault(); }
-<section class="glass-card mb-4">
+@{
+    var ultima = Model.ValidacionesTecnicas.OrderByDescending(v => v.Id).FirstOrDefault();
+}
+<section class="glass-card mb-4" id="validacion-tecnica">
     <h3>Validación técnica</h3>
-    @if (ultima == null) { <p>Sin validación técnica registrada.</p> }
+    @if (ultima == null)
+    {
+        <p>Sin validación técnica registrada.</p>
+    }
     else
     {
         <p><strong>@ultima.Resultado</strong> · Complejidad @ultima.Complejidad</p>
@@ -18,16 +23,25 @@
     @if (User.IsInRole("Administrador") && Model.Estado != "Borrador" && !Model.Cotizaciones.Any(c => c.Estado == "Aprobada"))
     {
         <form asp-controller="ValidacionesTecnicas" asp-action="Registrar" method="post">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="solicitudId" value="@Model.Id" />
             <div class="row g-3">
-                <div class="col-md-6"><label for="resultado" class="form-label">Resultado de la revisión</label>
-                    <select id="resultado" name="Resultado" class="form-select"><option>Validada</option><option>Pendiente de información</option></select></div>
-                <div class="col-md-6"><label for="complejidad" class="form-label">Complejidad</label>
-                    <select id="complejidad" name="Complejidad" class="form-select"><option>Baja</option><option>Media</option><option>Alta</option></select></div>
-                <div class="col-12"><label for="revision" class="form-label">Información revisada y observaciones técnicas</label>
-                    <textarea id="revision" name="Observaciones" maxlength="1500" required class="form-control" rows="3"></textarea></div>
-                <div class="col-12"><label for="informacion" class="form-label">Información adicional que debe aportar el cliente</label>
-                    <textarea id="informacion" name="InformacionSolicitada" maxlength="1500" class="form-control" rows="2"></textarea></div>
+                <div class="col-md-6">
+                    <label for="resultado" class="form-label">Resultado de la revisión</label>
+                    <select id="resultado" name="Resultado" class="form-select"><option value="Validada">Validada</option><option value="Pendiente de información">Pendiente de información</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label for="complejidad" class="form-label">Complejidad</label>
+                    <select id="complejidad" name="Complejidad" class="form-select"><option>Baja</option><option>Media</option><option>Alta</option></select>
+                </div>
+                <div class="col-12">
+                    <label for="revision" class="form-label">Información revisada y observaciones técnicas</label>
+                    <textarea id="revision" name="Observaciones" maxlength="1500" required class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <label for="informacion" class="form-label">Información adicional que debe aportar el cliente</label>
+                    <textarea id="informacion" name="InformacionSolicitada" maxlength="1500" class="form-control" rows="2" placeholder="Indique exactamente las medidas, fotografías o aclaraciones que necesita"></textarea>
+                </div>
                 <div class="col-12"><label><input name="RecomiendaVisita" type="checkbox" value="true" /> Recomendar visita técnica</label></div>
             </div>
             <button class="btn btn-glassflow mt-3" type="submit">Registrar validación</button>
@@ -51,13 +65,18 @@
                 else if (User.IsInRole("Cliente"))
                 {
                     <form asp-controller="ValidacionesTecnicas" asp-action="Responder" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@item.Id" />
-                        <label for="respuesta-@item.Id">Respuesta / enlace a fotografías adicionales</label>
+                        <label for="respuesta-@item.Id" class="form-label">Respuesta a la información solicitada (puede incluir enlaces a fotografías)</label>
                         <textarea id="respuesta-@item.Id" name="respuesta" class="form-control mb-2" rows="3" maxlength="2000" required></textarea>
                         <button type="submit" class="btn btn-glassflow">Enviar información</button>
                     </form>
                 }
-                else { <p class="text-muted">Pendiente de respuesta del cliente.</p> }
+                else
+                {
+
+                    <p class="text-muted">Pendiente de respuesta del cliente.</p>
+                }
             }
         </article>
     }
