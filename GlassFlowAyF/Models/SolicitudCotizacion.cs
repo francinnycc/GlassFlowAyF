@@ -146,5 +146,11 @@ namespace GlassFlowAyF.Models
             DisenosIA
         { get; set; }
                 = new List<DisenoIA>();
+
+        public ICollection<PropuestaVisual>
+            PropuestasVisuales
+        { get; set; }
+            = new List<PropuestaVisual>();
+
     }
 }

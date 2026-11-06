@@ -20,6 +20,11 @@ builder.Services
         IEmailService,
         EmailService>();
 
+builder.Services.AddScoped<
+    GlassFlowAyF.Services.IPropuestaVisualAlmacenamiento,
+    GlassFlowAyF.Services.PropuestaVisualAlmacenamiento>();
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 // =======================================================
 // SERVICIO OPENAI

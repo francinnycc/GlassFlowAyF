@@ -1,0 +1,41 @@
+@model GlassFlowAyF.Models.ViewModels.PropuestaVisualFormViewModel
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Editar propuesta visual";
+    var solicitud = (SolicitudCotizacion)ViewBag.Solicitud;
+    var propuesta = (PropuestaVisual)ViewBag.Propuesta;
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">DISEÑO Y PROPUESTA VISUAL</span>
+        <h1>Editar @propuesta.Codigo</h1>
+        <p>
+            SOL-@solicitud.Id.ToString("D5") · Versión actual <strong>@propuesta.VersionTexto</strong>.
+            Al guardar pasará a <strong>v@(propuesta.VersionMayor).@(propuesta.VersionMenor + 1)</strong>
+            y quedará registrado en la bitácora.
+        </p>
+    </div>
+    <a asp-action="Detalle" asp-route-id="@propuesta.Id" class="btn btn-outline-secondary">Cancelar</a>
+</div>
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="glass-card mb-4">
+    <form asp-action="Editar" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="SolicitudId" />
+        <input type="hidden" asp-for="RowVersion" />
+
+        <partial name="_CamposPropuesta" model="Model" />
+
+        <button type="submit" class="btn btn-glassflow">
+            <i class="bi bi-save me-1"></i> Guardar cambios
+        </button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

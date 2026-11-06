@@ -1,0 +1,47 @@
+@model IEnumerable<GlassFlowAyF.Models.SolicitudCotizacion>
+@{
+    ViewData["Title"] = "Propuestas visuales";
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">DISEÑO Y PROPUESTA VISUAL</span>
+        <h1>Propuestas visuales</h1>
+        <p>Revise cómo quedará su producto antes de aprobar la cotización.</p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Todavía no tiene solicitudes registradas.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var s in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="glass-card h-100">
+                    <div class="text-muted small">SOL-@s.Id.ToString("D5")</div>
+                    <h5 class="mb-1">@(s.Producto?.Nombre ?? s.TipoProducto)</h5>
+                    <p class="small text-muted">@s.FechaSolicitud.ToString("dd/MM/yyyy") · @s.Estado</p>
+
+                    @if (s.PropuestasVisuales.Any())
+                    {
+                        <span class="badge bg-success mb-3">@s.PropuestasVisuales.Count propuesta(s) disponible(s)</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary mb-3">En desarrollo</span>
+                    }
+
+                    <div>
+                        <a asp-action="PorSolicitud" asp-route-solicitudId="@s.Id" class="btn btn-outline-primary w-100">
+                            Ver propuesta visual
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

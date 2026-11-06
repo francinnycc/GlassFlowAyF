@@ -77,6 +77,17 @@ namespace GlassFlowAyF.Data
             DisenosIA
                 => Set<DisenoIA>();
 
+        public DbSet<PropuestaVisual>
+            PropuestasVisuales
+                => Set<PropuestaVisual>();
+
+        public DbSet<PropuestaVisualArchivo>
+            PropuestaVisualArchivos 
+                => Set<PropuestaVisualArchivo>();
+
+        public DbSet<PropuestaVisualBitacora>
+            PropuestaVisualBitacoras
+                => Set<PropuestaVisualBitacora>();
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
@@ -757,6 +768,27 @@ namespace GlassFlowAyF.Data
                         MaterialId = 3
                     }
                 );
+
+
+            // PROPUESTA VISUAL (Módulo 14)
+            modelBuilder.Entity<PropuestaVisual>()
+                .HasOne(p => p.SolicitudCotizacion).WithMany(s => s.PropuestasVisuales)
+                .HasForeignKey(p => p.SolicitudCotizacionId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PropuestaVisual>()
+                .HasOne(p => p.DisenoIA).WithMany()
+                .HasForeignKey(p => p.DisenoIAId).OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<PropuestaVisual>().HasIndex(p => p.Codigo).IsUnique();
+
+            modelBuilder.Entity<PropuestaVisualArchivo>()
+                .HasOne(a => a.PropuestaVisual).WithMany(p => p.Archivos)
+                .HasForeignKey(a => a.PropuestaVisualId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PropuestaVisualBitacora>()
+                .HasOne(b => b.PropuestaVisual).WithMany(p => p.Bitacora)
+                .HasForeignKey(b => b.PropuestaVisualId).OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

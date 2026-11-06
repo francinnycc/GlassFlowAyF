@@ -1,0 +1,88 @@
+@model IEnumerable<GlassFlowAyF.Models.PropuestaVisual>
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Propuestas visuales";
+    var sinPropuesta = ViewBag.SinPropuesta as List<SolicitudCotizacion> ?? new List<SolicitudCotizacion>();
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">DISEÑO Y PROPUESTA VISUAL</span>
+        <h1>Propuestas visuales</h1>
+        <p>Administre las propuestas preliminares que verá el cliente antes de aprobar la cotización.</p>
+    </div>
+</div>
+
+@if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
+@if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
+
+<div class="glass-card mb-4">
+    <h4>Propuestas registradas</h4>
+
+    @if (!Model.Any())
+    {
+        <p class="text-muted mb-0">Todavía no hay propuestas visuales registradas.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Código</th><th>Versión</th><th>Título</th><th>Solicitud</th>
+                        <th>Estado</th><th>Adjuntos</th><th>Actualizada</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td><strong>@p.Codigo</strong></td>
+                            <td>@p.VersionTexto</td>
+                            <td>@p.Titulo</td>
+                            <td>SOL-@p.SolicitudCotizacionId.ToString("D5") · @p.SolicitudCotizacion?.NombreCliente</td>
+                            <td><span class="badge bg-primary">@p.Estado</span></td>
+                            <td>@p.Archivos.Count</td>
+                            <td>@((p.FechaActualizacion ?? p.FechaCreacion).ToString("dd/MM/yyyy HH:mm"))</td>
+                            <td class="text-end">
+                                <a asp-action="Detalle" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">Ver</a>
+                                <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="glass-card mb-4">
+    <h4>Solicitudes sin propuesta visual</h4>
+    <p class="text-muted">Solo se puede crear la propuesta si la solicitud está validada y tiene medidas y fotografías.</p>
+
+    @if (!sinPropuesta.Any())
+    {
+        <p class="text-muted mb-0">Todas las solicitudes activas ya tienen propuesta.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <tbody>
+                    @foreach (var s in sinPropuesta)
+                    {
+                        <tr>
+                            <td><strong>SOL-@s.Id.ToString("D5")</strong></td>
+                            <td>@s.NombreCliente</td>
+                            <td>@(s.Producto?.Nombre ?? s.TipoProducto)</td>
+                            <td>@s.Estado</td>
+                            <td class="text-end">
+                                <a asp-action="Crear" asp-route-solicitudId="@s.Id" class="btn btn-sm btn-glassflow">Crear propuesta</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,260 @@
+@model GlassFlowAyF.Models.PropuestaVisual
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Propuesta visual";
+    var esAdmin = User.IsInRole("Administrador");
+    var solicitud = Model.SolicitudCotizacion!;
+
+    // Imágenes del visor: diseño IA base + adjuntos jpg/png (servidos por enlace autorizado).
+    var imagenes = new List<(string Url, string Titulo)>();
+    if (!string.IsNullOrWhiteSpace(Model.DisenoIA?.RutaImagenGenerada))
+    {
+        imagenes.Add((Model.DisenoIA!.RutaImagenGenerada!, "Diseño generado con IA"));
+    }
+    foreach (var a in Model.Archivos.Where(a => a.Extension == ".jpg" || a.Extension == ".jpeg" || a.Extension == ".png"))
+    {
+        imagenes.Add((Url.Action("Archivo", "PropuestasVisuales", new { id = a.Id })!, a.NombreOriginal ?? "Imagen adjunta"));
+    }
+
+    string Tam(long bytes) => bytes >= 1048576
+        ? $"{bytes / 1048576.0:0.0} MB"
+        : $"{Math.Max(1, bytes / 1024)} KB";
+
+    string Icono(string ext) => ext switch
+    {
+        ".pdf" => "bi-file-earmark-pdf",
+        ".dwg" => "bi-file-earmark-ruled",
+        _ => "bi-file-earmark-image"
+    };
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">DISEÑO Y PROPUESTA VISUAL</span>
+        <div class="request-id">@Model.Codigo · @Model.VersionTexto</div>
+        <h1>@Model.Titulo</h1>
+        <p>
+            SOL-@solicitud.Id.ToString("D5") · @solicitud.NombreCliente ·
+            <span class="badge bg-primary">@Model.Estado</span>
+        </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="PorSolicitud" asp-route-solicitudId="@solicitud.Id" class="btn btn-outline-secondary">Volver</a>
+        <a asp-action="DescargarPdf" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar PDF
+        </a>
+        @if (esAdmin)
+        {
+            <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-glassflow">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
+@if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
+
+<div class="row g-4">
+    <div class="col-lg-8">
+
+        <div class="glass-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">Vista previa</h4>
+                @if (imagenes.Any())
+                {
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary" id="zoomOut" title="Alejar"><i class="bi bi-zoom-out"></i></button>
+                        <button type="button" class="btn btn-outline-secondary" id="zoomReset" title="Restablecer">100%</button>
+                        <button type="button" class="btn btn-outline-secondary" id="zoomIn" title="Acercar"><i class="bi bi-zoom-in"></i></button>
+                    </div>
+                }
+            </div>
+
+            @if (!imagenes.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    Esta propuesta aún no tiene imágenes o simulaciones adjuntas.
+                    @if (esAdmin) { <span>Adjunte archivos en la sección inferior.</span> }
+                </div>
+            }
+            else
+            {
+                <div id="visor" style="overflow:hidden;border-radius:12px;background:rgba(15,23,42,.06);height:440px;display:flex;align-items:center;justify-content:center;touch-action:none">
+                    <img id="visorImg" src="@imagenes[0].Url" alt="@imagenes[0].Titulo"
+                         style="max-width:100%;max-height:100%;user-select:none" draggable="false" />
+                </div>
+                <p id="visorTitulo" class="small text-muted mt-2 mb-2">@imagenes[0].Titulo · use la rueda del mouse o los botones para acercar y arrastre para mover.</p>
+
+                @if (imagenes.Count > 1)
+                {
+                    <div class="d-flex gap-2 flex-wrap">
+                        @foreach (var (url, titulo) in imagenes)
+                        {
+                            <button type="button" class="btn p-0 border rounded miniatura" data-url="@url" data-titulo="@titulo" title="@titulo">
+                                <img src="@url" alt="@titulo" style="width:92px;height:66px;object-fit:cover;border-radius:6px" />
+                            </button>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="glass-card mb-4">
+            <h4>Archivos adjuntos</h4>
+
+            @if (!Model.Archivos.Any())
+            {
+                <p class="text-muted">No hay archivos adjuntos.</p>
+            }
+            else
+            {
+                <ul class="list-group mb-3">
+                    @foreach (var a in Model.Archivos.OrderByDescending(a => a.FechaCarga))
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <i class="bi @Icono(a.Extension) me-2"></i>
+                                <a asp-action="Archivo" asp-route-id="@a.Id" asp-route-descargar="true">@a.NombreOriginal</a>
+                                <span class="text-muted small ms-2">@Tam(a.TamanoBytes) · @a.FechaCarga.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            @if (esAdmin)
+                            {
+                                <form asp-action="EliminarArchivo" method="post" class="m-0"
+                                      onsubmit="return confirm('¿Eliminar este archivo? Se quitará de la propuesta y del almacenamiento.');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="archivoId" value="@a.Id" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+
+            @if (esAdmin)
+            {
+                <form asp-action="Adjuntar" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="propuestaId" value="@Model.Id" />
+                    <label class="form-label fw-bold">Adjuntar imágenes, referencias o simulaciones</label>
+                    <div class="input-group">
+                        <input type="file" name="archivos" class="form-control" multiple accept=".jpg,.jpeg,.png,.pdf,.dwg" required />
+                        <button class="btn btn-glassflow" type="submit"><i class="bi bi-upload me-1"></i> Subir</button>
+                    </div>
+                    <div class="form-text">Formatos admitidos: .JPG, .PNG, .PDF o .DWG, menores a 15 MB.</div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="glass-card mb-4">
+            <h5>Descripción</h5>
+            <p style="white-space:pre-wrap">@Model.Descripcion</p>
+            <hr />
+            <dl class="mb-0 small">
+                <dt>Producto</dt><dd>@(solicitud.Producto?.Nombre ?? solicitud.TipoProducto)</dd>
+                <dt>Material y acabado</dt><dd>@(solicitud.Material?.Nombre ?? "Por definir")</dd>
+                <dt>Medidas</dt>
+                <dd>
+                    @solicitud.Ancho?.ToString("0.##") x @solicitud.Alto?.ToString("0.##")
+                    @(solicitud.Profundidad.HasValue ? $" x {solicitud.Profundidad:0.##}" : "") @solicitud.UnidadMedida
+                </dd>
+                @if (Model.DisenoIA != null)
+                {
+                    <dt>Estilo IA</dt><dd>@Model.DisenoIA.Estilo · @(Model.DisenoIA.ColorPerfil ?? "sin color")</dd>
+                }
+                <dt>Creada</dt><dd>@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm") por @Model.CreadaPor</dd>
+                @if (Model.FechaActualizacion.HasValue)
+                {
+                    <dt>Última actualización</dt><dd>@Model.FechaActualizacion.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                }
+            </dl>
+        </div>
+
+        <div class="alert alert-light border small">
+            Esta es una representación <strong>preliminar</strong>. Las medidas y acabados definitivos
+            se confirman en la cotización y en la aprobación del diseño.
+        </div>
+
+        @if (esAdmin)
+        {
+            <div class="glass-card">
+                <h5>Bitácora de auditoría</h5>
+                <ul class="list-unstyled mb-0 small">
+                    @foreach (var b in Model.Bitacora.OrderByDescending(b => b.Fecha).ThenByDescending(b => b.Id))
+                    {
+                        <li class="border-bottom py-2">
+                            <strong>@b.Accion</strong>
+                            <div class="text-muted">@b.Fecha.ToString("dd/MM/yyyy HH:mm:ss") · @b.Usuario</div>
+                            @if (!string.IsNullOrWhiteSpace(b.Detalle)) { <div>@b.Detalle</div> }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+
+@if (imagenes.Any())
+{
+    <script>
+        (function () {
+            var img = document.getElementById('visorImg');
+            var visor = document.getElementById('visor');
+            var titulo = document.getElementById('visorTitulo');
+            var etiqueta = document.getElementById('zoomReset');
+            if (!img || !visor) return;
+
+            var escala = 1, x = 0, y = 0, arrastrando = false, inicioX = 0, inicioY = 0;
+
+            function aplicar() {
+                img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + escala + ')';
+                etiqueta.textContent = Math.round(escala * 100) + '%';
+                visor.style.cursor = escala > 1 ? 'grab' : 'default';
+            }
+
+            function zoom(factor) {
+                escala = Math.min(5, Math.max(1, escala * factor));
+                if (escala === 1) { x = 0; y = 0; }
+                aplicar();
+            }
+
+            document.getElementById('zoomIn').addEventListener('click', function () { zoom(1.25); });
+            document.getElementById('zoomOut').addEventListener('click', function () { zoom(0.8); });
+            etiqueta.addEventListener('click', function () { escala = 1; x = 0; y = 0; aplicar(); });
+
+            visor.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+            }, { passive: false });
+
+            visor.addEventListener('pointerdown', function (e) {
+                if (escala <= 1) return;
+                arrastrando = true;
+                inicioX = e.clientX - x;
+                inicioY = e.clientY - y;
+                visor.setPointerCapture(e.pointerId);
+                visor.style.cursor = 'grabbing';
+            });
+            visor.addEventListener('pointermove', function (e) {
+                if (!arrastrando) return;
+                x = e.clientX - inicioX;
+                y = e.clientY - inicioY;
+                aplicar();
+            });
+            visor.addEventListener('pointerup', function () { arrastrando = false; aplicar(); });
+
+            document.querySelectorAll('.miniatura').forEach(function (boton) {
+                boton.addEventListener('click', function () {
+                    img.src = boton.dataset.url;
+                    img.alt = boton.dataset.titulo;
+                    titulo.textContent = boton.dataset.titulo;
+                    escala = 1; x = 0; y = 0; aplicar();
+                });
+            });
+        })();
+    </script>
+}

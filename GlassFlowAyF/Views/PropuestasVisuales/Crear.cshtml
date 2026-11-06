@@ -1,0 +1,52 @@
+@model GlassFlowAyF.Models.ViewModels.PropuestaVisualFormViewModel
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Nueva propuesta visual";
+    var solicitud = (SolicitudCotizacion)ViewBag.Solicitud;
+    var faltantes = ViewBag.Faltantes as List<string> ?? new List<string>();
+    var bloqueado = faltantes.Any();
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">DISEÑO Y PROPUESTA VISUAL</span>
+        <h1>Nueva propuesta visual</h1>
+        <p>SOL-@solicitud.Id.ToString("D5") · @solicitud.NombreCliente · @(solicitud.Producto?.Nombre ?? solicitud.TipoProducto)</p>
+    </div>
+    <a asp-action="PorSolicitud" asp-route-solicitudId="@solicitud.Id" class="btn btn-outline-secondary">Volver</a>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+        @if (bloqueado)
+        {
+            <ul class="mb-0 mt-2">
+                @foreach (var f in faltantes)
+                {
+                    <li><strong>Falta:</strong> @f</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+<div class="glass-card mb-4">
+    <form asp-action="Crear" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="SolicitudId" />
+
+        <fieldset disabled="@bloqueado">
+            <partial name="_CamposPropuesta" model="Model" />
+        </fieldset>
+
+        <button type="submit" class="btn btn-glassflow" disabled="@bloqueado">
+            <i class="bi bi-plus-circle me-1"></i> Registrar propuesta visual
+        </button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
