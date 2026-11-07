@@ -5,6 +5,8 @@ namespace GlassFlowAyF.Models
 {
     public class Cotizacion
     {
+        [ConcurrencyCheck]
+        public Guid Version { get; set; } = Guid.NewGuid();
         public int Id { get; set; }
 
         [Required]

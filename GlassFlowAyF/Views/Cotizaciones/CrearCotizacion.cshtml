@@ -1,7 +1,8 @@
-﻿@model GlassFlowAyF.Models.Cotizacion
+@model GlassFlowAyF.Models.Cotizacion
 
 @{
-    ViewData["Title"] = "Generar cotización";
+    var editando = ViewBag.Editando == true;
+    ViewData["Title"] = editando ? "Ajustar cotización" : "Generar cotización";
 
     var solicitud =
         ViewBag.Solicitud
@@ -18,7 +19,7 @@
         </span>
 
         <h1>
-            Generar cotización
+            @ViewData["Title"]
         </h1>
 
         <p>
@@ -100,15 +101,16 @@
 }
 
 
-<form asp-action="CrearCotizacion"
+<form asp-action="@(editando ? "EditCotizacion" : "CrearCotizacion")" asp-route-id="@(editando ? Model.Id : (int?)null)"
       method="post"
       class="glass-card">
 
+    <input asp-for="Version" type="hidden" />
     <input asp-for="SolicitudCotizacionId"
            type="hidden" />
 
 
-    <div asp-validation-summary="ModelOnly"
+    <div asp-validation-summary="All"
          class="alert alert-danger">
     </div>
 
@@ -386,7 +388,7 @@
 
                     <i class="bi bi-send me-1"></i>
 
-                    Generar y enviar cotización
+                    @(editando ? "Guardar ajustes y reenviar" : "Generar y enviar cotización")
 
                 </button>
 

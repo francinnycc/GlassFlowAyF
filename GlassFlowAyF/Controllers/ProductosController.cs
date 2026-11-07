@@ -1,4 +1,5 @@
 ﻿using GlassFlowAyF.Data;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +26,12 @@ namespace GlassFlowAyF.Controllers
 
         [AllowAnonymous]
         public async Task<IActionResult> Index(
-            string? categoria,
-            string? buscar)
+    string? categoria,
+    string? buscar,
+    int pagina = 1)
         {
+            const int registrosPorPagina = 6;
+
             var consulta = _context.Productos
                 .AsNoTracking()
                 .Where(p => p.Activo);
@@ -74,11 +78,17 @@ namespace GlassFlowAyF.Controllers
             ViewBag.Categoria = categoria;
             ViewBag.Buscar = buscar;
 
-            var productos = await consulta
-                .OrderBy(p => p.Nombre)
-                .ToListAsync();
+            // ORDEN
+            consulta = consulta
+                .OrderBy(p => p.Nombre);
 
-            return View(productos);
+            // PAGINACIÓN REUTILIZABLE
+            var resultado =
+                await consulta.ToPagedResultAsync(
+                    pagina,
+                    registrosPorPagina);
+
+            return View(resultado);
         }
 
         // =========================================================

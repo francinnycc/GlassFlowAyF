@@ -1,0 +1,238 @@
+﻿
+@model GlassFlowAyF.Models.SolicitudCotizacion
+
+@{
+    var visita = ViewBag.VisitaCompletada
+        as GlassFlowAyF.Models.VisitaTecnica;
+
+    var medidas = ViewBag.MedidasDefinitivas
+        as GlassFlowAyF.Models.HistorialMedida;
+
+    var unidad = string.IsNullOrWhiteSpace(Model.UnidadMedida)
+        ? "Unidad no especificada"
+        : Model.UnidadMedida;
+}
+
+@if (visita != null)
+{
+    <section class="glass-card mb-4" id="resultado-visita-tecnica">
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div>
+                <h3 class="mb-1">
+                    <i class="bi bi-clipboard-check me-2"></i>
+                    Resultado de la visita técnica
+                </h3>
+
+                <p class="text-muted mb-0">
+                    Información registrada durante la revisión presencial.
+                </p>
+            </div>
+
+            <span class="badge bg-success">
+                <i class="bi bi-check-circle me-1"></i>
+                Completada
+            </span>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">
+                        Fecha de la visita
+                    </div>
+
+                    <strong>
+                        @visita.FechaHora.ToString("dd/MM/yyyy hh:mm tt")
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">
+                        Técnico responsable
+                    </div>
+
+                    <strong>
+                        @visita.TecnicoAsignado
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">
+                        Fecha de finalización
+                    </div>
+
+                    <strong>
+                        @(visita.FechaFinalizacion.HasValue
+                            ? visita.FechaFinalizacion.Value.ToString("dd/MM/yyyy hh:mm tt")
+                            : "No registrada")
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">
+                        Estado
+                    </div>
+
+                    <strong class="text-success">
+                        Visita técnica completada
+                    </strong>
+                </div>
+            </div>
+
+        </div>
+
+        <h4 class="mb-3">
+            <i class="bi bi-rulers me-2"></i>
+            Medidas registradas en la visita
+        </h4>
+
+        @if (medidas != null)
+        {
+            <div class="row g-3 mb-3">
+
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">
+                            Ancho
+                        </div>
+
+                        <strong>
+                            @(medidas.Ancho?.ToString("0.00") ?? "No registrado")
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">
+                            Alto
+                        </div>
+
+                        <strong>
+                            @(medidas.Alto?.ToString("0.00") ?? "No registrado")
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">
+                            Profundidad
+                        </div>
+
+                        <strong>
+                            @(medidas.Profundidad?.ToString("0.00") ?? "No registrada")
+                        </strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="text-muted small">
+                Unidad indicada en la solicitud:
+                <strong>@unidad</strong>.
+                Confirmar que las medidas tomadas durante la visita
+                utilizan esa misma unidad.
+            </p>
+
+            <p>
+                <strong>Cantidad:</strong>
+                @medidas.Cantidad
+            </p>
+
+            <p class="text-muted small">
+                Registradas el
+                @medidas.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(medidas.Observaciones))
+            {
+                <div class="mb-3">
+                    <strong>Observaciones de las medidas</strong>
+
+                    <p style="white-space:pre-wrap">@medidas.Observaciones</p>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                La visita está completada, pero no se encontró
+                un registro de medidas asociado por fecha.
+            </div>
+        }
+
+        <hr />
+
+        <h4 class="mb-3">
+            Resultado de la revisión
+        </h4>
+
+        @if (!string.IsNullOrWhiteSpace(visita.ResultadoVisita))
+        {
+            <p style="white-space:pre-wrap">@visita.ResultadoVisita</p>
+        }
+        else
+        {
+            <p class="text-muted">
+                No se registró una descripción del resultado.
+            </p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(visita.Observaciones))
+        {
+            <h5>Observaciones del técnico</h5>
+
+            <p style="white-space:pre-wrap">@visita.Observaciones</p>
+        }
+
+        <hr />
+
+        <h4 class="mb-3">
+            <i class="bi bi-images me-2"></i>
+            Evidencias fotográficas
+        </h4>
+
+        @if (visita.Fotografias != null && visita.Fotografias.Any())
+        {
+            <div class="row g-3">
+
+                @foreach (var foto in visita.Fotografias)
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="@foto.RutaArchivo"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="d-block border rounded overflow-hidden">
+
+                            <img src="@foto.RutaArchivo"
+                                 alt="Evidencia de visita técnica"
+                                 class="img-fluid w-100"
+                                 style="height:160px;object-fit:cover;" />
+                        </a>
+
+                        <small class="text-muted d-block mt-1">
+                            @foto.NombreOriginal
+                        </small>
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">
+                No se adjuntaron fotografías durante esta visita.
+            </p>
+        }
+
+    </section>
+}

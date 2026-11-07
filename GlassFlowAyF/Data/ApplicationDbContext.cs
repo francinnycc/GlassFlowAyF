@@ -7,6 +7,8 @@ namespace GlassFlowAyF.Data
     public class ApplicationDbContext
         : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
+        public DbSet<RevisionFotografia> RevisionesFotografias => Set<RevisionFotografia>();
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -27,9 +29,17 @@ namespace GlassFlowAyF.Data
             SolicitudesCotizacion
                 => Set<SolicitudCotizacion>();
 
+        public DbSet<HistorialMedida>
+            HistorialMedidas
+                => Set<HistorialMedida>();
+
         public DbSet<SolicitudFotografia>
             SolicitudFotografias
                 => Set<SolicitudFotografia>();
+
+        public DbSet<VisitaTecnicaFotografia>
+            VisitaTecnicaFotografias
+            => Set<VisitaTecnicaFotografia>();
 
         public DbSet<VisitaTecnica>
             VisitasTecnicas
@@ -66,7 +76,7 @@ namespace GlassFlowAyF.Data
         public DbSet<DisenoIA>
             DisenosIA
                 => Set<DisenoIA>();
-   
+
 
         public DbSet<DecisionPropuesta>
             DecisionesPropuesta

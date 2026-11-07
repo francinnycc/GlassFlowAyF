@@ -90,6 +90,15 @@ Compilar y ejecutar la aplicación.
 
 ## Migraciones
 
+### Actualización Sprint 2 (M10 y M12)
+
+Después de importar el volcado o sobre una instalación existente, ejecutar
+`sprint2_m10_m12.sql` con `glassflow_af` como esquema predeterminado en Workbench.
+Incluye la validación técnica, el control de versiones de cotización y la migración
+previa de soporte si falta según el historial. Ver `../../SPRINT2_M10_M12.md`
+para requisitos, alternativa con EF y pruebas. No volver a importar el volcado
+completo sobre una base con trabajo existente.
+
 La base contiene el historial de migraciones de Entity Framework Core
 utilizado por GlassFlow A&F.
 

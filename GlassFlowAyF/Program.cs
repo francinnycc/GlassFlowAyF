@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder =
-    WebApplication.CreateBuilder(
-        args);
+    WebApplication.CreateBuilder(args);
 
+
+// =======================================================
+// MVC
+// =======================================================
 
 builder.Services
     .AddControllersWithViews();
@@ -33,8 +36,7 @@ builder.Services
                     "https://api.openai.com/");
 
             client.Timeout =
-                TimeSpan.FromMinutes(
-                    3);
+                TimeSpan.FromMinutes(3);
         });
 
 
@@ -55,7 +57,6 @@ builder.Services
         options =>
             options.UseMySql(
                 connectionString,
-
                 ServerVersion.AutoDetect(
                     connectionString)));
 
@@ -71,44 +72,32 @@ builder.Services
         options =>
         {
             options.Password
-                .RequiredLength =
-                    6;
+                .RequiredLength = 6;
 
             options.Password
-                .RequireDigit =
-                    true;
+                .RequireDigit = true;
 
             options.Password
-                .RequireUppercase =
-                    true;
+                .RequireUppercase = true;
 
             options.Password
-                .RequireLowercase =
-                    true;
+                .RequireLowercase = true;
 
             options.Password
-                .RequireNonAlphanumeric =
-                    false;
-
+                .RequireNonAlphanumeric = false;
 
             options.User
-                .RequireUniqueEmail =
-                    true;
-
+                .RequireUniqueEmail = true;
 
             options.Lockout
-                .MaxFailedAccessAttempts =
-                    5;
+                .MaxFailedAccessAttempts = 5;
 
             options.Lockout
                 .DefaultLockoutTimeSpan =
-                    TimeSpan.FromMinutes(
-                        10);
+                    TimeSpan.FromMinutes(10);
         })
-
     .AddEntityFrameworkStores<
         ApplicationDbContext>()
-
     .AddDefaultTokenProviders();
 
 
@@ -127,13 +116,16 @@ builder.Services
                 "/Account/AccessDenied";
 
             options.ExpireTimeSpan =
-                TimeSpan.FromHours(
-                    2);
+                TimeSpan.FromHours(2);
 
             options.SlidingExpiration =
                 true;
         });
 
+
+// =======================================================
+// CREAR APP
+// =======================================================
 
 var app =
     builder.Build();
@@ -143,15 +135,13 @@ var app =
 // PIPELINE
 // =======================================================
 
-if (!app.Environment
-    .IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler(
         "/Home/Error");
 
     app.UseHsts();
 }
-
 
 app.UseHttpsRedirection();
 
@@ -165,9 +155,7 @@ app.UseAuthorization();
 
 
 app.MapControllerRoute(
-    name:
-        "default",
-
+    name: "default",
     pattern:
         "{controller=Home}/{action=Index}/{id?}");
 
@@ -176,8 +164,7 @@ app.MapControllerRoute(
 // ROLES Y USUARIOS
 // =======================================================
 
-await CrearRolesYUsuariosAsync(
-    app);
+await CrearRolesYUsuariosAsync(app);
 
 
 app.Run();
@@ -187,13 +174,11 @@ app.Run();
 // CREAR ROLES Y USUARIOS
 // =======================================================
 
-static async Task
-    CrearRolesYUsuariosAsync(
-        WebApplication app)
+static async Task CrearRolesYUsuariosAsync(
+    WebApplication app)
 {
     using var scope =
-        app.Services
-            .CreateScope();
+        app.Services.CreateScope();
 
 
     var roleManager =
@@ -214,25 +199,26 @@ static async Task
                 IConfiguration>();
 
 
+    // ===================================================
+    // ROLES
+    // ===================================================
+
     string[] roles =
     {
         "Administrador",
         "Cliente",
-        "Instalador"
+        "Instalador",
+        "Tecnico"
     };
 
 
-    foreach (var rol
-        in roles)
+    foreach (var rol in roles)
     {
         if (!await roleManager
-            .RoleExistsAsync(
-                rol))
+            .RoleExistsAsync(rol))
         {
-            await roleManager
-                .CreateAsync(
-                    new IdentityRole(
-                        rol));
+            await roleManager.CreateAsync(
+                new IdentityRole(rol));
         }
     }
 
@@ -251,15 +237,12 @@ static async Task
             "SeedAdmin:Password"];
 
 
-    if (!string.IsNullOrWhiteSpace(
-            adminEmail) &&
-        !string.IsNullOrWhiteSpace(
-            adminPassword))
+    if (!string.IsNullOrWhiteSpace(adminEmail) &&
+        !string.IsNullOrWhiteSpace(adminPassword))
     {
         var admin =
             await userManager
-                .FindByEmailAsync(
-                    adminEmail);
+                .FindByEmailAsync(adminEmail);
 
 
         if (admin == null)
@@ -337,6 +320,26 @@ static async Task
             "Luis Fernández",
             installerPassword);
     }
+
+
+    // ===================================================
+    // TÉCNICO DEMO
+    // ===================================================
+
+    var tecnicoPassword =
+        configuration[
+            "SeedTecnico:Password"];
+
+
+    if (!string.IsNullOrWhiteSpace(
+        tecnicoPassword))
+    {
+        await CrearTecnico(
+            userManager,
+            "tecnico1@glassflowaf.com",
+            "Bruno Fernández",
+            tecnicoPassword);
+    }
 }
 
 
@@ -345,17 +348,14 @@ static async Task
 // =======================================================
 
 static async Task CrearInstalador(
-    UserManager<ApplicationUser>
-        userManager,
-
+    UserManager<ApplicationUser> userManager,
     string correo,
     string nombre,
     string password)
 {
     var usuario =
         await userManager
-            .FindByEmailAsync(
-                correo);
+            .FindByEmailAsync(correo);
 
 
     if (usuario == null)
@@ -396,6 +396,64 @@ static async Task CrearInstalador(
                 .AddToRoleAsync(
                     usuario,
                     "Instalador");
+        }
+    }
+}
+
+
+// =======================================================
+// CREAR TÉCNICO
+// =======================================================
+
+static async Task CrearTecnico(
+    UserManager<ApplicationUser> userManager,
+    string correo,
+    string nombre,
+    string password)
+{
+    var usuario =
+        await userManager
+            .FindByEmailAsync(correo);
+
+
+    if (usuario == null)
+    {
+        usuario =
+            new ApplicationUser
+            {
+                UserName =
+                    correo,
+
+                Email =
+                    correo,
+
+                NombreCompleto =
+                    nombre,
+
+                EmailConfirmed =
+                    true,
+
+                Activo =
+                    true,
+
+                FechaRegistro =
+                    DateTime.Now
+            };
+
+
+        var resultado =
+            await userManager
+                .CreateAsync(
+                    usuario,
+                    password);
+
+
+        if (resultado.Succeeded)
+        {
+            await userManager
+                .AddToRoleAsync(
+                    usuario,
+                    "Tecnico");
         }
     }
 }

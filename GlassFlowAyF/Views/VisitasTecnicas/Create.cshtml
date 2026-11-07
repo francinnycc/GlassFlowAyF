@@ -52,20 +52,35 @@
             </label>
 
             <input asp-for="FechaHora"
-                   class="form-control" />
+               type="datetime-local"
+               asp-format="{0:yyyy-MM-ddTHH:mm}"
+               step="60"
+               class="form-control" />
+
+        <span asp-validation-for="FechaHora"
+              class="text-danger"></span>
 
         </div>
 
         <div class="col-md-6">
+            <label asp-for="TecnicoAsignado" class="form-label"></label>
 
-            <label asp-for="TecnicoAsignado"
-                   class="form-label">
-            </label>
+            <select asp-for="TecnicoAsignado" class="form-select">
+                <option value="">Seleccione un técnico</option>
 
-            <input asp-for="TecnicoAsignado"
-                   class="form-control"
-                   placeholder="Nombre del técnico" />
+                @if (ViewBag.Tecnicos != null)
+                {
+                    @foreach (var tecnico in ViewBag.Tecnicos)
+                    {
+                        <option value="@tecnico.NombreCompleto">
+                            @tecnico.NombreCompleto
+                        </option>
+                    }
+                }
+            </select>
 
+            <span asp-validation-for="TecnicoAsignado"
+                  class="text-danger"></span>
         </div>
 
         <div class="col-12">

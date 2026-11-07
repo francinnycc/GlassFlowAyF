@@ -1,0 +1,82 @@
+﻿@model GlassFlowAyF.Models.SolicitudCotizacion
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Historial de fotografías";
+    var revisiones = ViewBag.Revisiones as List<RevisionFotografia> ?? new List<RevisionFotografia>();
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><h2>Fotografías y evidencias</h2><p class="text-muted mb-0">Solicitud SOL-@Model.Id.ToString("D5") · @Model.NombreCliente</p></div>
+        <a class="btn btn-outline-secondary" asp-controller="Cotizaciones" asp-action="Details" asp-route-id="@Model.Id">Volver al detalle</a>
+    </div>
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success">@mensaje</div>
+    }
+    @if (!Model.Fotografias.Any())
+    {
+        <div class="alert alert-info">Esta solicitud todavía no tiene fotografías.</div>
+    }
+    @foreach (var foto in Model.Fotografias.OrderByDescending(f => f.FechaCarga).ThenByDescending(f => f.Id))
+    {
+        var historial = revisiones.Where(r => r.SolicitudFotografiaId == foto.Id).ToList();
+        var ultimaRevision = historial.FirstOrDefault(r => r.Estado != "Análisis IA");
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <a href="@foto.RutaArchivo" target="_blank" rel="noopener noreferrer"><img src="@foto.RutaArchivo" alt="Fotografía @foto.Id" class="img-fluid rounded" style="max-height:320px;object-fit:contain" /></a>
+                        <p class="small text-muted mt-2">@foto.NombreOriginal · @foto.FechaCarga.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Última revisión:</strong> @(ultimaRevision?.Estado ?? "Sin revisar")</p>
+                    </div>
+                    <div class="col-md-8">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <form asp-controller="Fotografias" asp-action="Revisar" method="post" class="mb-3">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="fotografiaId" value="@foto.Id" />
+                                <label class="form-label fw-bold">Revisión administrativa</label>
+                                <select name="estado" class="form-select mb-2" required>
+                                    <option value="Aprobada">Aprobada</option>
+                                    <option value="Requiere nueva fotografía">Requiere nueva fotografía</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                </select>
+                                <textarea name="observaciones" maxlength="1500" class="form-control mb-2" rows="2" placeholder="Observaciones (obligatorias si requiere otra fotografía)"></textarea>
+                                <button class="btn btn-primary" type="submit">Guardar revisión</button>
+                            </form>
+                            <form asp-controller="Fotografias" asp-action="Analizar" method="post" class="mb-3">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="fotografiaId" value="@foto.Id" />
+                                <button class="btn btn-outline-primary" type="submit">Analizar fotografía con IA</button>
+                                <small class="d-block text-muted">La IA brinda observaciones preliminares, no certificación técnica.</small>
+                            </form>
+                        }
+                        <h5>Historial de revisiones y análisis</h5>
+                        @if (!historial.Any())
+                        {
+                            <p class="text-muted">No hay revisiones registradas.</p>
+                        }
+                        @foreach (var item in historial)
+                        {
+                            <div class="border rounded p-3 mb-2">
+                                <div class="d-flex justify-content-between flex-wrap gap-2"><strong>@item.Estado</strong><small class="text-muted">@item.FechaRevision.ToString("dd/MM/yyyy HH:mm") · @item.Autor</small></div>
+                                @if (!string.IsNullOrWhiteSpace(item.Observaciones))
+                                {
+                                    <p class="mt-2 mb-0" style="white-space:pre-wrap">@item.Observaciones</p>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.AnalisisIA))
+                                {
+                                    <p class="mt-2 mb-0" style="white-space:pre-wrap">@item.AnalisisIA</p><small class="text-muted">Modelo: @item.ModeloIA</small>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
