@@ -191,6 +191,13 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
 
+                    b.Property<bool>("Congelada")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("CongeladaPorId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<decimal>("CostoInstalacion")
                         .HasColumnType("decimal(12,2)");
 
@@ -209,6 +216,9 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
+                    b.Property<DateTime?>("FechaCongelacion")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime(6)");
 
@@ -221,11 +231,19 @@ namespace GlassFlowAyF.Migrations
                     b.Property<decimal>("Impuesto")
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<string>("IpCongelacion")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
                     b.Property<decimal>("ManoObra")
                         .HasColumnType("decimal(12,2)");
 
                     b.Property<decimal>("OtrosCostos")
                         .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("PlanosUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<decimal>("PorcentajeImpuesto")
                         .HasColumnType("decimal(5,2)");
@@ -241,9 +259,76 @@ namespace GlassFlowAyF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CongeladaPorId");
+
                     b.HasIndex("SolicitudCotizacionId");
 
                     b.ToTable("Cotizaciones");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.DecisionPropuesta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AceptaTerminos")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ClienteId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Comentario")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<int>("CotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Decision")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("DireccionIP")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<int?>("DisenoIAId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstadoAnterior")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("EstadoNuevo")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("FechaHora")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("VersionCotizacion")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("CotizacionId");
+
+                    b.HasIndex("DisenoIAId");
+
+                    b.HasIndex("SolicitudCotizacionId", "FechaHora");
+
+                    b.ToTable("DecisionesPropuesta");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.DisenoIA", b =>
@@ -379,8 +464,20 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<string>("FichaTecnicaUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Garantia")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<decimal?>("Grosor")
                         .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Herrajes")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -452,6 +549,56 @@ namespace GlassFlowAyF.Migrations
                             PrecioAdicional = 30000m,
                             Tipo = "Vidrio templado"
                         });
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Notificacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("Leida")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Referencia")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("RolDestino")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("UsuarioId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("Leida", "FechaCreacion");
+
+                    b.ToTable("Notificaciones");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.Producto", b =>
@@ -1063,11 +1210,52 @@ namespace GlassFlowAyF.Migrations
 
             modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
                 {
+                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "CongeladaPor")
+                        .WithMany()
+                        .HasForeignKey("CongeladaPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
                         .WithMany("Cotizaciones")
                         .HasForeignKey("SolicitudCotizacionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CongeladaPor");
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.DecisionPropuesta", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GlassFlowAyF.Models.Cotizacion", "Cotizacion")
+                        .WithMany("DecisionesPropuesta")
+                        .HasForeignKey("CotizacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GlassFlowAyF.Models.DisenoIA", "DisenoIA")
+                        .WithMany()
+                        .HasForeignKey("DisenoIAId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany("DecisionesPropuesta")
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Cotizacion");
+
+                    b.Navigation("DisenoIA");
 
                     b.Navigation("SolicitudCotizacion");
                 });
@@ -1099,6 +1287,16 @@ namespace GlassFlowAyF.Migrations
                         .IsRequired();
 
                     b.Navigation("Compra");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.Notificacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.ApplicationUser", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.ProductoMaterial", b =>
@@ -1264,6 +1462,8 @@ namespace GlassFlowAyF.Migrations
             modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
                 {
                     b.Navigation("Compra");
+
+                    b.Navigation("DecisionesPropuesta");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.Material", b =>
@@ -1283,6 +1483,8 @@ namespace GlassFlowAyF.Migrations
             modelBuilder.Entity("GlassFlowAyF.Models.SolicitudCotizacion", b =>
                 {
                     b.Navigation("Cotizaciones");
+
+                    b.Navigation("DecisionesPropuesta");
 
                     b.Navigation("DisenosIA");
 

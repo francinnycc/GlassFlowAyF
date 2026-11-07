@@ -75,6 +75,26 @@ namespace GlassFlowAyF.Models
 
         public DateTime? FechaRespuestaCliente { get; set; }
 
+        [StringLength(500)]
+        [Display(Name = "Planos / renders")]
+        public string? PlanosUrl { get; set; }
+
+        [Display(Name = "Congelada")]
+        public bool Congelada { get; set; }
+
+        public DateTime? FechaCongelacion { get; set; }
+
+        [StringLength(255)]
+        public string? CongeladaPorId { get; set; }
+
+        public ApplicationUser? CongeladaPor { get; set; }
+
+        [StringLength(64)]
+        public string? IpCongelacion { get; set; }
+
+        public ICollection<DecisionPropuesta> DecisionesPropuesta { get; set; }
+            = new List<DecisionPropuesta>();
+
         public Compra? Compra { get; set; }
     }
 }

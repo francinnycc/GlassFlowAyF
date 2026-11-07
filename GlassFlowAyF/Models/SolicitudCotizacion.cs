@@ -130,5 +130,11 @@ namespace GlassFlowAyF.Models
             DisenosIA
         { get; set; }
                 = new List<DisenoIA>();
+
+
+        public ICollection<DecisionPropuesta>
+            DecisionesPropuesta
+        { get; set; }
+                = new List<DecisionPropuesta>();
     }
 }
