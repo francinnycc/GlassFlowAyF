@@ -1,36 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GlassFlowAyF.Models
+namespace GlassFlowAyF.Models;
+
+/// <summary>Notificación interna para el equipo (administrador, cotizador, operaciones).</summary>
+public class Notificacion
 {
-    public class Notificacion
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [StringLength(255)]
-        public string? UsuarioId { get; set; }
+    [Required, StringLength(40)]
+    public string DestinatarioRol { get; set; } = string.Empty;
 
-        public ApplicationUser? Usuario { get; set; }
+    [Required, StringLength(150)]
+    public string Titulo { get; set; } = string.Empty;
 
-        [StringLength(40)]
-        public string? RolDestino { get; set; }
+    [Required, StringLength(1000)]
+    public string Mensaje { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(150)]
-        public string Titulo { get; set; } = string.Empty;
+    [StringLength(300)]
+    public string? Url { get; set; }
 
-        [Required]
-        [StringLength(1000)]
-        public string Mensaje { get; set; } = string.Empty;
+    /// <summary>Aviso | Tarea</summary>
+    [Required, StringLength(20)]
+    public string Tipo { get; set; } = "Aviso";
 
-        [Required]
-        [StringLength(40)]
-        public string Tipo { get; set; } = string.Empty;
+    public int? SolicitudCotizacionId { get; set; }
 
-        [StringLength(100)]
-        public string? Referencia { get; set; }
+    public bool Leida { get; set; }
 
-        public bool Leida { get; set; }
-
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
-    }
+    public DateTime Fecha { get; set; } = DateTime.Now;
 }

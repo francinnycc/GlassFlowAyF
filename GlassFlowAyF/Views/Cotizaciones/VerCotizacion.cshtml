@@ -1,4 +1,4 @@
-@model GlassFlowAyF.Models.Cotizacion
+﻿@model GlassFlowAyF.Models.Cotizacion
 
 @{
     ViewData["Title"] = "Cotización";
@@ -362,86 +362,18 @@
              Model.Estado == "Pendiente")
         {
             <div class="glass-card">
-
-                <h4>
-                    Responder cotización
-                </h4>
-
+                <h4>Responder cotización</h4>
                 <p class="text-muted">
-                    Selecciona qué deseas hacer
-                    con esta propuesta.
+                    Revise la cotización junto a la propuesta visual y registre su decisión
+                    (aprobar, solicitar modificaciones o rechazar).
                 </p>
-
-
-                <form asp-action="ResponderCotizacion"
-                      method="post">
-                    <input type="hidden" name="version" value="@Model.Version" />
-
-                    <input type="hidden"
-                           name="id"
-                           value="@Model.Id" />
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Comentario
-                            <span class="text-muted">
-                                (opcional)
-                            </span>
-
-                        </label>
-
-                        <textarea name="comentario"
-                                  class="form-control"
-                                  rows="3"
-                                  placeholder="Puedes agregar una observación...">
-                        </textarea>
-
-                    </div>
-
-
-                    <button name="respuesta"
-                            value="Aprobar"
-                            type="submit"
-                            class="btn btn-success w-100 mb-2">
-
-                        <i class="bi bi-check-circle me-1">
-                        </i>
-
-                        Aprobar cotización
-
-                    </button>
-
-
-                    <button name="respuesta"
-                            value="Cambios"
-                            type="submit"
-                            class="btn btn-outline-primary w-100 mb-2">
-
-                        <i class="bi bi-pencil me-1">
-                        </i>
-
-                        Solicitar cambios
-
-                    </button>
-
-
-                    <button name="respuesta"
-                            value="Rechazar"
-                            type="submit"
-                            class="btn btn-outline-danger w-100">
-
-                        <i class="bi bi-x-circle me-1">
-                        </i>
-
-                        Rechazar
-
-                    </button>
-
-                </form>
-
+                <a asp-controller="RevisionCliente"
+                   asp-action="Revisar"
+                   asp-route-id="@Model.SolicitudCotizacionId"
+                   class="btn btn-success w-100">
+                    <i class="bi bi-clipboard-check me-1"></i>
+                    Revisar y responder propuesta
+                </a>
             </div>
         }
 
@@ -520,7 +452,7 @@
     </div>
 
 </div>
-@if (User.IsInRole("Administrador") && Model.Compra == null && (Model.Estado == "Pendiente" || Model.Estado == "Cambios solicitados"))
+@if (User.IsInRole("Administrador") && Model.Compra == null && !Model.Congelada && Model.Activa && (Model.Estado == "Pendiente" || Model.Estado == "Cambios solicitados"))
 {
     <a asp-action="EditCotizacion" asp-route-id="@Model.Id" class="btn btn-glassflow mt-3">Ajustar cotización</a>
 }

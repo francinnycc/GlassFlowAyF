@@ -1098,14 +1098,17 @@ namespace GlassFlowAyF.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            bool cotizacionAprobada = solicitud.Cotizaciones.Any(c => c.Estado == "Aprobada");
-            if (!cotizacionAprobada)
+            // Regla M15: solo una propuesta "Aprobado por el Cliente", congelada y con orden preliminar avanza.
+            bool cotizacionAprobada = solicitud.Cotizaciones.Any(c =>
+                c.Estado == EstadosRevision.CotAprobada && c.Congelada);
+            bool tieneOrden = await _context.OrdenesPreliminares.AnyAsync(o => o.SolicitudCotizacionId == id);
+            if (!cotizacionAprobada || !tieneOrden)
             {
-                TempData["Error"] = "Debe existir una cotización aprobada antes de avanzar a producción.";
+                TempData["Error"] = "Debe existir una propuesta aprobada por el cliente antes de avanzar a producción.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            string[] flujo = { "Aprobado", "En producción", "Instalación programada", "Instalado", "Finalizado" };
+            string[] flujo = EstadosRevision.FlujoProduccion;
             var indiceActual = Array.IndexOf(flujo, solicitud.Estado);
             var indiceNuevo = Array.IndexOf(flujo, estado);
             if (indiceActual < 0 || indiceNuevo != indiceActual + 1)
@@ -1132,8 +1135,7 @@ namespace GlassFlowAyF.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
             if (solicitud == null) return NotFound();
 
-            if (new[] { "Aprobado", "En producción", "Instalación programada", "Instalado", "Finalizado" }
-                .Contains(solicitud.Estado))
+            if (EstadosRevision.FlujoProduccion.Contains(solicitud.Estado))
             {
                 TempData["Error"] = "El estado actual pertenece a una etapa posterior y no se sincronizó.";
                 return RedirectToAction(nameof(Details), new { id });
@@ -1141,15 +1143,14 @@ namespace GlassFlowAyF.Controllers
 
             var pendiente = solicitud.ValidacionesTecnicas.Any(v =>
                 v.Resultado == "Pendiente de información" && v.FechaRespuesta == null);
-            var cotizada = solicitud.Cotizaciones.Any(c =>
-                c.Estado == "Pendiente" || c.Estado == "Cambios solicitados" || c.Estado == "Aprobada");
+            var estadoCotizaciones = EstadosRevision.EstadoSegunCotizaciones(solicitud.Cotizaciones);
             var visitaCompletada = await _context.VisitasTecnicas.AnyAsync(v =>
                 v.SolicitudCotizacionId == id && v.VisitaCompletada);
             var visitaProgramada = await _context.VisitasTecnicas.AnyAsync(v =>
                 v.SolicitudCotizacionId == id);
 
             solicitud.Estado = pendiente ? "Pendiente de información" :
-                cotizada ? "Cotizado" :
+                estadoCotizaciones != null ? estadoCotizaciones :
                 visitaCompletada ? "Visita Técnica Completada" :
                 visitaProgramada ? "Visita programada" : "En revisión";
 
@@ -1423,120 +1424,8 @@ namespace GlassFlowAyF.Controllers
             return View(cotizacion);
         }
 
-        // =========================================================
-        // RESPUESTA DEL CLIENTE
-        // =========================================================
-
-        [Authorize(Roles = "Cliente")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResponderCotizacion(
-            int id,
-            string respuesta,
-            string? comentario)
-        {
-            var usuario =
-                await _userManager
-                    .GetUserAsync(User);
-
-            if (usuario == null)
-            {
-                return Unauthorized();
-            }
-
-            var cotizacion =
-                await _context.Cotizaciones
-                    .Include(c =>
-                        c.SolicitudCotizacion)
-                    .FirstOrDefaultAsync(
-                        c => c.Id == id);
-
-            if (cotizacion == null)
-            {
-                return NotFound();
-            }
-
-            if (cotizacion
-                .SolicitudCotizacion?
-                .Correo != usuario.Email)
-            {
-                return Forbid();
-            }
-
-            if (cotizacion.Estado !=
-                "Pendiente")
-            {
-                TempData["Error"] =
-                    "Esta cotización ya fue respondida.";
-
-                return RedirectToAction(
-                    nameof(VerCotizacion),
-                    new { id });
-            }
-
-            if (cotizacion.FechaVencimiento <
-                DateTime.Today)
-            {
-                TempData["Error"] =
-                    "Esta cotización ha vencido.";
-
-                return RedirectToAction(
-                    nameof(VerCotizacion),
-                    new { id });
-            }
-
-            cotizacion.ComentarioCliente =
-                comentario;
-
-            cotizacion.FechaRespuestaCliente =
-                DateTime.Now;
-
-            switch (respuesta)
-            {
-                case "Aprobar":
-
-                    cotizacion.Estado =
-                        "Aprobada";
-
-                    cotizacion
-                        .SolicitudCotizacion!
-                        .Estado =
-                            "Aprobado";
-
-                    break;
-
-                case "Cambios":
-
-                    cotizacion.Estado =
-                        "Cambios solicitados";
-
-                    cotizacion
-                        .SolicitudCotizacion!
-                        .Estado =
-                            "En revisión";
-
-                    break;
-
-                case "Rechazar":
-
-                    cotizacion.Estado =
-                        "Rechazada";
-
-                    break;
-
-                default:
-                    return BadRequest();
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Mensaje"] =
-                "Respuesta registrada correctamente.";
-
-            return RedirectToAction(
-                nameof(VerCotizacion),
-                new { id });
-        }
+        // La respuesta del cliente (aprobar / modificar / rechazar) se gestiona en
+        // RevisionClienteController – Módulo 15, con auditoría y control de versión.
 
         // =========================================================
         // EXPORTAR COTIZACIÓN EXCEL

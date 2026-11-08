@@ -1,0 +1,37 @@
+@model GlassFlowAyF.Models.Cotizacion
+@using GlassFlowAyF.Models
+@{
+    var modalId = (string)ViewData["ModalId"]!;
+    var accion = (string)ViewData["Accion"]!;
+    var previo = TempData.Peek("ComentarioPrevio") as string;
+}
+
+<div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@(modalId)Titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content js-form-revision js-requiere-comentario" asp-controller="RevisionCliente" asp-action="@accion" method="post" novalidate>
+            <input type="hidden" name="cotizacionId" value="@Model.Id" />
+            <input type="hidden" name="version" value="@Model.Version" />
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="@(modalId)Titulo">@ViewData["Titulo"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-danger d-none js-alerta-comentario" role="alert">
+                    @EstadosRevision.MensajeComentarioObligatorio
+                </div>
+                <label class="form-label" for="@(modalId)Comentario">@ViewData["Etiqueta"] <span class="text-danger">*</span></label>
+                <textarea id="@(modalId)Comentario" name="comentario" class="form-control" rows="5"
+                          minlength="@EstadosRevision.ComentarioMinimo" maxlength="@EstadosRevision.ComentarioMaximo"
+                          placeholder="Mínimo @EstadosRevision.ComentarioMinimo caracteres">@previo</textarea>
+                <div class="form-text">Su comentario quedará registrado en la bitácora del proyecto.</div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn @ViewData["Clase"]">@ViewData["Boton"]</button>
+            </div>
+        </form>
+    </div>
+</div>

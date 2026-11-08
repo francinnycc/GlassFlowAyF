@@ -20,6 +20,15 @@ builder.Services
         IEmailService,
         EmailService>();
 
+// Módulo 15 – Revisión y Aprobación del Cliente
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+builder.Services.AddScoped<IRevisionClienteService, RevisionClienteService>();
+
+// IP real del cliente para la auditoría cuando hay un proxy local (solo se confía en loopback por defecto).
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(o =>
+    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto);
+
 
 // =======================================================
 // SERVICIO OPENAI
@@ -134,6 +143,8 @@ var app =
 // =======================================================
 // PIPELINE
 // =======================================================
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -340,6 +351,27 @@ static async Task CrearRolesYUsuariosAsync(
             "Bruno Fernández",
             tecnicoPassword);
     }
+
+
+    // ===================================================
+    // ADMINISTRADOR ADICIONAL (contraseña en appsettings.Development.json)
+    // ===================================================
+
+    var admin10Password =
+        configuration[
+            "SeedAdmin10:Password"];
+
+
+    if (!string.IsNullOrWhiteSpace(
+        admin10Password))
+    {
+        await CrearUsuarioConRol(
+            userManager,
+            "admin10@glassflowaf.com",
+            "Administrador GlassFlow 10",
+            admin10Password,
+            "Administrador");
+    }
 }
 
 
@@ -455,5 +487,49 @@ static async Task CrearTecnico(
                     usuario,
                     "Tecnico");
         }
+    }
+}
+
+// =======================================================
+// CREAR USUARIO CON ROL (genérico)
+// Si el usuario ya existe solo garantiza que tenga el rol.
+// =======================================================
+
+static async Task CrearUsuarioConRol(
+    UserManager<ApplicationUser> userManager,
+    string correo,
+    string nombre,
+    string password,
+    string rol)
+{
+    var usuario =
+        await userManager.FindByEmailAsync(correo);
+
+    if (usuario == null)
+    {
+        usuario = new ApplicationUser
+        {
+            UserName = correo,
+            Email = correo,
+            NombreCompleto = nombre,
+            EmailConfirmed = true,
+            Activo = true,
+            FechaRegistro = DateTime.Now
+        };
+
+        var resultado =
+            await userManager.CreateAsync(usuario, password);
+
+        if (!resultado.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"No se pudo crear {correo}: " +
+                string.Join("; ", resultado.Errors.Select(e => e.Description)));
+        }
+    }
+
+    if (!await userManager.IsInRoleAsync(usuario, rol))
+    {
+        await userManager.AddToRoleAsync(usuario, rol);
     }
 }

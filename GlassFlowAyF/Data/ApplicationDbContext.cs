@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlassFlowAyF.Data
 {
-    public class ApplicationDbContext
+    public partial class ApplicationDbContext
         : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
@@ -78,21 +78,13 @@ namespace GlassFlowAyF.Data
                 => Set<DisenoIA>();
 
 
-        public DbSet<DecisionPropuesta>
-            DecisionesPropuesta
-                => Set<DecisionPropuesta>();
-
-
-        public DbSet<Notificacion>
-            Notificaciones
-                => Set<Notificacion>();
-
-
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
             base.OnModelCreating(
                 modelBuilder);
+
+            ConfigurarModulo15(modelBuilder);
 
 
             // =================================================
@@ -439,136 +431,6 @@ namespace GlassFlowAyF.Data
 
                 .OnDelete(
                     DeleteBehavior.SetNull);
-
-
-            modelBuilder
-                .Entity<DecisionPropuesta>()
-
-                .HasOne(
-                    d =>
-                        d.SolicitudCotizacion)
-
-                .WithMany(
-                    s =>
-                        s.DecisionesPropuesta)
-
-                .HasForeignKey(
-                    d =>
-                        d.SolicitudCotizacionId)
-
-                .OnDelete(
-                    DeleteBehavior.Cascade);
-
-
-            modelBuilder
-                .Entity<DecisionPropuesta>()
-
-                .HasOne(
-                    d =>
-                        d.Cotizacion)
-
-                .WithMany(
-                    c =>
-                        c.DecisionesPropuesta)
-
-                .HasForeignKey(
-                    d =>
-                        d.CotizacionId)
-
-                .OnDelete(
-                    DeleteBehavior.Restrict);
-
-
-            modelBuilder
-                .Entity<DecisionPropuesta>()
-
-                .HasOne(
-                    d =>
-                        d.DisenoIA)
-
-                .WithMany()
-
-                .HasForeignKey(
-                    d =>
-                        d.DisenoIAId)
-
-                .OnDelete(
-                    DeleteBehavior.SetNull);
-
-
-            modelBuilder
-                .Entity<DecisionPropuesta>()
-
-                .HasOne(
-                    d =>
-                        d.Cliente)
-
-                .WithMany()
-
-                .HasForeignKey(
-                    d =>
-                        d.ClienteId)
-
-                .OnDelete(
-                    DeleteBehavior.Restrict);
-
-
-            modelBuilder
-                .Entity<DecisionPropuesta>()
-
-                .HasIndex(
-                    d =>
-                        new
-                        {
-                            d.SolicitudCotizacionId,
-                            d.FechaHora
-                        });
-
-
-            modelBuilder
-                .Entity<Cotizacion>()
-
-                .HasOne(
-                    c =>
-                        c.CongeladaPor)
-
-                .WithMany()
-
-                .HasForeignKey(
-                    c =>
-                        c.CongeladaPorId)
-
-                .OnDelete(
-                    DeleteBehavior.Restrict);
-
-
-            modelBuilder
-                .Entity<Notificacion>()
-
-                .HasOne(
-                    n =>
-                        n.Usuario)
-
-                .WithMany()
-
-                .HasForeignKey(
-                    n =>
-                        n.UsuarioId)
-
-                .OnDelete(
-                    DeleteBehavior.SetNull);
-
-
-            modelBuilder
-                .Entity<Notificacion>()
-
-                .HasIndex(
-                    n =>
-                        new
-                        {
-                            n.Leida,
-                            n.FechaCreacion
-                        });
 
 
             // =================================================

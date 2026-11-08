@@ -38,18 +38,6 @@ namespace GlassFlowAyF.Models
         [StringLength(500)]
         public string? Descripcion { get; set; }
 
-        [StringLength(500)]
-        [Display(Name = "Herrajes")]
-        public string? Herrajes { get; set; }
-
-        [StringLength(500)]
-        [Display(Name = "Garantía")]
-        public string? Garantia { get; set; }
-
-        [StringLength(500)]
-        [Display(Name = "Ficha técnica")]
-        public string? FichaTecnicaUrl { get; set; }
-
         [Display(Name = "Disponible")]
         public bool Activo { get; set; } = true;
 

@@ -1,0 +1,37 @@
+@model GlassFlowAyF.Models.Cotizacion
+@using GlassFlowAyF.Models
+
+<div class="modal fade" id="modalAprobar" tabindex="-1" aria-labelledby="tituloAprobar" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content js-form-revision" asp-controller="RevisionCliente" asp-action="Aprobar" method="post">
+            <input type="hidden" name="cotizacionId" value="@Model.Id" />
+            <input type="hidden" name="version" value="@Model.Version" />
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloAprobar"><i class="bi bi-check-circle text-success me-1"></i>Confirmar aprobación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="fw-semibold">@EstadosRevision.MensajeConfirmarAprobacion</p>
+                <p class="small text-muted">
+                    Total aprobado: <strong>₡@Model.Total.ToString("N2")</strong>. Una vez aprobada, la cotización
+                    queda congelada y no podrá modificarse. Se registrará la fecha, hora y dirección IP de esta decisión.
+                </p>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="aceptoTerminos" name="aceptoTerminos" value="true" required />
+                    <label class="form-check-label small" for="aceptoTerminos">
+                        He leído y acepto los términos y condiciones comerciales de esta propuesta.
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success js-aprobar" disabled>
+                    <i class="bi bi-check2-circle me-1"></i>Aprobar formalmente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

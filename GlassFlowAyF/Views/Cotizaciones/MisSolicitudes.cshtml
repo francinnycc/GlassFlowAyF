@@ -171,6 +171,16 @@ else
 
                         </a>
 
+                        <a class="btn btn-outline-success"
+                           asp-controller="RevisionCliente"
+                           asp-action="Revisar"
+                           asp-route-id="@item.Id">
+
+                            <i class="bi bi-clipboard-check me-1"></i>
+                            Revisar propuesta
+
+                        </a>
+
                         @if (item.Estado == "Borrador" ||
                              item.Estado == "Solicitado")
                         {

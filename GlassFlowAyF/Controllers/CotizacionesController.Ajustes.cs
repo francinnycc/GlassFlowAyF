@@ -1,4 +1,4 @@
-using GlassFlowAyF.Models;
+﻿using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +7,9 @@ namespace GlassFlowAyF.Controllers;
 
 public partial class CotizacionesController
 {
-    private static bool Editable(Cotizacion c) => c.Compra == null &&
-        (c.Estado == "Pendiente" || c.Estado == "Cambios solicitados");
+    // M15: una versión aprobada (congelada) o rechazada (inactiva) no admite modificaciones.
+    private static bool Editable(Cotizacion c) => c.Compra == null && !c.Congelada && c.Activa &&
+        (c.Estado == EstadosRevision.CotPendiente || c.Estado == EstadosRevision.CotCambios);
 
     [Authorize(Roles = "Administrador")]
     [HttpGet]
@@ -60,7 +61,7 @@ public partial class CotizacionesController
         actual.FechaRespuestaCliente = null;
         actual.Version = Guid.NewGuid();
         actual.SolicitudCotizacion!.MontoEstimado = actual.Total;
-        actual.SolicitudCotizacion.Estado = "Cotizado";
+        actual.SolicitudCotizacion.Estado = EstadosRevision.Cotizado;
         try { await _context.SaveChangesAsync(); }
         catch (DbUpdateConcurrencyException) { return Conflict("La cotización cambió. Recargue antes de editarla."); }
         TempData["Mensaje"] = "Cotización ajustada y disponible para una nueva respuesta del cliente.";

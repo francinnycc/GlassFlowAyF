@@ -1,0 +1,226 @@
+@model GlassFlowAyF.Models.ViewModels.RevisionPropuestaViewModel
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Revisión de propuesta";
+    var s = Model.Solicitud;
+    var c = Model.Cotizacion;
+    var d = Model.Diseno;
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">REVISIÓN Y APROBACIÓN</span>
+        <div class="request-id">SOL-@s.Id.ToString("D5")</div>
+        <h1>Propuesta para su proyecto</h1>
+        <p>Compare la cotización con la propuesta visual antes de tomar una decisión.</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (Model.EsAdministrador)
+        {
+            <a asp-action="Historial" asp-route-id="@s.Id" class="btn btn-outline-secondary">
+                <i class="bi bi-journal-text me-1"></i> Bitácora
+            </a>
+        }
+        <a asp-controller="Cotizaciones" asp-action="Details" asp-route-id="@s.Id" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Volver a la solicitud
+        </a>
+    </div>
+</div>
+
+@if (c == null)
+{
+    <partial name="_EmptyState" />
+}
+else
+{
+    <div class="glass-card mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <span class="text-muted small">Estado del proyecto</span>
+            <div><span class="status-badge" data-testid="estado-solicitud">@s.Estado</span></div>
+        </div>
+        <div>
+            <span class="text-muted small">Estado de la cotización</span>
+            <div>
+                <span class="status-badge">@c.Estado</span>
+                @if (c.Congelada)
+                {
+                    <span class="badge text-bg-secondary ms-1"><i class="bi bi-lock-fill me-1"></i>Versión congelada</span>
+                }
+            </div>
+        </div>
+        <div>
+            <span class="text-muted small">Vigencia</span>
+            <div>
+                @if (Model.Vencida)
+                {
+                    <span class="badge text-bg-danger">Vencida el @c.FechaVencimiento.ToString("dd/MM/yyyy")</span>
+                }
+                else
+                {
+                    <span class="badge @(Model.DiasVigencia <= 3 ? "text-bg-warning" : "text-bg-success")">
+                        Válida hasta @c.FechaVencimiento.ToString("dd/MM/yyyy") (@Model.DiasVigencia días)
+                    </span>
+                }
+            </div>
+        </div>
+        @if (Model.Orden != null)
+        {
+            <div>
+                <span class="text-muted small">Orden preliminar</span>
+                <div><strong>@Model.Orden.Numero</strong></div>
+            </div>
+        }
+        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalDetalle">
+            <i class="bi bi-info-circle me-1"></i> Ver detalles técnicos
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <!-- ===================== COTIZACIÓN ===================== -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <h4 class="mb-3"><i class="bi bi-receipt me-2"></i>Cotización COT-@c.Id.ToString("D5")</h4>
+                <table class="table align-middle mb-3">
+                    <tbody>
+                        <tr><td>Materiales</td><td class="text-end">₡@c.CostoMateriales.ToString("N2")</td></tr>
+                        <tr><td>Mano de obra</td><td class="text-end">₡@c.ManoObra.ToString("N2")</td></tr>
+                        <tr><td>Instalación</td><td class="text-end">₡@c.CostoInstalacion.ToString("N2")</td></tr>
+                        <tr><td>Otros costos</td><td class="text-end">₡@c.OtrosCostos.ToString("N2")</td></tr>
+                        <tr class="fw-semibold"><td>Subtotal</td><td class="text-end">₡@c.Subtotal.ToString("N2")</td></tr>
+                        <tr><td>Impuesto (@c.PorcentajeImpuesto.ToString("0.##")%)</td><td class="text-end">₡@c.Impuesto.ToString("N2")</td></tr>
+                        <tr><td>Descuento</td><td class="text-end text-success">-₡@c.Descuento.ToString("N2")</td></tr>
+                        <tr class="fs-5 fw-bold"><td>Total</td><td class="text-end" data-testid="total">₡@c.Total.ToString("N2")</td></tr>
+                    </tbody>
+                </table>
+                @if (!string.IsNullOrWhiteSpace(c.DetalleTecnico))
+                {
+                    <h6>Detalle técnico</h6>
+                    <p class="text-muted small" style="white-space:pre-line">@c.DetalleTecnico</p>
+                }
+                <h6>Condiciones</h6>
+                <p class="text-muted small mb-0" style="white-space:pre-line">@(string.IsNullOrWhiteSpace(c.Condiciones) ? "Sin condiciones adicionales." : c.Condiciones)</p>
+            </div>
+        </div>
+
+        <!-- ===================== PROPUESTA VISUAL ===================== -->
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <h4 class="mb-3"><i class="bi bi-image me-2"></i>Propuesta visual</h4>
+                @if (d != null && !string.IsNullOrWhiteSpace(d.RutaImagenGenerada))
+                {
+                    <img src="@d.RutaImagenGenerada" alt="Propuesta visual del proyecto" class="img-fluid rounded mb-3 w-100" style="max-height:340px;object-fit:cover" />
+                    <div class="small">
+                        <strong>Estilo:</strong> @d.Estilo
+                        @if (!string.IsNullOrWhiteSpace(d.ColorPerfil)) { <span> · <strong>Perfilería:</strong> @d.ColorPerfil</span> }
+                        @if (!string.IsNullOrWhiteSpace(d.Ambiente)) { <span> · <strong>Ambiente:</strong> @d.Ambiente</span> }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5 border rounded">
+                        <i class="bi bi-image fs-1 d-block mb-2"></i>
+                        La propuesta visual se encuentra en elaboración.
+                    </div>
+                }
+
+                <h6 class="mt-4">Especificaciones vs. montos</h6>
+                <table class="table table-sm small">
+                    <tbody>
+                        <tr><th>Producto</th><td>@(s.Producto?.Nombre ?? s.TipoProducto)</td></tr>
+                        <tr><th>Material</th><td>@(s.Material?.Nombre ?? "Por definir") @(s.Material?.Grosor != null ? $"({s.Material.Grosor} mm)" : "")</td></tr>
+                        <tr><th>Perfil / acabado</th><td>@(s.Material?.Perfil ?? "-") / @(s.Material?.Acabado ?? "-")</td></tr>
+                        <tr><th>Medidas</th><td>@s.Ancho × @s.Alto @(s.Profundidad != null ? $"× {s.Profundidad}" : "") @s.UnidadMedida</td></tr>
+                        <tr><th>Cantidad</th><td>@s.Cantidad</td></tr>
+                        <tr><th>Costo de materiales</th><td>₡@c.CostoMateriales.ToString("N2")</td></tr>
+                        <tr><th>Costo por unidad</th><td>₡@((s.Cantidad > 0 ? c.Total / s.Cantidad : c.Total).ToString("N2"))</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== ACCIONES ===================== -->
+    <div class="glass-card mt-4">
+        @if (Model.PuedeResponder)
+        {
+            <h4>Su decisión</h4>
+            <p class="text-muted">Al aprobar, la versión de la cotización queda congelada y se inicia el proceso de producción.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAprobar">
+                    <i class="bi bi-check-circle me-1"></i> Aprobar
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalModificacion">
+                    <i class="bi bi-pencil me-1"></i> Solicitar modificación
+                </button>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalRechazo">
+                    <i class="bi bi-x-circle me-1"></i> Rechazar
+                </button>
+            </div>
+        }
+        else if (Model.MotivoBloqueo != null)
+        {
+            <div class="alert alert-info mb-0" data-testid="motivo-bloqueo">
+                <i class="bi bi-info-circle me-1"></i> @Model.MotivoBloqueo
+            </div>
+        }
+
+        @if (Model.EsCliente && c.Estado == EstadosRevision.CotAprobada && c.Compra == null)
+        {
+            <a asp-controller="Compras" asp-action="Confirmar" asp-route-cotizacionId="@c.Id" class="btn btn-primary mt-3">
+                <i class="bi bi-bag-check me-1"></i> Confirmar compra
+            </a>
+        }
+    </div>
+
+    @if (Model.Historial.Count > 0)
+    {
+        <div class="glass-card mt-4">
+            <h5>Historial de decisiones</h5>
+            <ul class="list-group list-group-flush small">
+                @foreach (var r in Model.Historial)
+                {
+                    <li class="list-group-item bg-transparent">
+                        <strong>@r.Decision</strong> · @r.FechaUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        @if (!string.IsNullOrWhiteSpace(r.Comentario)) { <div class="text-muted">“@r.Comentario”</div> }
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- ===================== MODALES ===================== -->
+    <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="tituloDetalle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloDetalle">Detalles técnicos de la propuesta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <partial name="_DetallePropuesta" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.PuedeResponder)
+    {
+        <partial name="_ModalAprobar" model="c" />
+        @await Html.PartialAsync("_ModalComentario", c, new ViewDataDictionary(ViewData)
+        {
+            ["ModalId"] = "modalModificacion", ["Accion"] = "SolicitarModificacion",
+            ["Titulo"] = "Solicitar modificación", ["Etiqueta"] = "Describa los cambios requeridos",
+            ["Boton"] = "Enviar solicitud", ["Clase"] = "btn-primary"
+        })
+        @await Html.PartialAsync("_ModalComentario", c, new ViewDataDictionary(ViewData)
+        {
+            ["ModalId"] = "modalRechazo", ["Accion"] = "Rechazar",
+            ["Titulo"] = "Rechazar propuesta", ["Etiqueta"] = "Motivo del rechazo",
+            ["Boton"] = "Rechazar propuesta", ["Clase"] = "btn-danger"
+        })
+    }
+}
+
+@section Scripts {
+    <script src="~/js/revision-cliente.js" asp-append-version="true"></script>
+}

@@ -11,6 +11,14 @@ namespace GlassFlowAyF.Controllers
     [Authorize]
     public class ComprasController : Controller
     {
+        // Regla crítica M15: solo una propuesta "Aprobado por el Cliente" (cotización aprobada y
+        // congelada) puede avanzar a la creación del pedido.
+        public static bool PuedeGenerarPedido(Cotizacion cotizacion) =>
+            cotizacion.Estado == EstadosRevision.CotAprobada &&
+            cotizacion.Congelada &&
+            cotizacion.SolicitudCotizacion != null &&
+            EstadosRevision.FlujoProduccion.Contains(cotizacion.SolicitudCotizacion.Estado);
+
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -65,6 +73,22 @@ namespace GlassFlowAyF.Controllers
 
                     .ToListAsync();
 
+            // M15: propuestas aprobadas por el cliente (orden preliminar generada)
+            // que aún esperan la confirmación de compra y método de pago.
+            ViewBag.PendientesConfirmar =
+                await _context.Cotizaciones
+                    .AsNoTracking()
+                    .Include(c => c.OrdenPreliminar)
+                    .Include(c => c.SolicitudCotizacion)
+                        .ThenInclude(s => s!.Producto)
+                    .Where(c =>
+                        c.Estado == EstadosRevision.CotAprobada &&
+                        c.Congelada &&
+                        c.Compra == null &&
+                        c.SolicitudCotizacion!.Correo == usuario.Email)
+                    .OrderByDescending(c => c.FechaCongelacion)
+                    .ToListAsync();
+
             return View(compras);
         }
 
@@ -117,7 +141,7 @@ namespace GlassFlowAyF.Controllers
                 return Forbid();
             }
 
-            if (cotizacion.Estado != "Aprobada")
+            if (!PuedeGenerarPedido(cotizacion))
             {
                 TempData["Error"] =
                     "Primero debe aprobar la cotización.";
@@ -199,7 +223,7 @@ namespace GlassFlowAyF.Controllers
                 return Forbid();
             }
 
-            if (cotizacion.Estado != "Aprobada")
+            if (!PuedeGenerarPedido(cotizacion))
             {
                 TempData["Error"] =
                     "La cotización debe estar aprobada antes de generar la compra.";
