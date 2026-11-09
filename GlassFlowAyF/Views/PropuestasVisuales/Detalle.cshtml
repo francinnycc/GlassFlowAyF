@@ -52,8 +52,6 @@
     </div>
 </div>
 
-@if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
-@if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
 
 <div class="row g-4">
     <div class="col-lg-8">
@@ -160,7 +158,7 @@
                 <dt>Medidas</dt>
                 <dd>
                     @solicitud.Ancho?.ToString("0.##") x @solicitud.Alto?.ToString("0.##")
-                    @(solicitud.Profundidad.HasValue ? $" x {solicitud.Profundidad:0.##}" : "") @solicitud.UnidadMedida
+                    @(solicitud.Profundidad.HasValue ? $" x {solicitud.Profundidad:0.##}" : "") @(string.IsNullOrWhiteSpace(solicitud.UnidadMedida) ? "m" : solicitud.UnidadMedida)
                 </dd>
                 @if (Model.DisenoIA != null)
                 {

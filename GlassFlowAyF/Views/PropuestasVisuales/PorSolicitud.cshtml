@@ -25,8 +25,6 @@
     </div>
 </div>
 
-@if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
-@if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
 
 @if (!Model.Any())
 {

@@ -1,4 +1,6 @@
 ﻿using GlassFlowAyF.Data;
+using GlassFlowAyF.ViewModels;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -30,30 +32,50 @@ namespace GlassFlowAyF.Controllers
         // LISTADO DE INSTALACIONES
         // =====================================================
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] FiltroViewModel filtro)
         {
-            var trabajos =
-                await _context
-                    .TrabajosInstalacion
+            var consulta = _context.TrabajosInstalacion
+                .AsNoTracking()
+                .Include(t => t.Instalador)
+                .Include(t => t.Compra)
+                .Include(t => t.SolicitudCotizacion)
+                .AsQueryable();
 
-                    .AsNoTracking()
+            if (!string.IsNullOrWhiteSpace(filtro.Buscar))
+            {
+                var texto = filtro.Buscar.Trim();
 
-                    .Include(t =>
-                        t.Instalador)
+                consulta = consulta.Where(t =>
+                    t.Cliente.Contains(texto) ||
+                    t.Producto.Contains(texto) ||
+                    t.Direccion.Contains(texto) ||
+                    (t.Instalador != null && t.Instalador.NombreCompleto.Contains(texto)));
+            }
 
-                    .Include(t =>
-                        t.Compra)
+            if (!string.IsNullOrWhiteSpace(filtro.Estado))
+                consulta = consulta.Where(t => t.Estado == filtro.Estado);
 
-                    .Include(t =>
-                        t.SolicitudCotizacion)
+            if (filtro.Desde.HasValue)
+                consulta = consulta.Where(t => t.FechaInstalacion >= filtro.Desde.Value.Date);
 
-                    .OrderBy(t =>
-                        t.FechaInstalacion)
+            if (filtro.Hasta.HasValue)
+                consulta = consulta.Where(t => t.FechaInstalacion < filtro.Hasta.Value.Date.AddDays(1));
 
-                    .ToListAsync();
+            var resultado = await consulta
+                .OrderBy(t => t.FechaInstalacion)
+                .PaginarAsync(filtro.Pagina, filtro.TamanoPagina);
 
+            filtro.Estados = await _context.TrabajosInstalacion
+                .Select(t => t.Estado)
+                .Distinct()
+                .OrderBy(e => e)
+                .ToListAsync();
+            filtro.Placeholder = "Cliente, producto, dirección o instalador";
 
-            return View(trabajos);
+            ViewBag.Filtro = filtro;
+            ViewBag.Paginacion = resultado.Paginacion;
+
+            return View(resultado);
         }
 
 

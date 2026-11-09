@@ -1,5 +1,7 @@
 ﻿
 using ClosedXML.Excel;
+using GlassFlowAyF.ViewModels;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Data;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -32,18 +34,67 @@ namespace GlassFlowAyF.Controllers
         // =========================================================
 
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] FiltroViewModel filtro)
         {
-            var solicitudes =
-                await _context.SolicitudesCotizacion
-                    .AsNoTracking()
-                    .Include(s => s.Producto)
-                    .Include(s => s.Material)
-                    .Include(s => s.Cotizaciones)
-                    .OrderByDescending(s => s.FechaSolicitud)
-                    .ToListAsync();
+            var consulta = _context.SolicitudesCotizacion
+                .AsNoTracking()
+                .Include(s => s.Producto)
+                .Include(s => s.Material)
+                .Include(s => s.Cotizaciones)
+                .AsQueryable();
 
-            return View(solicitudes);
+            consulta = AplicarFiltroSolicitudes(consulta, filtro);
+
+            var resultado = await consulta
+                .OrderByDescending(s => s.FechaSolicitud)
+                .PaginarAsync(filtro.Pagina, filtro.TamanoPagina);
+
+            ConfigurarFiltroSolicitudes(filtro);
+            ViewBag.Filtro = filtro;
+            ViewBag.Paginacion = resultado.Paginacion;
+
+            return View(resultado);
+        }
+
+        // Filtros reutilizados por la vista del administrador y la del cliente.
+        private static IQueryable<SolicitudCotizacion> AplicarFiltroSolicitudes(
+            IQueryable<SolicitudCotizacion> consulta, FiltroViewModel filtro)
+        {
+            if (!string.IsNullOrWhiteSpace(filtro.Buscar))
+            {
+                var texto = filtro.Buscar.Trim();
+                var idTexto = texto.Replace("#", "").Replace("SOL-", "", StringComparison.OrdinalIgnoreCase);
+                var idBuscado = int.TryParse(idTexto, out var n) ? n : -1;
+
+                consulta = consulta.Where(s =>
+                    s.Id == idBuscado ||
+                    s.NombreCliente.Contains(texto) ||
+                    s.Correo.Contains(texto) ||
+                    s.TipoProducto.Contains(texto) ||
+                    (s.Producto != null && s.Producto.Nombre.Contains(texto)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtro.Estado))
+                consulta = consulta.Where(s => s.Estado == filtro.Estado);
+
+            if (filtro.Desde.HasValue)
+                consulta = consulta.Where(s => s.FechaSolicitud >= filtro.Desde.Value.Date);
+
+            if (filtro.Hasta.HasValue)
+                consulta = consulta.Where(s => s.FechaSolicitud < filtro.Hasta.Value.Date.AddDays(1));
+
+            return consulta;
+        }
+
+        private static void ConfigurarFiltroSolicitudes(FiltroViewModel filtro)
+        {
+            filtro.Placeholder = "Cliente, correo, producto o SOL-00010";
+            filtro.Estados = new List<string>
+            {
+                "Borrador", "Solicitado", "En revisión", "Pendiente de información", "Visita programada",
+                "Visita Técnica Completada", "Cotizado", "Aprobado", "En producción",
+                "Instalación programada", "Instalado", "Finalizado"
+            };
         }
 
         // =========================================================
@@ -51,7 +102,7 @@ namespace GlassFlowAyF.Controllers
         // =========================================================
 
         [Authorize(Roles = "Cliente")]
-        public async Task<IActionResult> MisSolicitudes()
+        public async Task<IActionResult> MisSolicitudes([FromQuery] FiltroViewModel filtro)
         {
             var usuario =
                 await _userManager.GetUserAsync(User);
@@ -63,17 +114,25 @@ namespace GlassFlowAyF.Controllers
                     "Account");
             }
 
-            var solicitudes =
-                await _context.SolicitudesCotizacion
-                    .AsNoTracking()
-                    .Include(s => s.Producto)
-                    .Include(s => s.Material)
-                    .Include(s => s.Cotizaciones)
-                    .Where(s => s.Correo == usuario.Email)
-                    .OrderByDescending(s => s.FechaSolicitud)
-                    .ToListAsync();
+            var consulta = _context.SolicitudesCotizacion
+                .AsNoTracking()
+                .Include(s => s.Producto)
+                .Include(s => s.Material)
+                .Include(s => s.Cotizaciones)
+                .Where(s => s.Correo == usuario.Email)
+                .AsQueryable();
 
-            return View(solicitudes);
+            consulta = AplicarFiltroSolicitudes(consulta, filtro);
+
+            var resultado = await consulta
+                .OrderByDescending(s => s.FechaSolicitud)
+                .PaginarAsync(filtro.Pagina, filtro.TamanoPagina);
+
+            ConfigurarFiltroSolicitudes(filtro);
+            ViewBag.Filtro = filtro;
+            ViewBag.Paginacion = resultado.Paginacion;
+
+            return View(resultado);
         }
 
         // =========================================================

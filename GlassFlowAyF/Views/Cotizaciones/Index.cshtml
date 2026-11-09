@@ -26,6 +26,8 @@
 </div>
 
 
+<partial name="_BarraFiltros" model="(GlassFlowAyF.ViewModels.FiltroViewModel)ViewBag.Filtro" />
+
 @if (!Model.Any())
 {
     <div class="glass-card text-center py-5">
@@ -148,3 +150,5 @@ else
 
     </div>
 }
+
+<partial name="_Paginacion" model="(GlassFlowAyF.ViewModels.PaginacionViewModel)ViewBag.Paginacion" />

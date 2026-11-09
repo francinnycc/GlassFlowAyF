@@ -1,4 +1,6 @@
 using GlassFlowAyF.Data;
+using GlassFlowAyF.ViewModels;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
 using GlassFlowAyF.Models.ViewModels;
 using GlassFlowAyF.Services;
@@ -36,7 +38,7 @@ public class PropuestasVisualesController(
     // =====================================================
 
     [Authorize(Roles = "Administrador")]
-    public async Task<IActionResult> Index(int? solicitudId)
+    public async Task<IActionResult> Index(int? solicitudId, [FromQuery] FiltroViewModel filtro)
     {
         var consulta = context.PropuestasVisuales
             .AsNoTracking()
@@ -47,9 +49,38 @@ public class PropuestasVisualesController(
         if (solicitudId.HasValue)
             consulta = consulta.Where(p => p.SolicitudCotizacionId == solicitudId.Value);
 
+        if (!string.IsNullOrWhiteSpace(filtro.Buscar))
+        {
+            var texto = filtro.Buscar.Trim();
+
+            consulta = consulta.Where(p =>
+                p.Titulo.Contains(texto) ||
+                (p.Codigo != null && p.Codigo.Contains(texto)) ||
+                (p.SolicitudCotizacion != null && p.SolicitudCotizacion.NombreCliente.Contains(texto)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filtro.Estado))
+            consulta = consulta.Where(p => p.Estado == filtro.Estado);
+
+        if (filtro.Desde.HasValue)
+            consulta = consulta.Where(p => p.FechaCreacion >= filtro.Desde.Value.Date);
+
+        if (filtro.Hasta.HasValue)
+            consulta = consulta.Where(p => p.FechaCreacion < filtro.Hasta.Value.Date.AddDays(1));
+
         var propuestas = await consulta
             .OrderByDescending(p => p.FechaActualizacion ?? p.FechaCreacion)
+            .PaginarAsync(filtro.Pagina, filtro.TamanoPagina);
+
+        filtro.Estados = await context.PropuestasVisuales
+            .Select(p => p.Estado)
+            .Distinct()
+            .OrderBy(e => e)
             .ToListAsync();
+        filtro.Placeholder = "Código, título o cliente";
+
+        ViewBag.Filtro = filtro;
+        ViewBag.Paginacion = propuestas.Paginacion;
 
         // Solicitudes que todavía no tienen propuesta (para crear desde aquí).
         ViewBag.SinPropuesta = await context.SolicitudesCotizacion
@@ -609,7 +640,7 @@ public class PropuestasVisualesController(
 
         var medidas = $"{s.Ancho:0.##} x {s.Alto:0.##}" +
                       (s.Profundidad.HasValue ? $" x {s.Profundidad:0.##}" : "") +
-                      $" {s.UnidadMedida}";
+                      $" {(string.IsNullOrWhiteSpace(s.UnidadMedida) ? "m" : s.UnidadMedida)}";
 
         return Document.Create(documento =>
         {

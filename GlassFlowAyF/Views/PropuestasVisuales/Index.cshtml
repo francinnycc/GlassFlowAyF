@@ -13,8 +13,8 @@
     </div>
 </div>
 
-@if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
-@if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
+
+<partial name="_BarraFiltros" model="(GlassFlowAyF.ViewModels.FiltroViewModel)ViewBag.Filtro" />
 
 <div class="glass-card mb-4">
     <h4>Propuestas registradas</h4>
@@ -53,6 +53,8 @@
                 </tbody>
             </table>
         </div>
+
+        <partial name="_Paginacion" model="(GlassFlowAyF.ViewModels.PaginacionViewModel)ViewBag.Paginacion" />
     }
 </div>
 

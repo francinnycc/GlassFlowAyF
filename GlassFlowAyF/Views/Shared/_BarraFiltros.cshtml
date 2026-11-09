@@ -1,0 +1,55 @@
+@model GlassFlowAyF.ViewModels.FiltroViewModel
+@*
+    Barra de filtros reutilizable (búsqueda, estado y rango de fechas).
+    Uso: <partial name="_BarraFiltros" model="(GlassFlowAyF.ViewModels.FiltroViewModel)ViewBag.Filtro" />
+*@
+@{
+    var propios = new[] { "buscar", "estado", "desde", "hasta", "pagina" };
+}
+
+<form method="get" class="glass-card mb-3">
+    <div class="row g-2 align-items-end">
+
+        <div class="col-md-4">
+            <label class="form-label small mb-1">Buscar</label>
+            <input type="text" name="buscar" value="@Model.Buscar" class="form-control" placeholder="@Model.Placeholder" />
+        </div>
+
+        @if (Model.MostrarEstado && Model.Estados.Any())
+        {
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var e in Model.Estados)
+                    {
+                        <option value="@e" selected="@(string.Equals(Model.Estado, e, StringComparison.OrdinalIgnoreCase))">@e</option>
+                    }
+                </select>
+            </div>
+        }
+
+        @if (Model.MostrarFechas)
+        {
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Desde</label>
+                <input type="date" name="desde" value="@Model.Desde?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Hasta</label>
+                <input type="date" name="hasta" value="@Model.Hasta?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+        }
+
+        <div class="col-auto d-flex gap-2">
+            <button type="submit" class="btn btn-glassflow"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+            <a href="@Context.Request.Path" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </div>
+
+    @* Conserva otros parámetros de la URL (por ejemplo solicitudId) al filtrar. *@
+    @foreach (var clave in Context.Request.Query.Keys.Where(k => !propios.Contains(k, StringComparer.OrdinalIgnoreCase)))
+    {
+        <input type="hidden" name="@clave" value="@Context.Request.Query[clave]" />
+    }
+</form>

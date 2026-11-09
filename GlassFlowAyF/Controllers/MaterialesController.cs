@@ -1,4 +1,6 @@
 ﻿using GlassFlowAyF.Data;
+using GlassFlowAyF.ViewModels;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,15 +20,40 @@ namespace GlassFlowAyF.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] FiltroViewModel filtro)
         {
-            var materiales =
-                await _context.Materiales
-                    .OrderBy(m => m.Tipo)
-                    .ThenBy(m => m.Nombre)
-                    .ToListAsync();
+            var consulta = _context.Materiales.AsQueryable();
 
-            return View(materiales);
+            if (!string.IsNullOrWhiteSpace(filtro.Buscar))
+            {
+                var texto = filtro.Buscar.Trim();
+
+                consulta = consulta.Where(m =>
+                    m.Nombre.Contains(texto) ||
+                    m.Tipo.Contains(texto) ||
+                    (m.Color != null && m.Color.Contains(texto)) ||
+                    (m.Acabado != null && m.Acabado.Contains(texto)));
+            }
+
+            if (filtro.Estado == "Activo" || filtro.Estado == "Inactivo")
+            {
+                var activo = filtro.Estado == "Activo";
+                consulta = consulta.Where(m => m.Activo == activo);
+            }
+
+            var resultado = await consulta
+                .OrderBy(m => m.Tipo)
+                .ThenBy(m => m.Nombre)
+                .PaginarAsync(filtro.Pagina, filtro.TamanoPagina);
+
+            filtro.Estados = new List<string> { "Activo", "Inactivo" };
+            filtro.MostrarFechas = false;
+            filtro.Placeholder = "Nombre, tipo, color o acabado";
+
+            ViewBag.Filtro = filtro;
+            ViewBag.Paginacion = resultado.Paginacion;
+
+            return View(resultado);
         }
 
 

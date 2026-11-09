@@ -1,4 +1,5 @@
 ﻿using GlassFlowAyF.Data;
+using GlassFlowAyF.Extensions;
 using GlassFlowAyF.Models;
 using GlassFlowAyF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -318,7 +319,8 @@ namespace GlassFlowAyF.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Administrar(
-            string? estado = null)
+            string? estado = null,
+            int pagina = 1)
         {
             var query =
                 _context
@@ -342,14 +344,11 @@ namespace GlassFlowAyF.Controllers
             }
 
 
-            var solicitudes =
-                await query
+            var solicitudes = await query
+                .OrderByDescending(s => s.FechaCreacion)
+                .PaginarAsync(pagina, 10);
 
-                    .OrderByDescending(
-                        s =>
-                            s.FechaCreacion)
-
-                    .ToListAsync();
+            ViewBag.Paginacion = solicitudes.Paginacion;
 
 
             ViewBag.Estado =

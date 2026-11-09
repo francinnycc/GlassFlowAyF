@@ -24,6 +24,8 @@
 
 </div>
 
+<partial name="_BarraFiltros" model="(GlassFlowAyF.ViewModels.FiltroViewModel)ViewBag.Filtro" />
+
 <div class="row g-4">
 
     @foreach (var item in Model)
@@ -79,3 +81,5 @@
     }
 
 </div>
+
+<partial name="_Paginacion" model="(GlassFlowAyF.ViewModels.PaginacionViewModel)ViewBag.Paginacion" />
