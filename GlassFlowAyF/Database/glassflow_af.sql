@@ -1,21 +1,27 @@
-CREATE DATABASE  IF NOT EXISTS `glassflow_af` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `glassflow_af`;
--- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 9.5.0, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: glassflow_af
+-- Host: localhost    Database: glassflow_af
 -- ------------------------------------------------------
--- Server version	8.0.44
+-- Server version	9.5.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `glassflow_af`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `glassflow_af` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `glassflow_af`;
 
 --
 -- Table structure for table `__efmigrationshistory`
@@ -37,7 +43,7 @@ CREATE TABLE `__efmigrationshistory` (
 
 LOCK TABLES `__efmigrationshistory` WRITE;
 /*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory` VALUES ('20260807041350_InitialCreate','8.0.13'),('20260807053520_AddIdentityUsuarios','8.0.13'),('20260808211447_ProductosMaterialesFotografias','8.0.13'),('20260811032810_ComprasFacturacionEInstaladores','8.0.13'),('20260811051935_AgregarDisenosIA','8.0.13');
+INSERT INTO `__efmigrationshistory` VALUES ('20260807041350_InitialCreate','8.0.13'),('20260807053520_AddIdentityUsuarios','8.0.13'),('20260808211447_ProductosMaterialesFotografias','8.0.13'),('20260811032810_ComprasFacturacionEInstaladores','8.0.13'),('20260811051935_AgregarDisenosIA','8.0.13'),('20260928223357_AgregarModuloSoporte','8.0.13'),('20261005163008_AgregarDatosSaludYContactoEmergencia','8.0.13');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +178,7 @@ CREATE TABLE `aspnetuserroles` (
 
 LOCK TABLES `aspnetuserroles` WRITE;
 /*!40000 ALTER TABLE `aspnetuserroles` DISABLE KEYS */;
-INSERT INTO `aspnetuserroles` VALUES ('2da29790-1e22-4d44-a5da-f8e9a103dfb1','0666a418-7867-449c-9334-def688a03724'),('9f14b64e-906c-41e1-bc2b-0695ab408c86','0666a418-7867-449c-9334-def688a03724'),('ea5aafe2-bbce-41e8-836f-184f5c11e024','0666a418-7867-449c-9334-def688a03724'),('08ab7c90-b5d7-48fe-85f5-bad855a101b0','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('55a44b57-b63d-4f18-b577-d5495ded4176','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('13ba4756-e4a6-4e93-aa11-8fea8baad3fc','8658ea93-e969-4c79-88be-b8d00ad83f86');
+INSERT INTO `aspnetuserroles` VALUES ('2da29790-1e22-4d44-a5da-f8e9a103dfb1','0666a418-7867-449c-9334-def688a03724'),('9f14b64e-906c-41e1-bc2b-0695ab408c86','0666a418-7867-449c-9334-def688a03724'),('ea5aafe2-bbce-41e8-836f-184f5c11e024','0666a418-7867-449c-9334-def688a03724'),('08ab7c90-b5d7-48fe-85f5-bad855a101b0','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('0b3dec11-190b-489a-87c2-07a683937e2a','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('55a44b57-b63d-4f18-b577-d5495ded4176','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('7bbcf643-b11b-46d3-9677-fef96c9bef5e','1e138ba6-eae1-4982-8283-df8d7e0ade46'),('13ba4756-e4a6-4e93-aa11-8fea8baad3fc','8658ea93-e969-4c79-88be-b8d00ad83f86');
 /*!40000 ALTER TABLE `aspnetuserroles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -203,6 +209,11 @@ CREATE TABLE `aspnetusers` (
   `LockoutEnd` datetime(6) DEFAULT NULL,
   `LockoutEnabled` tinyint(1) NOT NULL,
   `AccessFailedCount` int NOT NULL,
+  `AlergiasMedicamentos` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `Cedula` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `Medicamentos` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `NumeroContactoEmergencia` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `PadecimientosEnfermedades` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UserNameIndex` (`NormalizedUserName`),
   KEY `EmailIndex` (`NormalizedEmail`)
@@ -215,7 +226,7 @@ CREATE TABLE `aspnetusers` (
 
 LOCK TABLES `aspnetusers` WRITE;
 /*!40000 ALTER TABLE `aspnetusers` DISABLE KEYS */;
-INSERT INTO `aspnetusers` VALUES ('08ab7c90-b5d7-48fe-85f5-bad855a101b0','cliente','san jose','2026-08-07 00:24:47.123438',1,'cliente2@prueba.com','CLIENTE2@PRUEBA.COM','cliente2@prueba.com','CLIENTE2@PRUEBA.COM',0,'AQAAAAIAAYagAAAAEE9NPuPDfaOdLBX4IkvVK5lZbsCTZm8KvF4/WiPypqUqWAdbDcwUeZxhwaGbdocnfQ==','UDZFUTFXLXVIJQQUCWOM5YPWFWSDRLXL','56c4bfcd-c3c5-4568-8b97-3cef7fa48053','88898888',0,0,NULL,1,0),('13ba4756-e4a6-4e93-aa11-8fea8baad3fc','Administrador GlassFlow',NULL,'2026-08-06 23:49:52.377375',1,'admin@glassflowaf.com','ADMIN@GLASSFLOWAF.COM','admin@glassflowaf.com','ADMIN@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEEwvhctopTWgJ1yGe5jfu2WN8Cfn91lRf+3L6/e2GL35U/QiKhjIDkErIfE+EE6/nQ==','JF3OGPPKTNQVXGKBYPE55VJGA27SGGIB','224283d3-47f3-4d2e-8531-6311633ace2b',NULL,0,0,NULL,1,0),('2da29790-1e22-4d44-a5da-f8e9a103dfb1','Luis Fernández',NULL,'2026-08-11 00:35:13.762814',1,'instalador3@glassflowaf.com','INSTALADOR3@GLASSFLOWAF.COM','instalador3@glassflowaf.com','INSTALADOR3@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEP55mywDIojAIe8THo78/jkDXqoSx+i2nYnZxCTn6oS6Q+oJfXVy6bwSh5DZTm7IZQ==','H6AJJ7LWEHCXI4MTKH5PAVO4HBRZC53Y','c8b9628a-76d0-4f5b-aba9-3c8281911e19',NULL,0,0,NULL,1,0),('55a44b57-b63d-4f18-b577-d5495ded4176','Cliente Prueba','Heredia','2026-08-06 23:56:04.767575',1,'cliente@prueba.com','CLIENTE@PRUEBA.COM','cliente@prueba.com','CLIENTE@PRUEBA.COM',0,'AQAAAAIAAYagAAAAECNFBmIJRnrB9OxzLcKYhRWVohE4uzY2u3f+IxCDcHyew20QBK+TinCbAjEa6VMzgA==','3YDPIMZWXLP642DBU2GV2LOXDXOEX3IH','6cbf00bd-868f-44ae-8927-bef67b14f67a','88888888',0,0,NULL,1,0),('9f14b64e-906c-41e1-bc2b-0695ab408c86','Carlos Ramírez',NULL,'2026-08-11 00:35:12.659896',1,'instalador1@glassflowaf.com','INSTALADOR1@GLASSFLOWAF.COM','instalador1@glassflowaf.com','INSTALADOR1@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEGZnqRpCK+i/uuvcMZ1D/gFOs+YHIu9mMGdfad6nPvTcrqOkgpAwuIQggpiPoE7oQA==','DRB732WXQC3GXNN7JTM7ORRQ72OVULXT','176c7336-f582-4a26-ae70-60c1da6bb74a',NULL,0,0,NULL,1,0),('ea5aafe2-bbce-41e8-836f-184f5c11e024','Andrés Rodríguez',NULL,'2026-08-11 00:35:13.515399',1,'instalador2@glassflowaf.com','INSTALADOR2@GLASSFLOWAF.COM','instalador2@glassflowaf.com','INSTALADOR2@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEFvU4LREUGMcZUUTwpRpzbQBCKgmS0nrBHDFAYyeKmeIvr5zvsrSOc3wGFEA+K/a8Q==','YQKI5YPJQLHOADMMJOE7XNMGTPGKNJ63','a981e047-4793-4fc5-8404-4c7e75f55d9d',NULL,0,0,NULL,1,0);
+INSERT INTO `aspnetusers` VALUES ('08ab7c90-b5d7-48fe-85f5-bad855a101b0','cliente','san jose','2026-08-07 00:24:47.123438',1,'cliente2@prueba.com','CLIENTE2@PRUEBA.COM','cliente2@prueba.com','CLIENTE2@PRUEBA.COM',0,'AQAAAAIAAYagAAAAEE9NPuPDfaOdLBX4IkvVK5lZbsCTZm8KvF4/WiPypqUqWAdbDcwUeZxhwaGbdocnfQ==','UDZFUTFXLXVIJQQUCWOM5YPWFWSDRLXL','56c4bfcd-c3c5-4568-8b97-3cef7fa48053','88898888',0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('0b3dec11-190b-489a-87c2-07a683937e2a','Francinny Cedeno','Del parque de desamparados, 400 metros sur de panadería PPK, casa esquinera blanca y verjas negras','2026-09-12 10:55:02.142616',1,'fran@glassflowaf.com','FRAN@GLASSFLOWAF.COM','fran@glassflowaf.com','FRAN@GLASSFLOWAF.COM',0,'AQAAAAIAAYagAAAAEOa4BtHNFkBRtjlabFYsPMZeQNXooYSzsWLLZbLk9KcGfY9/xWLUyyQvId/QVQIIxw==','3HKSW7HOPVLG2SPOGKAXDR7UGGWDXA4B','9c266fa6-eee0-49fe-be9a-66123fcb537b','85055905',0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('13ba4756-e4a6-4e93-aa11-8fea8baad3fc','Administrador GlassFlow',NULL,'2026-08-06 23:49:52.377375',1,'admin@glassflowaf.com','ADMIN@GLASSFLOWAF.COM','admin@glassflowaf.com','ADMIN@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEEwvhctopTWgJ1yGe5jfu2WN8Cfn91lRf+3L6/e2GL35U/QiKhjIDkErIfE+EE6/nQ==','JF3OGPPKTNQVXGKBYPE55VJGA27SGGIB','de45be14-c0f2-407d-abf0-6e5d73d04bf8',NULL,0,0,'2026-09-15 00:19:56.974332',1,0,NULL,'',NULL,NULL,NULL),('2da29790-1e22-4d44-a5da-f8e9a103dfb1','Luis Fernández',NULL,'2026-08-11 00:35:13.762814',1,'instalador3@glassflowaf.com','INSTALADOR3@GLASSFLOWAF.COM','instalador3@glassflowaf.com','INSTALADOR3@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEP55mywDIojAIe8THo78/jkDXqoSx+i2nYnZxCTn6oS6Q+oJfXVy6bwSh5DZTm7IZQ==','H6AJJ7LWEHCXI4MTKH5PAVO4HBRZC53Y','c8b9628a-76d0-4f5b-aba9-3c8281911e19',NULL,0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('55a44b57-b63d-4f18-b577-d5495ded4176','Cliente Prueba','Heredia','2026-08-06 23:56:04.767575',1,'cliente@prueba.com','CLIENTE@PRUEBA.COM','cliente@prueba.com','CLIENTE@PRUEBA.COM',0,'AQAAAAIAAYagAAAAECNFBmIJRnrB9OxzLcKYhRWVohE4uzY2u3f+IxCDcHyew20QBK+TinCbAjEa6VMzgA==','3YDPIMZWXLP642DBU2GV2LOXDXOEX3IH','6cbf00bd-868f-44ae-8927-bef67b14f67a','88888888',0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('7bbcf643-b11b-46d3-9677-fef96c9bef5e','pamela cedeno','desamparados centro','2026-10-02 14:07:15.556650',1,'pamela2420@gmail.com','PAMELA2420@GMAIL.COM','pamela2420@gmail.com','PAMELA2420@GMAIL.COM',0,'AQAAAAIAAYagAAAAEMELJgQZeoECCEixK4z3HrbU2A//qYyEbHJ7joHUYuW1sXkHJ1Igcoo/yhcfnLm45Q==','K6HUYQHXZVQ7KMMNJSJXSUZ452WDQLDT','b339389a-7595-4576-a659-c717d05698b6','85436239',0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('9f14b64e-906c-41e1-bc2b-0695ab408c86','Carlos Ramírez',NULL,'2026-08-11 00:35:12.659896',1,'instalador1@glassflowaf.com','INSTALADOR1@GLASSFLOWAF.COM','instalador1@glassflowaf.com','INSTALADOR1@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEGZnqRpCK+i/uuvcMZ1D/gFOs+YHIu9mMGdfad6nPvTcrqOkgpAwuIQggpiPoE7oQA==','DRB732WXQC3GXNN7JTM7ORRQ72OVULXT','38673f4f-de5d-413b-8047-57f9b27ad1d6',NULL,0,0,NULL,1,0,NULL,'',NULL,NULL,NULL),('ea5aafe2-bbce-41e8-836f-184f5c11e024','Andrés Rodríguez',NULL,'2026-08-11 00:35:13.515399',1,'instalador2@glassflowaf.com','INSTALADOR2@GLASSFLOWAF.COM','instalador2@glassflowaf.com','INSTALADOR2@GLASSFLOWAF.COM',1,'AQAAAAIAAYagAAAAEFvU4LREUGMcZUUTwpRpzbQBCKgmS0nrBHDFAYyeKmeIvr5zvsrSOc3wGFEA+K/a8Q==','YQKI5YPJQLHOADMMJOE7XNMGTPGKNJ63','a981e047-4793-4fc5-8404-4c7e75f55d9d',NULL,0,0,NULL,1,0,NULL,'',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `aspnetusers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -531,6 +542,43 @@ INSERT INTO `solicitudescotizacion` VALUES (1,'cliente','cliente2@prueba.com','8
 UNLOCK TABLES;
 
 --
+-- Table structure for table `solicitudessoporte`
+--
+
+DROP TABLE IF EXISTS `solicitudessoporte`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `solicitudessoporte` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `UsuarioId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Tipo` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Categoria` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Asunto` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Mensaje` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Estado` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `FechaCreacion` datetime(6) NOT NULL,
+  `FechaRespuesta` datetime(6) DEFAULT NULL,
+  `Respuesta` varchar(3000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `RespondidoPorId` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `Calificacion` int DEFAULT NULL,
+  `ComentarioCalificacion` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `FechaCalificacion` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_SolicitudesSoporte_UsuarioId` (`UsuarioId`),
+  CONSTRAINT `FK_SolicitudesSoporte_AspNetUsers_UsuarioId` FOREIGN KEY (`UsuarioId`) REFERENCES `aspnetusers` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `solicitudessoporte`
+--
+
+LOCK TABLES `solicitudessoporte` WRITE;
+/*!40000 ALTER TABLE `solicitudessoporte` DISABLE KEYS */;
+/*!40000 ALTER TABLE `solicitudessoporte` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `solicitudfotografias`
 --
 
@@ -635,6 +683,14 @@ LOCK TABLES `visitastecnicas` WRITE;
 INSERT INTO `visitastecnicas` VALUES (1,2,'2026-08-11 18:41:24.712000','da','san jose','azul','Programada'),(2,5,'2026-08-18 10:00:00.000000','Carlos Ramírez','Mercedes Norte, Heredia','Confirmar ancho, altura, nivel del piso y ubicación de anclajes.','Programada'),(3,10,'2026-08-19 10:45:42.370000','Gabriel','san jose','uruca','Programada'),(4,10,'2026-08-19 10:47:27.668000','Carlos Ramirez','san jose','uruca','Programada'),(5,10,'2026-08-19 10:48:39.819000','Carlos Ramírez','san jose','uruca','Programada'),(6,11,'2026-08-19 11:48:29.950000','Carlos Ramírez','san jose','uruca','Programada');
 /*!40000 ALTER TABLE `visitastecnicas` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping events for database 'glassflow_af'
+--
+
+--
+-- Dumping routines for database 'glassflow_af'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -645,4 +701,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-07 21:45:11
+-- Dump completed on 2026-10-05 10:36:51

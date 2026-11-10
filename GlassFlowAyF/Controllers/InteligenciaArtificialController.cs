@@ -401,6 +401,7 @@ namespace GlassFlowAyF.Controllers
 
                     .Include(d =>
                         d.FotografiaBase)
+                    .Include(d => d.Revisiones)
 
                     .FirstOrDefaultAsync(
                         d =>
@@ -422,10 +423,7 @@ namespace GlassFlowAyF.Controllers
 
 
                 if (usuario == null ||
-                    diseno
-                        .SolicitudCotizacion?
-                        .Correo !=
-                    usuario.Email)
+                    !string.Equals(diseno.SolicitudCotizacion?.Correo, usuario.Email, StringComparison.OrdinalIgnoreCase))
                 {
                     return Forbid();
                 }
@@ -436,6 +434,63 @@ namespace GlassFlowAyF.Controllers
                 diseno);
         }
 
+
+        // RESPUESTA FORMAL DEL CLIENTE A UNA PROPUESTA VISUAL
+        [Authorize(Roles = "Cliente")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResponderDiseno(int id, string decision, string? comentario)
+        {
+            var usuario = await _userManager.GetUserAsync(User);
+            if (usuario == null) return Unauthorized();
+
+            var diseno = await _context.DisenosIA
+                .Include(d => d.SolicitudCotizacion)
+                .FirstOrDefaultAsync(d => d.Id == id);
+            if (diseno == null) return NotFound();
+            if (!string.Equals(diseno.SolicitudCotizacion?.Correo, usuario.Email,
+                StringComparison.OrdinalIgnoreCase)) return Forbid();
+
+            var estados = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["aprobar"] = "Aprobado",
+                ["rechazar"] = "Rechazado",
+                ["cambios"] = "Cambios solicitados"
+            };
+            if (!estados.TryGetValue(decision ?? "", out var estado)) return BadRequest();
+            comentario = comentario?.Trim();
+            if (comentario?.Length > 2000)
+            {
+                TempData["Error"] = "El comentario no puede superar los 2000 caracteres.";
+                return RedirectToAction(nameof(Resultado), new { id });
+            }
+            if (estado != "Aprobado" && string.IsNullOrWhiteSpace(comentario))
+            {
+                TempData["Error"] = "Indicá el motivo del rechazo o los cambios solicitados.";
+                return RedirectToAction(nameof(Resultado), new { id });
+            }
+            if (diseno.EstadoRevision == "Aprobado" || diseno.EstadoRevision == "Rechazado")
+            {
+                TempData["Error"] = "Esta propuesta tiene una decisión definitiva y no admite nuevas respuestas.";
+                return RedirectToAction(nameof(Resultado), new { id });
+            }
+
+            diseno.EstadoRevision = estado;
+            diseno.ComentarioRevision = comentario;
+            diseno.FechaUltimaRevision = DateTime.Now;
+            diseno.UsuarioUltimaRevisionId = usuario.Id;
+            _context.DisenosIARevisiones.Add(new DisenoIARevision
+            {
+                DisenoIAId = diseno.Id,
+                Estado = estado,
+                Comentario = comentario,
+                UsuarioId = usuario.Id,
+                Fecha = DateTime.Now
+            });
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Respuesta del diseño registrada correctamente.";
+            return RedirectToAction(nameof(Resultado), new { id });
+        }
 
         // =====================================================
         // ADMINISTRADOR
@@ -499,6 +554,7 @@ namespace GlassFlowAyF.Controllers
                 await _context
                     .DisenosIA
                     .AsNoTracking()
+                    .Include(d => d.Revisiones)
 
                     .Include(d =>
                         d.SolicitudCotizacion)
@@ -564,14 +620,18 @@ namespace GlassFlowAyF.Controllers
             }
 
 
-            if (diseno
-                .SolicitudCotizacion?
-                .Correo !=
-                usuario.Email)
+            if (!string.Equals(diseno.SolicitudCotizacion?.Correo, usuario.Email, StringComparison.OrdinalIgnoreCase))
             {
                 return Forbid();
             }
 
+
+            // Solo una propuesta formalmente aprobada puede ser preferida.
+            if (!string.Equals(diseno.EstadoRevision, "Aprobado", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "Solo podés elegir como preferido un diseño aprobado.";
+                return RedirectToAction(nameof(Resultado), new { id });
+            }
 
             var disenosSolicitud =
                 await _context
@@ -651,26 +711,28 @@ namespace GlassFlowAyF.Controllers
             }
 
 
-            if (diseno
-                .SolicitudCotizacion?
-                .Correo !=
-                usuario.Email)
+            if (!string.Equals(diseno.SolicitudCotizacion?.Correo, usuario.Email, StringComparison.OrdinalIgnoreCase))
             {
                 return Forbid();
             }
 
 
-            EliminarImagenGenerada(
-                diseno
-                    .RutaImagenGenerada);
+            // Un diseño favorito o con respuestas formales no puede eliminarse:
+            // preservamos la trazabilidad de las decisiones del cliente.
+            var tieneRevisiones = await _context.DisenosIARevisiones
+                .AnyAsync(r => r.DisenoIAId == diseno.Id);
 
+            if (diseno.EsFavorito || tieneRevisiones ||
+                !string.Equals(diseno.EstadoRevision, "Pendiente", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "No se puede eliminar un diseño preferido o con historial de revisión.";
+                return RedirectToAction(nameof(MisDisenos));
+            }
 
-            _context.DisenosIA
-                .Remove(diseno);
-
-
-            await _context
-                .SaveChangesAsync();
+            // Guardar primero en la base de datos; después retirar el archivo.
+            _context.DisenosIA.Remove(diseno);
+            await _context.SaveChangesAsync();
+            EliminarImagenGenerada(diseno.RutaImagenGenerada);
 
 
             TempData["Mensaje"] =

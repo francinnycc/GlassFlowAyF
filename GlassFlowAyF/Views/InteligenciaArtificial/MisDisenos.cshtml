@@ -4,6 +4,11 @@
     ViewData["Title"] = "Mis diseños IA";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div class="page-header">
 
     <div>
@@ -25,7 +30,7 @@
 
 
     <a asp-action="Index"
-           class="btn btn-glassflow">
+       class="btn btn-glassflow">
 
         <i class="bi bi-stars me-1"></i>
 
@@ -52,7 +57,7 @@
         </p>
 
         <a asp-action="Index"
-               class="btn btn-glassflow">
+           class="btn btn-glassflow">
 
             Comenzar
 
@@ -151,15 +156,15 @@ else
                         <div class="d-flex gap-2">
 
                             <a asp-action="Resultado"
-                                   asp-route-id="@diseno.Id"
-                                   class="btn btn-outline-primary flex-fill">
+                               asp-route-id="@diseno.Id"
+                               class="btn btn-outline-primary flex-fill">
 
                                 Ver diseño
 
                             </a>
 
 
-                            @if (!diseno.EsFavorito)
+                            @if (!diseno.EsFavorito && string.Equals(diseno.EstadoRevision, "Pendiente", StringComparison.OrdinalIgnoreCase) && (diseno.Revisiones == null || !diseno.Revisiones.Any()))
                             {
                                 <form asp-action="Eliminar"
                                       method="post">

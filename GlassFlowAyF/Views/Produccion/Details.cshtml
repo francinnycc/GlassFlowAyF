@@ -1,0 +1,63 @@
+﻿@model GlassFlowAyF.Models.OrdenProduccion
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Orden de producción"; var materiales = ViewBag.Materiales as List<Material> ?? new();
+}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center"><div><h2>@Model.NumeroOrden</h2><p>Compra: <strong>@Model.Compra?.NumeroOrden</strong> · Estado: <span class="badge bg-primary">@Model.Estado</span></p></div><a asp-action="Index" class="btn btn-outline-secondary">Volver</a></div>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">Planificación</div><div class="card-body">
+                <form asp-action="ActualizarPlan" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>Inicio previsto</label><input class="form-control" name="fechaInicioPrevista" type="date" value="@Model.FechaInicioPrevista.ToString("yyyy-MM-dd")" required /></div><div class="col-md-6"><label>Fin previsto</label><input class="form-control" name="fechaFinPrevista" type="date" value="@Model.FechaFinPrevista.ToString("yyyy-MM-dd")" required /></div><div class="col-12"><label>Responsable</label><input name="responsable" maxlength="150" required class="form-control" value="@Model.Responsable" /></div><div class="col-12"><label>Recursos</label><textarea name="recursos" maxlength="1000" class="form-control">@Model.Recursos</textarea></div><div class="col-12"><label>Observaciones</label><textarea name="observaciones" maxlength="2000" class="form-control">@Model.Observaciones</textarea></div>
+                        @if (Model.Estado != "Terminada")
+                        {
+                            <div class="col-12"><button class="btn btn-primary">Actualizar plan</button></div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header">Materiales de producción</div><div class="card-body table-responsive">
+            <table class="table"><thead><tr><th>Material</th><th>Cantidad</th><th>Disponibilidad confirmada</th><th></th></tr></thead><tbody>@foreach(var m in Model.Materiales){
+                <tr><td>@m.Material?.Nombre</td><td>@m.Cantidad.ToString("N2") @m.Unidad</td><td>@(m.ConfirmadoDisponible ? "Sí" : "No")</td><td>@if(Model.Estado!="Terminada"){
+                    <form asp-action="QuitarMaterial" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="materialRegistroId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger">Quitar</button></form>
+                }
+            </td></tr>
+        }
+    </tbody></table>
+    @if (Model.Estado != "Terminada")
+    {
+        <hr /><form asp-action="AgregarMaterial" method="post" class="row g-2"><input type="hidden" name="OrdenId" value="@Model.Id" /><div class="col-md-5"><select name="MaterialId" class="form-select" required><option value="">Material</option>@foreach(var m in materiales){
+        <option value="@m.Id">@m.Nombre</option>
+    }
+</select></div><div class="col-md-3"><input name="Cantidad" type="number" min="0.01" step="0.01" value="1" class="form-control" required /></div><div class="col-md-4"><input name="Unidad" maxlength="30" value="unidad" class="form-control" required /></div><div class="col-12"><label><input type="checkbox" name="ConfirmadoDisponible" value="true" /> Disponibilidad comprobada físicamente</label></div><div class="col-12"><input name="Observaciones" maxlength="500" placeholder="Observaciones del material" class="form-control" /></div><div class="col-12"><button class="btn btn-outline-primary">Guardar material</button></div></form>
+}
+</div>
+</div>
+</div><div class="col-lg-5">
+<div class="card shadow-sm">
+    <div class="card-header">Seguimiento</div><div class="card-body">
+    <p>Inicio real: @(Model.FechaInicioReal?.ToString("dd/MM/yyyy HH:mm") ?? "Sin iniciar")</p><p>Fin real: @(Model.FechaFinReal?.ToString("dd/MM/yyyy HH:mm") ?? "Sin finalizar")</p>
+    @if (Model.Estado == "Pendiente" || Model.Estado == "Pausada")
+    {
+        <form asp-action="CambiarEstado" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="nuevoEstado" value="En proceso" /><button class="btn btn-primary w-100 mb-2">Iniciar / reanudar</button></form>
+    }
+    @if (Model.Estado == "En proceso")
+    {
+        <form asp-action="CambiarEstado" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="nuevoEstado" value="Pausada" /><button class="btn btn-outline-warning w-100 mb-2">Pausar</button></form><form asp-action="CambiarEstado" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="nuevoEstado" value="Terminada" /><button class="btn btn-success w-100">Finalizar producción</button></form>
+    }
+</div>
+</div>
+</div>
+</div>
+</div>

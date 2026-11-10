@@ -1,21 +1,23 @@
-﻿@model GlassFlowAyF.Models.SolicitudCotizacion
+@model GlassFlowAyF.Models.SolicitudCotizacion
 
 @{
     ViewData["Title"] = "Detalle de solicitud";
 
 
     var etapas = new[]
-    {
-        "Solicitado",
-        "En revisión",
-        "Visita programada",
-        "Cotizado",
-        "Aprobado",
-        "En producción",
-        "Instalación programada",
-        "Instalado",
-        "Finalizado"
-    };
+{
+    "Solicitado",
+    "En revisión",
+    "Pendiente de información",
+    "Visita programada",
+    "Visita Técnica Completada",
+    "Cotizado",
+    "Aprobado",
+    "En producción",
+    "Instalación programada",
+    "Instalado",
+    "Finalizado"
+};
 
 
     var indiceActual =
@@ -35,9 +37,35 @@
             .OrderByDescending(
                 c => c.FechaCreacion)
             .FirstOrDefault();
+
+    var visitaRegistrada = ViewBag.VisitaCompletada as GlassFlowAyF.Models.VisitaTecnica;
+    var tieneVisitaCompletada = visitaRegistrada != null;
+    var tieneVisita = (bool)(ViewBag.TieneVisitaTecnica ?? false);
+    var tieneCotizacion = Model.Cotizaciones?.Any() == true;
+    var cotizacionAprobada = Model.Cotizaciones?.Any(c => c.Estado == "Aprobada") == true;
+    var pendienteDeRespuesta = Model.ValidacionesTecnicas?.Any(v =>
+        v.Resultado == "Pendiente de información" && v.FechaRespuesta == null) == true;
+    var estadoAdministrativo = new[] { "En producción", "Instalación programada", "Instalado", "Finalizado" }
+        .Contains(Model.Estado);
+    var estadoEsperado = pendienteDeRespuesta ? "Pendiente de información" :
+        cotizacionAprobada ? "Aprobado" :
+        tieneCotizacion ? "Cotizado" :
+        tieneVisitaCompletada ? "Visita Técnica Completada" :
+        tieneVisita ? "Visita programada" : Model.Estado;
+    var estadoDesfasado = !estadoAdministrativo && Model.Estado != estadoEsperado;
+
 }
 
 
+
+@if (TempData["Error"] is string errorMensaje)
+{
+    <div class="alert alert-danger" role="alert">@errorMensaje</div>
+}
+@if (TempData["Mensaje"] is string mensajeExito)
+{
+    <div class="alert alert-success" role="status">@mensajeExito</div>
+}
 
 <div class="page-header">
 
@@ -77,8 +105,8 @@
         @if (User.IsInRole("Administrador"))
         {
             <a asp-controller="Cotizaciones"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary">
+               asp-action="Index"
+               class="btn btn-outline-secondary">
 
                 <i class="bi bi-arrow-left me-1">
                 </i>
@@ -92,8 +120,8 @@
         @if (User.IsInRole("Cliente"))
         {
             <a asp-controller="Cotizaciones"
-                   asp-action="MisSolicitudes"
-                   class="btn btn-outline-secondary">
+               asp-action="MisSolicitudes"
+               class="btn btn-outline-secondary">
 
                 <i class="bi bi-arrow-left me-1">
                 </i>
@@ -470,76 +498,54 @@
         <!-- FOTOGRAFÍAS -->
 
 
-        <div class="glass-card mb-4">
-
+        <div class="glass-card mb-4" id="fotografias">
 
             <h4>
-
                 Fotografías del espacio
-
             </h4>
 
-
             <p class="text-muted">
-
                 Evidencias proporcionadas
                 por el cliente.
-
             </p>
 
+            <div class="mb-3"><a class="btn btn-outline-primary" asp-controller="Fotografias" asp-action="Historial" asp-route-solicitudId="@Model.Id">Ver revisiones, análisis IA e historial de fotografías</a></div>
 
             @if (Model.Fotografias != null &&
                  Model.Fotografias.Any())
             {
-
                 <div class="evidence-grid mt-3">
 
-
-                    @foreach (var foto
-                        in Model.Fotografias)
+                    @foreach (var foto in Model.Fotografias)
                     {
-
                         <a href="@foto.RutaArchivo"
-                               target="_blank"
-                               class="evidence-image"
-                               title="@foto.NombreOriginal">
-
+                           target="_blank"
+                           class="evidence-image"
+                           title="@foto.NombreOriginal">
 
                             <img src="@foto.RutaArchivo"
                                  alt="@foto.NombreOriginal" />
 
-
                         </a>
-
                     }
 
-
                 </div>
-
             }
             else
             {
-
                 <div class="text-center py-4">
-
 
                     <i class="bi bi-images
                         fs-1
                         text-muted">
                     </i>
 
-
                     <p class="text-muted mt-2 mb-0">
-
                         No se adjuntaron fotografías.
-
                     </p>
 
-
                 </div>
-
             }
-
 
         </div>
 
@@ -640,8 +646,8 @@
 
 
                     <a asp-action="VerCotizacion"
-                           asp-route-id="@ultimaCotizacion.Id"
-                           class="btn btn-outline-primary">
+                       asp-route-id="@ultimaCotizacion.Id"
+                       class="btn btn-outline-primary">
 
 
                         <i class="bi bi-eye me-1">
@@ -655,8 +661,8 @@
 
 
                     <a asp-action="ExportarCotizacionExcel"
-                           asp-route-id="@ultimaCotizacion.Id"
-                           class="btn btn-outline-success">
+                       asp-route-id="@ultimaCotizacion.Id"
+                       class="btn btn-outline-success">
 
 
                         <i class="bi bi-file-earmark-excel me-1">
@@ -720,8 +726,14 @@
                     i++)
                 {
 
-                    var completado =
-                        i <= indiceActual;
+                    var completado = i <= indiceActual;
+                    if (etapas[i] == "Pendiente de información")
+                        completado = Model.ValidacionesTecnicas?.Any(v => v.Resultado == "Pendiente de información") == true;
+                    if (etapas[i] == "Visita programada") completado = tieneVisita;
+                    if (etapas[i] == "Visita Técnica Completada") completado = tieneVisitaCompletada;
+                    if (etapas[i] == "Cotizado") completado = tieneCotizacion;
+                    if (etapas[i] == "Aprobado") completado = cotizacionAprobada;
+                    if (etapas[i] == "Solicitado") completado = true;
 
 
                     var actual =
@@ -810,94 +822,111 @@
 
                 </p>
 
+                @if (Model.Ancho.HasValue && Model.Alto.HasValue)
+                {
+                    <div class="mb-4">
+
+                        <h5>
+                            Revisión de medidas
+                        </h5>
+
+                        <p class="text-muted small">
+                            Verifique si las medidas proporcionadas
+                            por el cliente son suficientes para continuar
+                            con la solicitud.
+                        </p>
+
+                        <div class="d-flex gap-2">
+
+                            <form asp-action="RevisarMedidas"
+                                  method="post"
+                                  class="flex-fill">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@Model.Id" />
+
+                                <input type="hidden"
+                                       name="resultado"
+                                       value="Suficientes" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-success w-100">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+
+                                    Medidas suficientes
+
+                                </button>
+
+                            </form>
 
 
-                <form asp-action="CambiarEstado"
-                      method="post"
-                      class="mb-3">
+                            <form asp-action="RevisarMedidas"
+                                  method="post"
+                                  class="flex-fill">
 
+                                <input type="hidden"
+                                       name="id"
+                                       value="@Model.Id" />
 
-                    <input type="hidden"
-                           name="id"
-                           value="@Model.Id" />
+                                <input type="hidden"
+                                       name="resultado"
+                                       value="Insuficientes" />
 
+                                <button type="submit"
+                                        class="btn btn-outline-warning w-100">
 
+                                    <i class="bi bi-exclamation-circle me-1"></i>
 
-                    <label class="form-label">
+                                    Medidas insuficientes
 
-                        Estado
+                                </button>
 
-                    </label>
+                            </form>
 
+                        </div>
 
+                    </div>
 
-                    <select name="estado"
-                            class="form-select mb-3">
+                    <hr />
+                }
 
+                @if (estadoDesfasado)
+                {
+                    <div class="alert alert-warning">
+                        El estado guardado es <strong>@Model.Estado</strong>, pero el historial indica
+                        <strong>@estadoEsperado</strong>.
+                        <form asp-action="SincronizarEstado" method="post" class="mt-2">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Sincronizar estado</button>
+                        </form>
+                    </div>
+                }
 
-                        @foreach (var estado
-                            in new[]
-                            {
-                                "Solicitado",
-                                "En revisión",
-                                "Pendiente de información",
-                                "Visita programada",
-                                "Cotizado",
-                                "Aprobado",
-                                "En producción",
-                                "Instalación programada",
-                                "Instalado",
-                                "Finalizado"
-                            })
-                        {
-
-                            if (estado ==
-                                Model.Estado)
-                            {
-
-                                <option value="@estado"
-                                        selected>
-
-                                    @estado
-
-                                </option>
-
-                            }
-                            else
-                            {
-
-                                <option value="@estado">
-
-                                    @estado
-
-                                </option>
-
-                            }
-
-                        }
-
-
-                    </select>
-
-
-
-                    <button type="submit"
-                            class="btn
-                        btn-outline-primary
-                        w-100">
-
-                        Actualizar estado
-
-                    </button>
-
-
-                </form>
-
-
+                @if (cotizacionAprobada)
+                {
+                    var siguiente = Model.Estado switch
+                    {
+                        "Aprobado" => "En producción",
+                        "En producción" => "Instalación programada",
+                        "Instalación programada" => "Instalado",
+                        "Instalado" => "Finalizado",
+                        _ => (string?)null
+                    };
+                    if (siguiente != null)
+                    {
+                        <form asp-action="CambiarEstado" method="post" class="mb-3">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="estado" value="@siguiente" />
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                Avanzar a @siguiente
+                            </button>
+                        </form>
+                    }
+                }
 
                 <hr />
-
-
 
                 <!-- VISITA TÉCNICA -->
                 @if (Model.Estado == "Solicitado" ||
@@ -906,9 +935,9 @@
                 {
 
                     <a asp-controller="VisitasTecnicas"
-                           asp-action="Create"
-                           asp-route-solicitudId="@Model.Id"
-                           class="btn
+                       asp-action="Create"
+                       asp-route-solicitudId="@Model.Id"
+                       class="btn
                         btn-outline-primary
                         w-100
                         mb-2">
@@ -933,9 +962,9 @@
                 {
 
                     <a asp-controller="Cotizaciones"
-                           asp-action="CrearCotizacion"
-                           asp-route-solicitudId="@Model.Id"
-                           class="btn
+                       asp-action="CrearCotizacion"
+                       asp-route-solicitudId="@Model.Id"
+                       class="btn
                         btn-glassflow
                         w-100">
 
@@ -953,9 +982,9 @@
                 {
 
                     <a asp-controller="Cotizaciones"
-                           asp-action="VerCotizacion"
-                           asp-route-id="@ultimaCotizacion.Id"
-                           class="btn
+                       asp-action="VerCotizacion"
+                       asp-route-id="@ultimaCotizacion.Id"
+                       class="btn
                         btn-glassflow
                         w-100">
 
@@ -1023,9 +1052,9 @@
 
 
                 <a asp-controller="Cotizaciones"
-                       asp-action="VerCotizacion"
-                       asp-route-id="@ultimaCotizacion.Id"
-                       class="btn
+                   asp-action="VerCotizacion"
+                   asp-route-id="@ultimaCotizacion.Id"
+                   class="btn
                     btn-glassflow
                     w-100
                     mb-2">
@@ -1037,9 +1066,9 @@
 
 
                 <a asp-controller="Cotizaciones"
-                       asp-action="ExportarCotizacionExcel"
-                       asp-route-id="@ultimaCotizacion.Id"
-                       class="btn
+                   asp-action="ExportarCotizacionExcel"
+                   asp-route-id="@ultimaCotizacion.Id"
+                   class="btn
                     btn-outline-success
                     w-100">
 
@@ -1056,9 +1085,9 @@
                 {
 
                     <a asp-controller="Compras"
-                           asp-action="Details"
-                           asp-route-id="@ultimaCotizacion.Compra.Id"
-                           class="btn
+                       asp-action="Details"
+                       asp-route-id="@ultimaCotizacion.Compra.Id"
+                       class="btn
                         btn-outline-primary
                         w-100
                         mt-2">
@@ -1082,3 +1111,5 @@
 
 
 </div>
+<partial name="_ResultadoVisitaTecnica" model="Model" />
+<partial name="_ValidacionTecnica" model="Model" />

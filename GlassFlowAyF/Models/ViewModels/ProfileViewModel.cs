@@ -16,6 +16,21 @@ namespace GlassFlowAyF.Models.ViewModels
         [Display(Name = "Dirección")]
         public string Direccion { get; set; } = string.Empty;
 
+        [Display(Name = "Cédula")]
+        public string Cedula { get; set; } = string.Empty;
+
+        [Display(Name = "Número de contacto de emergencia")]
+        public string NumeroContactoEmergencia { get; set; } = string.Empty;
+
+        [Display(Name = "Alergias o medicamentos")]
+        public string AlergiasMedicamentos { get; set; } = string.Empty;
+
+        [Display(Name = "Padecimientos o enfermedades")]
+        public string PadecimientosEnfermedades { get; set; } = string.Empty;
+
+        [Display(Name = "Medicamentos")]
+        public string Medicamentos { get; set; } = string.Empty;
+
         [Display(Name = "Fecha de registro")]
         public DateTime FechaRegistro { get; set; }
 

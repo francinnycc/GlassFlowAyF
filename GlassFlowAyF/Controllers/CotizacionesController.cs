@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿
+using ClosedXML.Excel;
 using GlassFlowAyF.Data;
 using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlassFlowAyF.Controllers
 {
     [Authorize]
-    public class CotizacionesController : Controller
+    public partial class CotizacionesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -130,7 +131,7 @@ namespace GlassFlowAyF.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            SolicitudCotizacion solicitud,
+            [Bind("ProductoId,MaterialId,Descripcion,Ancho,Alto,Profundidad,Cantidad,UnidadMedida,UbicacionInstalacion,UbicacionPersonalizada,RequiereInstalacion,Direccion,Observaciones")] SolicitudCotizacion solicitud,
             List<IFormFile>? fotos,
             string accion = "enviar")
         {
@@ -232,6 +233,10 @@ namespace GlassFlowAyF.Controllers
 
                 await _context.SaveChangesAsync();
 
+                await RegistrarHistorialMedida(solicitud);
+
+                await _context.SaveChangesAsync();
+
                 if (fotos != null)
                 {
                     foreach (var foto in fotos)
@@ -279,6 +284,16 @@ namespace GlassFlowAyF.Controllers
             // =====================================================
             // VALIDACIONES PARA ENVIAR
             // =====================================================
+
+            if (!new[] { "m", "cm", "mm" }.Contains(solicitud.UnidadMedida))
+            {
+                ModelState.AddModelError(nameof(solicitud.UnidadMedida), "Seleccione una unidad de medida válida.");
+            }
+
+            if (solicitud.UbicacionInstalacion == "Otro" && string.IsNullOrWhiteSpace(solicitud.UbicacionPersonalizada))
+            {
+                ModelState.AddModelError(nameof(solicitud.UbicacionPersonalizada), "Especifique la ubicación de instalación.");
+            }
 
             if (!solicitud.ProductoId.HasValue)
             {
@@ -415,6 +430,10 @@ namespace GlassFlowAyF.Controllers
 
             await _context.SaveChangesAsync();
 
+            await RegistrarHistorialMedida(solicitud);
+
+            await _context.SaveChangesAsync();
+
             if (fotos != null)
             {
                 foreach (var foto in fotos)
@@ -469,6 +488,7 @@ namespace GlassFlowAyF.Controllers
 
         [Authorize(Roles = "Cliente")]
         [HttpGet]
+
         public async Task<IActionResult> Edit(
             int id)
         {
@@ -520,7 +540,7 @@ namespace GlassFlowAyF.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            SolicitudCotizacion model,
+            [Bind("ProductoId,MaterialId,Descripcion,Ancho,Alto,Profundidad,Cantidad,UnidadMedida,UbicacionInstalacion,UbicacionPersonalizada,RequiereInstalacion,Direccion,Observaciones")] SolicitudCotizacion model,
             List<IFormFile>? fotos,
             string accion = "enviar")
         {
@@ -602,6 +622,10 @@ namespace GlassFlowAyF.Controllers
                         ? 1
                         : model.Cantidad;
 
+                solicitud.UnidadMedida = model.UnidadMedida;
+                solicitud.UbicacionInstalacion = model.UbicacionInstalacion;
+                solicitud.UbicacionPersonalizada = model.UbicacionPersonalizada;
+
                 solicitud.RequiereInstalacion =
                     model.RequiereInstalacion;
 
@@ -652,6 +676,24 @@ namespace GlassFlowAyF.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Registrar las medidas en el historial.
+                var historialBorrador = new HistorialMedida
+                {
+                    SolicitudCotizacionId = solicitud.Id,
+                    Ancho = solicitud.Ancho,
+                    Alto = solicitud.Alto,
+                    Profundidad = solicitud.Profundidad,
+                    Cantidad = solicitud.Cantidad,
+                    UsuarioRegistro = usuario.Email,
+                    FechaRegistro = DateTime.Now,
+                    Observaciones = solicitud.Observaciones
+                };
+
+                _context.HistorialMedidas.Add(historialBorrador);
+
+                await _context.SaveChangesAsync();
+
+
                 if (fotos != null)
                 {
                     foreach (var foto in fotos)
@@ -699,6 +741,16 @@ namespace GlassFlowAyF.Controllers
             // =====================================================
             // VALIDACIONES PARA ENVIAR
             // =====================================================
+
+            if (!new[] { "m", "cm", "mm" }.Contains(model.UnidadMedida))
+            {
+                ModelState.AddModelError(nameof(model.UnidadMedida), "Seleccione una unidad de medida válida.");
+            }
+
+            if (model.UbicacionInstalacion == "Otro" && string.IsNullOrWhiteSpace(model.UbicacionPersonalizada))
+            {
+                ModelState.AddModelError(nameof(model.UbicacionPersonalizada), "Especifique la ubicación de instalación.");
+            }
 
             if (!model.ProductoId.HasValue)
             {
@@ -845,6 +897,10 @@ namespace GlassFlowAyF.Controllers
             solicitud.Cantidad =
                 model.Cantidad;
 
+            solicitud.UnidadMedida = model.UnidadMedida;
+            solicitud.UbicacionInstalacion = model.UbicacionInstalacion;
+            solicitud.UbicacionPersonalizada = model.UbicacionPersonalizada;
+
             solicitud.RequiereInstalacion =
                 model.RequiereInstalacion;
 
@@ -856,6 +912,23 @@ namespace GlassFlowAyF.Controllers
 
             solicitud.Estado =
                 "Solicitado";
+
+            await _context.SaveChangesAsync();
+
+            // Registrar las medidas en el historial.
+            var historialEnviado = new HistorialMedida
+            {
+                SolicitudCotizacionId = solicitud.Id,
+                Ancho = solicitud.Ancho,
+                Alto = solicitud.Alto,
+                Profundidad = solicitud.Profundidad,
+                Cantidad = solicitud.Cantidad,
+                UsuarioRegistro = usuario.Email,
+                FechaRegistro = DateTime.Now,
+                Observaciones = solicitud.Observaciones
+            };
+
+            _context.HistorialMedidas.Add(historialEnviado);
 
             await _context.SaveChangesAsync();
 
@@ -909,98 +982,216 @@ namespace GlassFlowAyF.Controllers
         // DETALLE DE SOLICITUD
         // =========================================================
 
-        public async Task<IActionResult> Details(
-            int id)
+
+        public async Task<IActionResult> Details(int id)
         {
-            var solicitud =
-                await _context.SolicitudesCotizacion
-                    .AsNoTracking()
-                    .Include(s => s.Producto)
-                    .Include(s => s.Material)
-                    .Include(s => s.Fotografias)
-                    .Include(s => s.Cotizaciones)
-                        .ThenInclude(c => c.Compra)
-                    .FirstOrDefaultAsync(
-                        s => s.Id == id);
+            var solicitud = await _context.SolicitudesCotizacion
+                .AsNoTracking()
+                .Include(s => s.Producto)
+                .Include(s => s.Material)
+                .Include(s => s.Fotografias)
+                .Include(s => s.Cotizaciones)
+                    .ThenInclude(c => c.Compra)
+                .Include(s => s.ValidacionesTecnicas)
+                .FirstOrDefaultAsync(s => s.Id == id);
 
             if (solicitud == null)
             {
                 return NotFound();
             }
 
-            // Un cliente solo puede ver sus solicitudes.
             if (User.IsInRole("Cliente"))
             {
-                var usuario =
-                    await _userManager
-                        .GetUserAsync(User);
+                var usuario = await _userManager.GetUserAsync(User);
 
                 if (usuario == null ||
-                    solicitud.Correo !=
-                        usuario.Email)
+                    !string.Equals(
+                        solicitud.Correo,
+                        usuario.Email,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return Forbid();
                 }
             }
 
+            var visitaCompletada = await _context.VisitasTecnicas
+                .AsNoTracking()
+                .Include(v => v.Fotografias)
+                .Where(v =>
+                    v.SolicitudCotizacionId == id &&
+                    v.VisitaCompletada)
+                .OrderByDescending(v => v.FechaFinalizacion)
+                .ThenByDescending(v => v.Id)
+                .FirstOrDefaultAsync();
+
+            HistorialMedida? medidasDefinitivas = null;
+
+            if (visitaCompletada != null)
+            {
+                medidasDefinitivas = await _context.HistorialMedidas
+                    .AsNoTracking()
+                    .Where(h =>
+                        h.SolicitudCotizacionId == id &&
+                        h.FechaRegistro <= (visitaCompletada.FechaFinalizacion ?? DateTime.Now))
+                    .OrderByDescending(h => h.FechaRegistro)
+                    .FirstOrDefaultAsync();
+            }
+
+            ViewBag.TieneVisitaTecnica = await _context.VisitasTecnicas
+                .AsNoTracking().AnyAsync(v => v.SolicitudCotizacionId == id);
+            ViewBag.VisitaCompletada = visitaCompletada;
+            ViewBag.MedidasDefinitivas = medidasDefinitivas;
+
             return View(solicitud);
         }
 
         // =========================================================
-        // CAMBIAR ESTADO MANUALMENTE
+        // HISTORIAL DE MEDIDAS - HU 8.5
         // =========================================================
 
         [Authorize(Roles = "Administrador")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CambiarEstado(
-            int id,
-            string estado)
+        public async Task<IActionResult> HistorialMedidas(int id)
         {
-            var solicitud =
-                await _context.SolicitudesCotizacion
-                    .FindAsync(id);
+            var solicitud = await _context.SolicitudesCotizacion
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
 
             if (solicitud == null)
             {
                 return NotFound();
             }
 
-            string[] estadosPermitidos =
+            var historial = await _context.HistorialMedidas
+                .AsNoTracking()
+                .Where(h => h.SolicitudCotizacionId == id)
+                .OrderByDescending(h => h.FechaRegistro)
+                .ToListAsync();
+
+            ViewBag.Solicitud = solicitud;
+
+            return View(historial);
+        }
+
+        // =========================================================
+        // ESTADOS: EVITAR TRANSICIONES INCONSISTENTES
+        // =========================================================
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CambiarEstado(int id, string estado)
+        {
+            var solicitud = await _context.SolicitudesCotizacion
+                .Include(s => s.Cotizaciones)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (solicitud == null) return NotFound();
+
+            // Las primeras etapas se generan mediante sus operaciones reales:
+            // validación, programación/finalización de visita y cotización.
+            string[] estadosAdministrativos =
             {
-                "Solicitado",
-                "En revisión",
-                "Pendiente de información",
-                "Visita programada",
-                "Cotizado",
-                "Aprobado",
-                "En producción",
-                "Instalación programada",
-                "Instalado",
-                "Finalizado"
+                "En producción", "Instalación programada", "Instalado", "Finalizado"
             };
-
-            if (!estadosPermitidos.Contains(estado))
+            if (!estadosAdministrativos.Contains(estado))
             {
-                TempData["Error"] =
-                    "El estado seleccionado no es válido.";
-
-                return RedirectToAction(
-                    nameof(Details),
-                    new { id });
+                TempData["Error"] = "Ese estado se actualiza desde el módulo correspondiente.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
-            solicitud.Estado =
-                estado;
+            bool cotizacionAprobada = solicitud.Cotizaciones.Any(c => c.Estado == "Aprobada");
+            if (!cotizacionAprobada)
+            {
+                TempData["Error"] = "Debe existir una cotización aprobada antes de avanzar a producción.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            string[] flujo = { "Aprobado", "En producción", "Instalación programada", "Instalado", "Finalizado" };
+            var indiceActual = Array.IndexOf(flujo, solicitud.Estado);
+            var indiceNuevo = Array.IndexOf(flujo, estado);
+            if (indiceActual < 0 || indiceNuevo != indiceActual + 1)
+            {
+                TempData["Error"] = "Avance únicamente al siguiente estado del proceso.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Las etapas operativas no se pueden adelantar desde el selector
+            // administrativo: producción e instalación tienen sus propios módulos.
+            TempData["Error"] = "El estado se actualiza desde producción o instalación; no puede adelantarse manualmente.";
+            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // Corrige registros antiguos cuyo estado quedó desfasado de los datos reales.
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SincronizarEstado(int id)
+        {
+            var solicitud = await _context.SolicitudesCotizacion
+                .Include(s => s.Cotizaciones)
+                .Include(s => s.ValidacionesTecnicas)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            if (solicitud == null) return NotFound();
+
+            if (new[] { "Aprobado", "En producción", "Instalación programada", "Instalado", "Finalizado" }
+                .Contains(solicitud.Estado))
+            {
+                TempData["Error"] = "El estado actual pertenece a una etapa posterior y no se sincronizó.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var pendiente = solicitud.ValidacionesTecnicas.Any(v =>
+                v.Resultado == "Pendiente de información" && v.FechaRespuesta == null);
+            var cotizada = solicitud.Cotizaciones.Any(c =>
+                c.Estado == "Pendiente" || c.Estado == "Cambios solicitados" || c.Estado == "Aprobada");
+            var visitaCompletada = await _context.VisitasTecnicas.AnyAsync(v =>
+                v.SolicitudCotizacionId == id && v.VisitaCompletada);
+            var visitaProgramada = await _context.VisitasTecnicas.AnyAsync(v =>
+                v.SolicitudCotizacionId == id);
+
+            solicitud.Estado = pendiente ? "Pendiente de información" :
+                cotizada ? "Cotizado" :
+                visitaCompletada ? "Visita Técnica Completada" :
+                visitaProgramada ? "Visita programada" : "En revisión";
 
             await _context.SaveChangesAsync();
+            TempData["Mensaje"] = "Estado sincronizado con el historial real de la solicitud.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
 
-            TempData["Mensaje"] =
-                "Estado actualizado correctamente.";
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RevisarMedidas(int id, string resultado)
+        {
+            var solicitud = await _context.SolicitudesCotizacion.FindAsync(id);
+            if (solicitud == null) return NotFound();
 
-            return RedirectToAction(
-                nameof(Details),
-                new { id });
+            if (resultado == "Insuficientes")
+            {
+                TempData["Error"] = "Especifique los datos faltantes en Validación técnica, seleccionando 'Pendiente de información'.";
+                return RedirectToAction(nameof(Details), new { id, seccion = "validacion-tecnica" });
+            }
+            if (resultado != "Suficientes") return BadRequest();
+
+            // No sobrescribir etapas posteriores ni solicitudes pendientes de respuesta.
+            bool pendiente = await _context.ValidacionesTecnicas.AnyAsync(v =>
+                v.SolicitudCotizacionId == id && v.Resultado == "Pendiente de información" && v.FechaRespuesta == null);
+            if (pendiente)
+            {
+                TempData["Error"] = "Primero el cliente debe responder la información solicitada.";
+            }
+            else if (solicitud.Estado == "Solicitado" || solicitud.Estado == "En revisión")
+            {
+                solicitud.Estado = "En revisión";
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Las medidas iniciales fueron consideradas suficientes.";
+            }
+            else
+            {
+                TempData["Error"] = "La solicitud ya avanzó a otra etapa; no se modificó su estado.";
+            }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // =========================================================
@@ -1061,8 +1252,7 @@ namespace GlassFlowAyF.Controllers
                         solicitud.Id,
 
                     CostoMateriales =
-                        precioProducto +
-                        adicionalMaterial,
+                        (precioProducto + adicionalMaterial) * solicitud.Cantidad,
 
                     ManoObra =
                         35000m,
@@ -1113,8 +1303,10 @@ namespace GlassFlowAyF.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearCotizacion(
-            Cotizacion cotizacion)
+            [Bind("SolicitudCotizacionId,CostoMateriales,ManoObra,CostoInstalacion,OtrosCostos,PorcentajeImpuesto,Descuento,FechaVencimiento,DetalleTecnico,Condiciones")] Cotizacion cotizacion)
         {
+            ValidarImportes(cotizacion);
+
             if (cotizacion.FechaVencimiento <
                 DateTime.Today)
             {
@@ -1764,5 +1956,34 @@ namespace GlassFlowAyF.Controllers
                 cotizacion.Total = 0;
             }
         }
+        private async Task RegistrarHistorialMedida(
+    SolicitudCotizacion solicitud)
+        {
+            var usuario =
+                await _userManager.GetUserAsync(User);
+
+            var historial = new HistorialMedida
+            {
+                SolicitudCotizacionId = solicitud.Id,
+
+                Ancho = solicitud.Ancho,
+                Alto = solicitud.Alto,
+                Profundidad = solicitud.Profundidad,
+                Cantidad = solicitud.Cantidad,
+
+                UsuarioRegistro =
+                    usuario?.Email ?? User.Identity?.Name,
+
+                FechaRegistro = DateTime.Now,
+
+                Observaciones =
+                    solicitud.Observaciones
+            };
+
+            _context.HistorialMedidas.Add(historial);
+        }
+
+
     }
+
 }

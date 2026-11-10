@@ -1,0 +1,30 @@
+﻿@model GlassFlowAyF.Models.ViewModels.ReasignarInstalacionViewModel
+@{
+    ViewData["Title"] = "Reasignar instalación";
+}
+<div class="page-header"><div><span class="eyebrow">INSTALACIONES</span><h1>Reasignar instalación #INS-@Model.Id.ToString("D5")</h1><p>Instalador actual: @Model.InstaladorActual</p></div></div>
+<form asp-action="Reasignar" method="post" class="glass-card">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="InstaladorId" class="form-label">Nuevo instalador</label>
+        <select asp-for="InstaladorId" asp-items="ViewBag.Instaladores" class="form-select"><option value="">Seleccione...</option></select>
+        <span asp-validation-for="InstaladorId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="FechaInstalacion" class="form-label"></label>
+        <input asp-for="FechaInstalacion" type="datetime-local" class="form-control" />
+        <span asp-validation-for="FechaInstalacion" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Motivo" class="form-label">Motivo de reasignación</label>
+        <textarea asp-for="Motivo" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Motivo" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-glassflow">Guardar reasignación</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

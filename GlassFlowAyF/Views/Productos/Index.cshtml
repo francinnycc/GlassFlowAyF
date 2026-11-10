@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GlassFlowAyF.Models.Producto>
+﻿@model GlassFlowAyF.Extensions.PagedResult<GlassFlowAyF.Models.Producto>
 
 @{
     ViewData["Title"] = "Catálogo";
@@ -97,7 +97,7 @@
 </div>
 
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="glass-card text-center py-5">
 
@@ -124,7 +124,7 @@ else
 {
     <div class="row g-4">
 
-        @foreach (var producto in Model)
+        @foreach (var producto in Model.Items)
         {
             <div class="col-md-6 col-xl-4">
 
@@ -288,4 +288,64 @@ else
         }
 
     </div>
+    @if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="@(Model.PageIndex - 1)"
+                   asp-route-buscar="@ViewBag.Buscar"
+                   asp-route-categoria="@ViewBag.Categoria">
+
+                    Anterior
+
+                </a>
+
+            </li>
+
+
+            @for (
+                int i = 1;
+                i <= Model.TotalPages;
+                i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="@i"
+                       asp-route-buscar="@ViewBag.Buscar"
+                       asp-route-categoria="@ViewBag.Categoria">
+
+                        @i
+
+                    </a>
+
+                </li>
+            }
+
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="@(Model.PageIndex + 1)"
+                   asp-route-buscar="@ViewBag.Buscar"
+                   asp-route-categoria="@ViewBag.Categoria">
+
+                    Siguiente
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+}
 }

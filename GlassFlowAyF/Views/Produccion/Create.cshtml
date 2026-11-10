@@ -1,0 +1,26 @@
+﻿@model GlassFlowAyF.ViewModels.ProduccionFormViewModel
+@using GlassFlowAyF.Models
+@{
+    ViewData["Title"] = "Planificar producción"; var compras = ViewBag.Compras as List<Compra> ?? new();
+}
+<div class="container py-4">
+    <h2>Nueva orden de producción</h2><p class="text-muted">Solo compras con pago confirmado y sin orden de producción.</p>
+    <form asp-action="Create" method="post" class="card shadow-sm">
+        <div class="card-body row g-3">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="col-12"><label asp-for="CompraId" class="form-label">Compra</label><select asp-for="CompraId" class="form-select"><option value="0">Seleccioná una compra</option>@foreach(var c in compras){
+                <option value="@c.Id">@c.NumeroOrden — ₡@c.Total.ToString("N2")</option>
+            }
+        </select></div>
+        <div class="col-md-6"><label asp-for="FechaInicioPrevista" class="form-label"></label><input asp-for="FechaInicioPrevista" type="date" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="FechaFinPrevista" class="form-label"></label><input asp-for="FechaFinPrevista" type="date" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Responsable" class="form-label">Responsable</label><input asp-for="Responsable" class="form-control" required /></div>
+        <div class="col-12"><label asp-for="Recursos" class="form-label">Recursos y herramientas</label><textarea asp-for="Recursos" class="form-control"></textarea></div>
+        <div class="col-12"><label asp-for="Observaciones" class="form-label">Observaciones</label><textarea asp-for="Observaciones" class="form-control"></textarea></div>
+        <div class="col-12"><button class="btn btn-primary">Guardar planificación</button> <a asp-action="Index" class="btn btn-outline-secondary">Volver</a></div>
+    </div>
+</form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

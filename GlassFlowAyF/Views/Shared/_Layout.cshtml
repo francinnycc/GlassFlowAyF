@@ -42,8 +42,8 @@
                 justify-content-between">
 
                 <a asp-controller="Home"
-                       asp-action="Index"
-                       class="brand">
+                   asp-action="Index"
+                   class="brand">
 
                     <div class="brand-icon">
                         GF
@@ -173,20 +173,20 @@
 
                         </div>
                     }
-                   
+
                     else
                     {
                         <a asp-controller="Account"
-                               asp-action="Login"
-                               class="btn btn-outline-light btn-sm">
+                           asp-action="Login"
+                           class="btn btn-outline-light btn-sm">
 
                             Iniciar sesión
 
                         </a>
 
                         <a asp-controller="Account"
-                               asp-action="Register"
-                               class="btn btn-teal btn-sm">
+                           asp-action="Register"
+                           class="btn btn-teal btn-sm">
 
                             Crear cuenta
 
@@ -212,7 +212,7 @@
                 <nav>
 
                     <a asp-controller="Home"
-                           asp-action="Dashboard">
+                       asp-action="Dashboard">
 
                         <i class="bi bi-grid"></i>
 
@@ -222,7 +222,7 @@
 
 
                     <a asp-controller="Productos"
-                           asp-action="Index">
+                       asp-action="Index">
 
                         <i class="bi bi-window"></i>
 
@@ -240,7 +240,7 @@
                         </div>
 
                         <a asp-controller="Cotizaciones"
-                               asp-action="Create">
+                           asp-action="Create">
 
                             <i class="bi bi-file-earmark-plus"></i>
 
@@ -249,7 +249,7 @@
                         </a>
 
                         <a asp-controller="Cotizaciones"
-                               asp-action="MisSolicitudes">
+                           asp-action="MisSolicitudes">
 
                             <i class="bi bi-clipboard2-check"></i>
 
@@ -258,7 +258,7 @@
                         </a>
 
                         <a asp-controller="Compras"
-                               asp-action="MisCompras">
+                           asp-action="MisCompras">
 
                             <i class="bi bi-bag-check"></i>
 
@@ -267,7 +267,7 @@
                         </a>
 
                         <a asp-controller="InteligenciaArtificial"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             <i class="bi bi-stars"></i>
 
@@ -287,6 +287,13 @@
 
                     @if (User.IsInRole("Administrador"))
                     {
+                        <a asp-controller="Produccion" asp-action="Index" class="nav-link text-white">
+                            <i class="bi bi-gear-wide-connected me-2"></i>Producción
+                        </a>
+                    }
+
+                    @if (User.IsInRole("Administrador"))
+                    {
                         <div class="sidebar-label">
 
                             ADMINISTRACIÓN
@@ -294,7 +301,7 @@
                         </div>
 
                         <a asp-controller="Productos"
-                               asp-action="Administrar">
+                           asp-action="Administrar">
 
                             <i class="bi bi-box-seam"></i>
 
@@ -303,7 +310,7 @@
                         </a>
 
                         <a asp-controller="Materiales"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             <i class="bi bi-layers"></i>
 
@@ -312,7 +319,7 @@
                         </a>
 
                         <a asp-controller="Cotizaciones"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             <i class="bi bi-files"></i>
 
@@ -321,7 +328,7 @@
                         </a>
 
                         <a asp-controller="Compras"
-                               asp-action="Administrar">
+                           asp-action="Administrar">
 
                             <i class="bi bi-receipt"></i>
 
@@ -330,7 +337,7 @@
                         </a>
 
                         <a asp-controller="VisitasTecnicas"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             <i class="bi bi-calendar3"></i>
 
@@ -339,7 +346,7 @@
                         </a>
 
                         <a asp-controller="Instalaciones"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             <i class="bi bi-tools"></i>
 
@@ -348,7 +355,7 @@
                         </a>
 
                         <a asp-controller="InteligenciaArtificial"
-                               asp-action="Administrar">
+                           asp-action="Administrar">
 
                             <i class="bi bi-stars"></i>
 
@@ -375,7 +382,7 @@
                         </div>
 
                         <a asp-controller="Instalador"
-                               asp-action="MiPanel">
+                           asp-action="MiPanel">
 
                             <i class="bi bi-tools"></i>
 
@@ -384,6 +391,20 @@
                         </a>
                     }
 
+                    @if (User.IsInRole("Tecnico"))
+                    {
+                        <div class="sidebar-label">
+                            VISITAS TÉCNICAS
+                        </div>
+
+                        <a asp-controller="Tecnico"
+                           asp-action="Index">
+                            <i class="bi bi-clipboard2-check"></i>
+                            Panel del Técnico
+                        </a>
+                    }
+
+                    
                 </nav>
 
 
@@ -410,6 +431,8 @@
                             </div>
 
                         </a>
+
+                        
                     }
 
                 </div>
