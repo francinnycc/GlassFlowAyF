@@ -49,6 +49,18 @@ namespace GlassFlowAyF.Models
         [Display(Name = "Diseño preferido")]
         public bool EsFavorito { get; set; }
 
+        [StringLength(30)]
+        public string EstadoRevision { get; set; } = "Pendiente";
+
+        [StringLength(2000)]
+        public string? ComentarioRevision { get; set; }
+
+        public DateTime? FechaUltimaRevision { get; set; }
+
+        public string? UsuarioUltimaRevisionId { get; set; }
+
+        public ICollection<DisenoIARevision> Revisiones { get; set; } = new List<DisenoIARevision>();
+
         public DateTime FechaGeneracion { get; set; }
             = DateTime.Now;
     }

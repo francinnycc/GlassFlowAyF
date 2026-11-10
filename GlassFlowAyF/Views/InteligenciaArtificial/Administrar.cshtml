@@ -53,6 +53,7 @@ else
             <div class="col-md-6 col-xl-4">
 
                 <div class="ai-design-card h-100">
+                    <div class="px-3 pt-2"><strong>Revisión:</strong> @diseno.EstadoRevision<br /><small>@diseno.ComentarioRevision</small></div>
 
                     <div class="ai-design-image">
 
@@ -144,8 +145,8 @@ else
 
 
                         <a asp-action="Resultado"
-                               asp-route-id="@diseno.Id"
-                               class="btn btn-outline-primary w-100">
+                           asp-route-id="@diseno.Id"
+                           class="btn btn-outline-primary w-100">
 
                             Revisar propuesta
 

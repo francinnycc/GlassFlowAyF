@@ -1,0 +1,11 @@
+﻿@model IEnumerable<GlassFlowAyF.Models.OrdenProduccion>
+@{ ViewData["Title"] = "Producción"; var lista = Model.ToList(); }
+<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2>Gestión de producción</h2><p class="text-muted">Planificación y seguimiento de órdenes reales</p></div><a asp-action="Create" class="btn btn-primary">+ Nueva orden</a></div>
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+<div class="row g-3 mb-4">
+@foreach(var estado in new[]{"Pendiente","En proceso","Pausada","Terminada"}) { <div class="col-6 col-lg-3"><a class="card shadow-sm text-decoration-none text-dark" asp-action="Index" asp-route-estado="@estado"><div class="card-body"><div class="text-muted">@estado</div><h2>@lista.Count(x=>x.Estado==estado)</h2></div></a></div> }
+</div>
+<div class="card shadow-sm"><div class="card-body table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Orden</th><th>Compra</th><th>Cliente</th><th>Inicio</th><th>Final</th><th>Estado</th><th></th></tr></thead><tbody>
+@foreach(var x in lista) { <tr><td>@x.NumeroOrden</td><td>@x.Compra?.NumeroOrden</td><td>@x.Compra?.Cotizacion?.SolicitudCotizacion?.NombreCliente</td><td>@x.FechaInicioPrevista.ToString("dd/MM/yyyy")</td><td>@x.FechaFinPrevista.ToString("dd/MM/yyyy")</td><td><span class="badge bg-secondary">@x.Estado</span></td><td><a asp-action="Details" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Gestionar</a></td></tr> }
+</tbody></table>@if (!lista.Any()) { <p class="text-muted">No hay órdenes para el filtro seleccionado.</p> }</div></div></div>

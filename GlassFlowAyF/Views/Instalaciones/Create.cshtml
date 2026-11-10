@@ -26,7 +26,7 @@
 
 
     <a asp-action="Index"
-           class="btn btn-outline-secondary">
+       class="btn btn-outline-secondary">
 
         Volver
 
@@ -84,8 +84,7 @@
 
             <div class="form-text">
 
-                Solo aparecen compras con pago confirmado,
-                estado "En producción" y sin instalación asignada.
+                Solo aparecen compras con pago confirmado, producción terminada, instalación requerida y sin instalación asignada.
 
             </div>
 
@@ -164,48 +163,46 @@
             <textarea asp-for="Observaciones"
                       class="form-control"
                       rows="4"
-                          placeholder="Indicaciones para el instalador, acceso al lugar, contacto, observaciones del proyecto...">
+                      placeholder="Indicaciones para el instalador, acceso al lugar, contacto, observaciones del proyecto...">
             </textarea>
 
 
-                <span asp-validation-for="Observaciones"
-                      class="text-danger small">
-                </span>
-
-            </div>
-
+            <span asp-validation-for="Observaciones"
+                  class="text-danger small">
+            </span>
 
         </div>
 
 
-
-        <!-- ============================================== -->
-        <!-- INFORMACIÓN -->
-        <!-- ============================================== -->
-
-        <div class="alert alert-info mt-4 mb-0">
-
-            <div class="d-flex gap-2">
-
-                <i class="bi bi-info-circle">
-                </i>
+    </div>
 
 
-                <div>
 
-                    <strong>
-                        ¿Qué ocurrirá al guardar?
-                    </strong>
+    <!-- ============================================== -->
+    <!-- INFORMACIÓN -->
+    <!-- ============================================== -->
+
+    <div class="alert alert-info mt-4 mb-0">
+
+        <div class="d-flex gap-2">
+
+            <i class="bi bi-info-circle">
+            </i>
 
 
-                    <div class="small mt-1">
+            <div>
 
-                        El sistema tomará automáticamente
-                        el cliente, producto y dirección de
-                        la compra seleccionada y enviará el
-                        trabajo al panel del instalador.
+                <strong>
+                    ¿Qué ocurrirá al guardar?
+                </strong>
 
-                    </div>
+
+                <div class="small mt-1">
+
+                    El sistema tomará automáticamente
+                    el cliente, producto y dirección de
+                    la compra seleccionada y enviará el
+                    trabajo al panel del instalador.
 
                 </div>
 
@@ -213,38 +210,40 @@
 
         </div>
 
+    </div>
 
 
-        <!-- ============================================== -->
-        <!-- BOTONES -->
-        <!-- ============================================== -->
 
-        <div class="d-flex gap-2 mt-4">
+    <!-- ============================================== -->
+    <!-- BOTONES -->
+    <!-- ============================================== -->
 
-            <button type="submit"
-                    class="btn btn-glassflow">
+    <div class="d-flex gap-2 mt-4">
 
-                <i class="bi bi-person-check me-1">
-                </i>
+        <button type="submit"
+                class="btn btn-glassflow">
 
-                Guardar asignación
+            <i class="bi bi-person-check me-1">
+            </i>
 
-            </button>
+            Guardar asignación
 
-
-            <a asp-action="Index"
-                   class="btn btn-outline-secondary">
-
-                Cancelar
-
-            </a>
-
-        </div>
-
-    </form>
+        </button>
 
 
-    @section Scripts
-    {
-        <partial name="_ValidationScriptsPartial" />
-    }
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Cancelar
+
+        </a>
+
+    </div>
+
+</form>
+
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

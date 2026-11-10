@@ -62,6 +62,9 @@ namespace GlassFlowAyF.Data
           => Set<Factura>();
 
 
+        public DbSet<OrdenProduccion> OrdenesProduccion => Set<OrdenProduccion>();
+        public DbSet<OrdenProduccionMaterial> OrdenesProduccionMateriales => Set<OrdenProduccionMaterial>();
+
         // =================================================
         // CONTACTO Y SOPORTE
         // =================================================
@@ -78,12 +81,29 @@ namespace GlassFlowAyF.Data
                 => Set<DisenoIA>();
 
 
+        public DbSet<DisenoIARevision> DisenosIARevisiones => Set<DisenoIARevision>();
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
             base.OnModelCreating(
                 modelBuilder);
 
+
+            modelBuilder.Entity<OrdenProduccion>()
+                .HasOne(x => x.Compra).WithOne()
+                .HasForeignKey<OrdenProduccion>(x => x.CompraId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<OrdenProduccion>().HasIndex(x => x.CompraId).IsUnique();
+            modelBuilder.Entity<OrdenProduccion>().HasIndex(x => x.NumeroOrden).IsUnique();
+            modelBuilder.Entity<OrdenProduccionMaterial>()
+                .HasOne(x => x.OrdenProduccion).WithMany(x => x.Materiales)
+                .HasForeignKey(x => x.OrdenProduccionId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<OrdenProduccionMaterial>()
+                .HasOne(x => x.Material).WithMany()
+                .HasForeignKey(x => x.MaterialId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<OrdenProduccionMaterial>()
+                .HasIndex(x => new { x.OrdenProduccionId, x.MaterialId }).IsUnique();
 
             // =================================================
             // PRODUCTO - MATERIAL
@@ -229,6 +249,12 @@ namespace GlassFlowAyF.Data
                 .OnDelete(
                     DeleteBehavior.Cascade);
 
+
+            modelBuilder.Entity<DisenoIARevision>()
+                .HasOne(r => r.DisenoIA)
+                .WithMany(d => d.Revisiones)
+                .HasForeignKey(r => r.DisenoIAId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // =================================================
             // FOTO BASE - DISEÑO IA

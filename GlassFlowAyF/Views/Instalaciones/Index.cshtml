@@ -16,7 +16,7 @@
     </div>
 
     <a class="btn btn-glassflow"
-           asp-action="Create">
+       asp-action="Create">
 
         Asignar instalación
 
@@ -55,7 +55,7 @@
 
                 <p class="small">
                     <strong>Instalador:</strong>
-                    @item.Instalador
+                    @(item.Instalador?.NombreCompleto ?? "Sin asignar")
                 </p>
 
                 <p class="small">
@@ -63,15 +63,13 @@
                     @(item.FechaInstalacion.ToString("dd/MM/yyyy"))
                 </p>
 
-                <a class="btn
-                    btn-outline-primary
-                    w-100"
-                       asp-action="Checklist"
-                       asp-route-id="@item.Id">
-
-                    Abrir checklist
-
-                </a>
+                <div class="d-grid gap-2">
+                    @if (item.Estado != "Finalizada" && item.FechaFinalizacion == null && !item.InstalacionRealizada)
+                    {
+                        <a class="btn btn-glassflow" asp-action="Reasignar" asp-route-id="@item.Id">Reasignar / reprogramar</a>
+                    }
+                    <span class="small text-muted">El checklist se gestiona desde la cuenta del instalador.</span>
+                </div>
 
             </div>
 

@@ -237,6 +237,22 @@ namespace GlassFlowAyF.Controllers
             }
 
 
+            // La compra solo es elegible si la fabricación terminó
+            // y la solicitud requiere instalación.
+            if (compra != null)
+            {
+                var solicitudValidacion = compra.Cotizacion?.SolicitudCotizacion;
+                if (solicitudValidacion == null || !solicitudValidacion.RequiereInstalacion)
+                    ModelState.AddModelError(nameof(trabajo.CompraId),
+                        "La compra no corresponde a una solicitud que requiera instalación.");
+
+                bool produccionTerminada = await _context.OrdenesProduccion
+                    .AnyAsync(o => o.CompraId == compra.Id && o.Estado == "Terminada");
+                if (!produccionTerminada)
+                    ModelState.AddModelError(nameof(trabajo.CompraId),
+                        "Primero debe terminarse la orden de producción.");
+            }
+
             // =================================================
             // EVITAR DOBLE INSTALACIÓN
             // =================================================
@@ -431,6 +447,82 @@ namespace GlassFlowAyF.Controllers
         // CARGAR COMPRAS E INSTALADORES
         // =====================================================
 
+        // Reprogramación y reasignación administradas, sin modificar checklist.
+        [HttpGet]
+        public async Task<IActionResult> Reasignar(int id)
+        {
+            var trabajo = await _context.TrabajosInstalacion
+                .Include(t => t.Instalador).FirstOrDefaultAsync(t => t.Id == id);
+            if (trabajo == null) return NotFound();
+            if (trabajo.Estado == "Finalizada" || trabajo.FechaFinalizacion != null)
+            {
+                TempData["Error"] = "Una instalación finalizada no puede reasignarse.";
+                return RedirectToAction(nameof(Index));
+            }
+            await CargarInstaladores(trabajo.InstaladorId);
+            return View(new GlassFlowAyF.Models.ViewModels.ReasignarInstalacionViewModel
+            {
+                Id = trabajo.Id,
+                InstaladorId = trabajo.InstaladorId ?? "",
+                FechaInstalacion = trabajo.FechaInstalacion,
+                InstaladorActual = trabajo.Instalador?.NombreCompleto ?? "Sin asignar"
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reasignar(GlassFlowAyF.Models.ViewModels.ReasignarInstalacionViewModel modelo)
+        {
+            var trabajo = await _context.TrabajosInstalacion
+                .Include(t => t.Instalador).FirstOrDefaultAsync(t => t.Id == modelo.Id);
+            if (trabajo == null) return NotFound();
+            if (trabajo.Estado == "Finalizada" || trabajo.FechaFinalizacion != null
+                || trabajo.InstalacionRealizada)
+            {
+                TempData["Error"] = "No se puede reasignar una instalación finalizada.";
+                return RedirectToAction(nameof(Index));
+            }
+            if (modelo.FechaInstalacion <= DateTime.Now)
+                ModelState.AddModelError(nameof(modelo.FechaInstalacion), "Seleccione una fecha futura.");
+            var usuario = await _userManager.FindByIdAsync(modelo.InstaladorId ?? "");
+            if (usuario == null || !usuario.Activo || !await _userManager.IsInRoleAsync(usuario, "Instalador"))
+                ModelState.AddModelError(nameof(modelo.InstaladorId), "Seleccione un instalador activo con el rol correspondiente.");
+            if (!ModelState.IsValid)
+            {
+                modelo.InstaladorActual = trabajo.Instalador?.NombreCompleto ?? "Sin asignar";
+                await CargarInstaladores(modelo.InstaladorId);
+                return View(modelo);
+            }
+            var anterior = trabajo.Instalador?.NombreCompleto ?? "Sin asignar";
+            var fechaAnterior = trabajo.FechaInstalacion;
+            trabajo.InstaladorId = usuario!.Id;
+            trabajo.FechaInstalacion = modelo.FechaInstalacion;
+            // Bitácora resumida en observaciones; para auditoría completa,
+            // implementar posteriormente una tabla de historial propia.
+            var nota = $"[{DateTime.Now:yyyy-MM-dd HH:mm}] Reasignación por {User.Identity?.Name}: " +
+                $"{anterior} -> {usuario.NombreCompleto}; fecha {fechaAnterior:yyyy-MM-dd HH:mm} -> " +
+                $"{modelo.FechaInstalacion:yyyy-MM-dd HH:mm}. Motivo: {modelo.Motivo.Trim()}";
+            var previo = trabajo.Observaciones ?? "";
+            trabajo.Observaciones = (previo + "\n" + nota).Trim();
+            if (trabajo.Observaciones.Length > 1000)
+            {
+                ModelState.AddModelError("", "Las observaciones alcanzaron el límite. No se guardó la reasignación.");
+                modelo.InstaladorActual = anterior;
+                await CargarInstaladores(modelo.InstaladorId);
+                return View(modelo);
+            }
+            await _context.SaveChangesAsync();
+            TempData["Mensaje"] = "Instalación reasignada correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task CargarInstaladores(string? seleccionado)
+        {
+            var usuarios = await _userManager.GetUsersInRoleAsync("Instalador");
+            ViewBag.Instaladores = new SelectList(usuarios.Where(x => x.Activo)
+                .OrderBy(x => x.NombreCompleto).ToList(), "Id", "NombreCompleto", seleccionado);
+        }
+
         private async Task CargarCombos(
             int? compraId,
             string? instaladorId)
@@ -439,74 +531,25 @@ namespace GlassFlowAyF.Controllers
             // COMPRAS DISPONIBLES
             // =================================================
 
-            var compras =
-                await _context
-                    .Compras
-
-                    .AsNoTracking()
-
-                    .Include(c =>
-                        c.Cliente)
-
-                    .Include(c =>
-                        c.Cotizacion)
-
-                        .ThenInclude(c =>
-                            c!.SolicitudCotizacion)
-
-                            .ThenInclude(s =>
-                                s!.Producto)
-
-                    .Include(c =>
-                        c.TrabajoInstalacion)
-
-                    .Where(c =>
-                        c.Estado ==
-                            "En producción" &&
-
-                        c.TrabajoInstalacion ==
-                            null)
-
-                    .OrderByDescending(c =>
-                        c.FechaCompra)
-
-                    .Select(c =>
-                        new
-                        {
-                            c.Id,
-
-                            Texto =
-                                c.NumeroOrden
-                                + " - "
-                                + (
-                                    c.Cliente != null
-                                        ? c.Cliente.NombreCompleto
-                                        : "Cliente"
-                                  )
-                                + " - "
-                                + (
-                                    c.Cotizacion != null &&
-                                    c.Cotizacion.SolicitudCotizacion != null &&
-                                    c.Cotizacion.SolicitudCotizacion.Producto != null
-
-                                        ? c.Cotizacion
-                                            .SolicitudCotizacion
-                                            .Producto
-                                            .Nombre
-
-                                        : c.Cotizacion != null &&
-                                          c.Cotizacion.SolicitudCotizacion != null
-
-                                            ? c.Cotizacion
-                                                .SolicitudCotizacion
-                                                .TipoProducto
-
-                                            : "Proyecto"
-                                  )
-                        })
-
-                    .ToListAsync();
-
+            var compras = await _context.Compras
+                .AsNoTracking()
+                .Include(c => c.Cliente)
+                .Include(c => c.Cotizacion)
+                    .ThenInclude(c => c!.SolicitudCotizacion)
+                .Where(c => c.Estado == "En producción"
+                    && c.TrabajoInstalacion == null
+                    && c.Cotizacion != null
+                    && c.Cotizacion.SolicitudCotizacion != null
+                    && c.Cotizacion.SolicitudCotizacion.RequiereInstalacion
+                    && _context.OrdenesProduccion.Any(o =>
+                        o.CompraId == c.Id && o.Estado == "Terminada"))
+                .OrderByDescending(c => c.FechaCompra)
+                .Select(c => new {
+                    c.Id,
+                    Texto = c.NumeroOrden + " - " +
+                        (c.Cliente != null ? c.Cliente.NombreCompleto : "Cliente")
+                })
+                .ToListAsync();
 
             ViewBag.Compras =
                 new SelectList(

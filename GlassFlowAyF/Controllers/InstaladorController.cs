@@ -187,47 +187,38 @@ namespace GlassFlowAyF.Controllers
                 form.Observaciones;
 
 
-            if (trabajo.InstalacionIniciada &&
-                trabajo.Estado ==
-                "Programada")
+            // Recalcular el estado en CADA guardado, no solo cuando se completan pasos.
+            bool completo = trabajo.MedidasConfirmadas && trabajo.MaterialListo &&
+                trabajo.InstalacionIniciada && trabajo.InstalacionRealizada &&
+                trabajo.RevisionAcabados && trabajo.LimpiezaFinal;
+
+            bool hayAvance = trabajo.MedidasConfirmadas || trabajo.MaterialListo ||
+                trabajo.InstalacionIniciada || trabajo.InstalacionRealizada ||
+                trabajo.RevisionAcabados || trabajo.LimpiezaFinal;
+
+            if (completo)
             {
-                trabajo.Estado =
-                    "En proceso";
-            }
-
-
-            if (
-                trabajo.MedidasConfirmadas &&
-                trabajo.MaterialListo &&
-                trabajo.InstalacionIniciada &&
-                trabajo.InstalacionRealizada &&
-                trabajo.RevisionAcabados &&
-                trabajo.LimpiezaFinal)
-            {
-                trabajo.Estado =
-                    "Finalizada";
-
-                trabajo.FechaFinalizacion =
-                    DateTime.Now;
-
-
-                if (trabajo
-                    .SolicitudCotizacion != null)
-                {
-                    trabajo
-                        .SolicitudCotizacion
-                        .Estado =
-                            "Finalizado";
-                }
-
-
+                trabajo.Estado = "Finalizada";
+                trabajo.FechaFinalizacion ??= DateTime.Now;
+                if (trabajo.SolicitudCotizacion != null)
+                    trabajo.SolicitudCotizacion.Estado = "Finalizado";
                 if (trabajo.Compra != null)
-                {
-                    trabajo.Compra.Estado =
-                        "Finalizada";
-                }
+                    trabajo.Compra.Estado = "Finalizada";
             }
+            else
+            {
+                trabajo.Estado = hayAvance ? "En proceso" : "Programada";
+                trabajo.FechaFinalizacion = null;
 
+                if (trabajo.SolicitudCotizacion != null)
+                    trabajo.SolicitudCotizacion.Estado = hayAvance
+                        ? "Instalado" : "Instalación programada";
+
+                // Conservar el estado de producción de la compra, que es el
+                // estado previo utilizado por este proyecto antes del cierre.
+                if (trabajo.Compra != null && trabajo.Compra.Estado == "Finalizada")
+                    trabajo.Compra.Estado = "En producción";
+            }
 
             await _context
                 .SaveChangesAsync();

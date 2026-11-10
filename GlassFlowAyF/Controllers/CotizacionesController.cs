@@ -1114,9 +1114,10 @@ namespace GlassFlowAyF.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            solicitud.Estado = estado;
-            await _context.SaveChangesAsync();
-            TempData["Mensaje"] = "Estado actualizado correctamente.";
+            // Las etapas operativas no se pueden adelantar desde el selector
+            // administrativo: producción e instalación tienen sus propios módulos.
+            TempData["Error"] = "El estado se actualiza desde producción o instalación; no puede adelantarse manualmente.";
+            return RedirectToAction(nameof(Details), new { id });
             return RedirectToAction(nameof(Details), new { id });
         }
 
