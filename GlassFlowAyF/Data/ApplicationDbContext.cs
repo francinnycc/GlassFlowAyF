@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlassFlowAyF.Data
 {
-    public class ApplicationDbContext
+    public partial class ApplicationDbContext
         : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
@@ -94,6 +94,8 @@ namespace GlassFlowAyF.Data
         {
             base.OnModelCreating(
                 modelBuilder);
+
+            ConfigurarModulo15(modelBuilder);
 
 
             // =================================================

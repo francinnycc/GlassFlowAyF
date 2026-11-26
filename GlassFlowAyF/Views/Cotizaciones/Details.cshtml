@@ -1,4 +1,4 @@
-@model GlassFlowAyF.Models.SolicitudCotizacion
+﻿@model GlassFlowAyF.Models.SolicitudCotizacion
 
 @{
     ViewData["Title"] = "Detalle de solicitud";
@@ -12,7 +12,7 @@
     "Visita programada",
     "Visita Técnica Completada",
     "Cotizado",
-    "Aprobado",
+    GlassFlowAyF.Models.EstadosRevision.AprobadoCliente,
     "En producción",
     "Instalación programada",
     "Instalado",
@@ -20,10 +20,15 @@
 };
 
 
+    // Módulo 15: modificación o rechazo del cliente se ubican en la etapa "Cotizado".
+    var estadoLinea = Model.Estado == GlassFlowAyF.Models.EstadosRevision.SolicitudModificacion ||
+                      Model.Estado == GlassFlowAyF.Models.EstadosRevision.RechazadaCliente
+        ? "Cotizado" : Model.Estado;
+
     var indiceActual =
         Array.IndexOf(
             etapas,
-            Model.Estado);
+            estadoLinea);
 
 
     if (indiceActual < 0)
@@ -48,8 +53,7 @@
     var estadoAdministrativo = new[] { "En producción", "Instalación programada", "Instalado", "Finalizado" }
         .Contains(Model.Estado);
     var estadoEsperado = pendienteDeRespuesta ? "Pendiente de información" :
-        cotizacionAprobada ? "Aprobado" :
-        tieneCotizacion ? "Cotizado" :
+        tieneCotizacion ? GlassFlowAyF.Models.EstadosRevision.EstadoSegunCotizaciones(Model.Cotizaciones)! :
         tieneVisitaCompletada ? "Visita Técnica Completada" :
         tieneVisita ? "Visita programada" : Model.Estado;
     var estadoDesfasado = !estadoAdministrativo && Model.Estado != estadoEsperado;
@@ -645,6 +649,25 @@
                 <div class="d-flex gap-2 mt-4">
 
 
+                    <a asp-controller="RevisionCliente"
+                       asp-action="Revisar"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-glassflow">
+                        <i class="bi bi-clipboard-check me-1"></i>
+                        @(User.IsInRole("Cliente") ? "Revisar y responder propuesta" : "Panel de revisión")
+                    </a>
+
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a asp-controller="RevisionCliente"
+                           asp-action="Historial"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-journal-text me-1"></i>
+                            Bitácora
+                        </a>
+                    }
+
                     <a asp-action="VerCotizacion"
                        asp-route-id="@ultimaCotizacion.Id"
                        class="btn btn-outline-primary">
@@ -732,7 +755,7 @@
                     if (etapas[i] == "Visita programada") completado = tieneVisita;
                     if (etapas[i] == "Visita Técnica Completada") completado = tieneVisitaCompletada;
                     if (etapas[i] == "Cotizado") completado = tieneCotizacion;
-                    if (etapas[i] == "Aprobado") completado = cotizacionAprobada;
+                    if (etapas[i] == GlassFlowAyF.Models.EstadosRevision.AprobadoCliente) completado = cotizacionAprobada;
                     if (etapas[i] == "Solicitado") completado = true;
 
 
@@ -908,7 +931,7 @@
                 {
                     var siguiente = Model.Estado switch
                     {
-                        "Aprobado" => "En producción",
+                        GlassFlowAyF.Models.EstadosRevision.AprobadoCliente => "En producción",
                         "En producción" => "Instalación programada",
                         "Instalación programada" => "Instalado",
                         "Instalado" => "Finalizado",

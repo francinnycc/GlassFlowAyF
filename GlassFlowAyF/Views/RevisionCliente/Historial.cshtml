@@ -1,0 +1,73 @@
+@model List<GlassFlowAyF.Models.RevisionCliente>
+@{
+    ViewData["Title"] = "Bitácora de revisión";
+    var solicitud = (GlassFlowAyF.Models.SolicitudCotizacion)ViewBag.Solicitud;
+    var ordenes = (List<GlassFlowAyF.Models.OrdenPreliminar>)ViewBag.Ordenes;
+}
+
+<div class="page-header">
+    <div>
+        <span class="eyebrow">AUDITORÍA</span>
+        <div class="request-id">SOL-@solicitud.Id.ToString("D5")</div>
+        <h1>Bitácora de revisión del cliente</h1>
+        <p>@solicitud.NombreCliente · Estado actual: <strong>@solicitud.Estado</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Revisar" asp-route-id="@solicitud.Id" class="btn btn-outline-primary">Ver propuesta</a>
+        <a asp-controller="Cotizaciones" asp-action="Details" asp-route-id="@solicitud.Id" class="btn btn-outline-secondary">Solicitud</a>
+    </div>
+</div>
+
+@if (ordenes.Count > 0)
+{
+    <div class="glass-card mb-4">
+        <h5>Órdenes preliminares</h5>
+        @foreach (var o in ordenes)
+        {
+            <div><strong>@o.Numero</strong> · Cotización #@o.CotizacionId · @o.Estado · @o.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
+        }
+    </div>
+}
+
+<div class="glass-card">
+    @if (Model.Count == 0)
+    {
+        <p class="text-muted mb-0">El cliente aún no ha registrado decisiones sobre esta solicitud.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle small">
+                <thead>
+                    <tr>
+                        <th>Fecha (local)</th><th>Decisión</th><th>Usuario</th><th>Cotización</th>
+                        <th>Estado cotización</th><th>Estado proyecto</th><th>T&amp;C</th><th>IP</th><th>Comentario</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>@r.FechaUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td><span class="status-badge">@r.Decision</span></td>
+                            <td>@(r.Usuario?.Email ?? r.UsuarioId)</td>
+                            <td>#@r.CotizacionId<br /><code class="small">@r.VersionCotizacion.ToString()[..8]</code></td>
+                            <td>@r.EstadoCotizacionAnterior → @r.EstadoCotizacionNuevo</td>
+                            <td>@r.EstadoSolicitudAnterior → @r.EstadoSolicitudNuevo</td>
+                            <td>@(r.AceptoTerminos ? "Sí" : "-")</td>
+                            <td>@r.DireccionIp</td>
+                            <td style="max-width:260px;white-space:pre-line">@r.Comentario</td>
+                            <td>
+                                <details>
+                                    <summary>Snapshot</summary>
+                                    <pre class="small mb-0" style="white-space:pre-wrap;max-width:320px">@r.SnapshotJson</pre>
+                                    <div class="text-muted">@r.UserAgent</div>
+                                </details>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

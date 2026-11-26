@@ -78,5 +78,30 @@ namespace GlassFlowAyF.Models
         public DateTime? FechaRespuestaCliente { get; set; }
 
         public Compra? Compra { get; set; }
+
+        // =====================================================
+        // MÓDULO 15 – REVISIÓN Y APROBACIÓN DEL CLIENTE
+        // =====================================================
+
+        /// <summary>true cuando el cliente aprobó: la versión queda bloqueada para edición.</summary>
+        public bool Congelada { get; set; }
+
+        public DateTime? FechaCongelacion { get; set; }
+
+        /// <summary>false cuando el cliente rechazó la propuesta.</summary>
+        public bool Activa { get; set; } = true;
+
+        /// <summary>Propuesta visual (diseño IA) asociada a la cotización revisada.</summary>
+        public int? DisenoIAId { get; set; }
+
+        public DisenoIA? DisenoIA { get; set; }
+
+        /// <summary>SHA-256 del snapshot aprobado para verificar que no se alteró.</summary>
+        [StringLength(64)]
+        public string? SnapshotHash { get; set; }
+
+        public OrdenPreliminar? OrdenPreliminar { get; set; }
+
+        public ICollection<RevisionCliente> Revisiones { get; set; } = new List<RevisionCliente>();
     }
 }
