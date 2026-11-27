@@ -1,4 +1,6 @@
-﻿using GlassFlowAyF.Models;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using GlassFlowAyF.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +12,46 @@ namespace GlassFlowAyF.Data
         public DbSet<ValidacionTecnica> ValidacionesTecnicas => Set<ValidacionTecnica>();
         public DbSet<RevisionFotografia> RevisionesFotografias => Set<RevisionFotografia>();
         public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options)
+            DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor? http = null)
             : base(options)
         {
+            _http = http;
         }
 
+
+        public DbSet<ConfiguracionAR> ConfiguracionesAR => Set<ConfiguracionAR>();
+        private readonly IHttpContextAccessor? _http;
+        public DbSet<HistorialEstadoProyecto> HistorialEstadosProyecto => Set<HistorialEstadoProyecto>();
+
+        private void RegistrarCambiosEstado()
+        {
+            ChangeTracker.DetectChanges();
+            var cambios = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified &&
+                (e.Entity is SolicitudCotizacion or Cotizacion or Compra or OrdenProduccion or TrabajoInstalacion or VisitaTecnica or DisenoIA)).ToList();
+            foreach (var e in cambios)
+            {
+                var campo = e.Property(e.Entity is DisenoIA ? "EstadoRevision" : "Estado");
+                if (!campo.IsModified || Equals(campo.OriginalValue, campo.CurrentValue)) continue;
+                HistorialEstadosProyecto.Add(new HistorialEstadoProyecto
+                {
+                    Entidad = e.Metadata.ClrType.Name,
+                    RegistroId = (int)e.Property("Id").CurrentValue!,
+                    Anterior = campo.OriginalValue?.ToString() ?? "",
+                    Nuevo = campo.CurrentValue?.ToString() ?? "",
+                    UsuarioId = _http?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? ""
+                });
+            }
+        }
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            RegistrarCambiosEstado();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            RegistrarCambiosEstado();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
 
         public DbSet<Producto> Productos
             => Set<Producto>();
@@ -48,6 +85,9 @@ namespace GlassFlowAyF.Data
         public DbSet<TrabajoInstalacion>
             TrabajosInstalacion
                 => Set<TrabajoInstalacion>();
+
+        public DbSet<EvidenciaInstalacion> EvidenciasInstalacion => Set<EvidenciaInstalacion>();
+        public DbSet<HistorialCierreInstalacion> HistorialCierresInstalacion => Set<HistorialCierreInstalacion>();
 
         public DbSet<Cotizacion>
             Cotizaciones
@@ -88,6 +128,15 @@ namespace GlassFlowAyF.Data
         {
             base.OnModelCreating(
                 modelBuilder);
+
+            modelBuilder.Entity<EvidenciaInstalacion>()
+                .HasOne(x => x.TrabajoInstalacion).WithMany(x => x.Evidencias)
+                .HasForeignKey(x => x.TrabajoInstalacionId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<HistorialCierreInstalacion>()
+                .HasOne(x => x.TrabajoInstalacion).WithMany(x => x.HistorialCierre)
+                .HasForeignKey(x => x.TrabajoInstalacionId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<EvidenciaInstalacion>().HasIndex(x => x.TrabajoInstalacionId);
+            modelBuilder.Entity<HistorialCierreInstalacion>().HasIndex(x => new { x.TrabajoInstalacionId, x.Fecha });
 
 
             modelBuilder.Entity<OrdenProduccion>()

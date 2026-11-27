@@ -258,13 +258,8 @@ namespace GlassFlowAyF.Services
                         "jpeg"
                 };
 
-
-            if (fotografiaBase != null)
-            {
-                herramientaImagen[
-                    "input_fidelity"] =
-                        "high";
-            }
+            // gpt-image-2 no admite input_fidelity; la fotografia base
+            // ya se proporciona como input_image para la edicion.
 
 
             var request =

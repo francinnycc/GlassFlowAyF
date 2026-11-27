@@ -60,5 +60,13 @@ namespace GlassFlowAyF.Models
         public string? Observaciones { get; set; }
 
         public DateTime? FechaFinalizacion { get; set; }
+
+        public DateTime? FechaSolicitudCierre { get; set; }
+        public DateTime? FechaAprobacionCierre { get; set; }
+        [StringLength(450)]
+        public string? ObservacionCierre { get; set; }
+        public string? AprobadoPorId { get; set; }
+        public ICollection<EvidenciaInstalacion> Evidencias { get; set; } = new List<EvidenciaInstalacion>();
+        public ICollection<HistorialCierreInstalacion> HistorialCierre { get; set; } = new List<HistorialCierreInstalacion>();
     }
 }

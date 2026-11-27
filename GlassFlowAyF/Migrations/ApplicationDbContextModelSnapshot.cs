@@ -175,6 +175,55 @@ namespace GlassFlowAyF.Migrations
                     b.ToTable("Compras");
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.ConfiguracionAR", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Acabado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Forma")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SolicitudCotizacionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("UsoAR")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<string>("Vidrio")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("SolicitudCotizacionId");
+
+                    b.ToTable("ConfiguracionesAR");
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
                 {
                     b.Property<int>("Id")
@@ -366,6 +415,45 @@ namespace GlassFlowAyF.Migrations
                     b.ToTable("DisenosIARevisiones");
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.EvidenciaInstalacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NombreArchivo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("TipoContenido")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("TrabajoInstalacionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrabajoInstalacionId");
+
+                    b.ToTable("EvidenciasInstalacion");
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.Factura", b =>
                 {
                     b.Property<int>("Id")
@@ -408,6 +496,79 @@ namespace GlassFlowAyF.Migrations
                         .IsUnique();
 
                     b.ToTable("Facturas");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.HistorialCierreInstalacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<string>("Comentario")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("TrabajoInstalacionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrabajoInstalacionId", "Fecha");
+
+                    b.ToTable("HistorialCierresInstalacion");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.HistorialEstadoProyecto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Anterior")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Entidad")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nuevo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("RegistroId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HistorialEstadosProyecto");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.HistorialMedida", b =>
@@ -1051,6 +1212,9 @@ namespace GlassFlowAyF.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AprobadoPorId")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Cliente")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -1069,10 +1233,16 @@ namespace GlassFlowAyF.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
+                    b.Property<DateTime?>("FechaAprobacionCierre")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("FechaFinalizacion")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("FechaInstalacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaSolicitudCierre")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("InstalacionIniciada")
@@ -1092,6 +1262,10 @@ namespace GlassFlowAyF.Migrations
 
                     b.Property<bool>("MedidasConfirmadas")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ObservacionCierre")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<string>("Observaciones")
                         .HasMaxLength(1000)
@@ -1419,6 +1593,25 @@ namespace GlassFlowAyF.Migrations
                     b.Navigation("Cotizacion");
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.ConfiguracionAR", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
+                        .WithMany()
+                        .HasForeignKey("SolicitudCotizacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("SolicitudCotizacion");
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.Cotizacion", b =>
                 {
                     b.HasOne("GlassFlowAyF.Models.SolicitudCotizacion", "SolicitudCotizacion")
@@ -1459,6 +1652,17 @@ namespace GlassFlowAyF.Migrations
                     b.Navigation("DisenoIA");
                 });
 
+            modelBuilder.Entity("GlassFlowAyF.Models.EvidenciaInstalacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.TrabajoInstalacion", "TrabajoInstalacion")
+                        .WithMany("Evidencias")
+                        .HasForeignKey("TrabajoInstalacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TrabajoInstalacion");
+                });
+
             modelBuilder.Entity("GlassFlowAyF.Models.Factura", b =>
                 {
                     b.HasOne("GlassFlowAyF.Models.Compra", "Compra")
@@ -1468,6 +1672,17 @@ namespace GlassFlowAyF.Migrations
                         .IsRequired();
 
                     b.Navigation("Compra");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.HistorialCierreInstalacion", b =>
+                {
+                    b.HasOne("GlassFlowAyF.Models.TrabajoInstalacion", "TrabajoInstalacion")
+                        .WithMany("HistorialCierre")
+                        .HasForeignKey("TrabajoInstalacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TrabajoInstalacion");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.HistorialMedida", b =>
@@ -1748,6 +1963,13 @@ namespace GlassFlowAyF.Migrations
                     b.Navigation("Fotografias");
 
                     b.Navigation("ValidacionesTecnicas");
+                });
+
+            modelBuilder.Entity("GlassFlowAyF.Models.TrabajoInstalacion", b =>
+                {
+                    b.Navigation("Evidencias");
+
+                    b.Navigation("HistorialCierre");
                 });
 
             modelBuilder.Entity("GlassFlowAyF.Models.VisitaTecnica", b =>

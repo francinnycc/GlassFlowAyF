@@ -1,0 +1,22 @@
+﻿@model GlassFlowAyF.Models.ViewModels.RealidadAumentadaViewModel
+@{
+    ViewData["Title"] = "GlassFlow AR Studio";
+}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<div class="d-flex justify-content-between align-items-start mb-3"><div><h2>GlassFlow AR Studio</h2><p>SOL-@Model.Solicitud.Id.ToString("D5") · @Model.Solicitud.TipoProducto</p></div><a asp-action="Index" class="btn btn-outline-secondary">Volver</a></div>
+@if (TempData["ARGuardado"] is string mensaje)
+{
+    <div class="alert alert-success">@mensaje</div>
+}
+<div class="row g-3">
+    <div class="col-lg-8"><div class="glass-card p-3"><model-viewer id="visorAR" src="@Url.Action("Modelo", new { forma = "baranda", acabado = "negro", vidrio = "claro" })" camera-controls touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1" style="width:100%;height:480px;background:#e7f1f4;border-radius:14px" alt="Modelo conceptual de vidrio"><button slot="ar-button" type="button" class="btn btn-glassflow" style="position:absolute;bottom:15px;left:15px">Ver en mi espacio</button></model-viewer><div class="mt-2" id="estadoAR" role="status">Cargando visor. Requiere internet y navegador compatible.</div><div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-outline-secondary" data-orbit="0deg 75deg 4m">Frente</button><button type="button" class="btn btn-outline-secondary" data-orbit="90deg 75deg 4m">Lateral</button><button type="button" class="btn btn-outline-secondary" data-orbit="45deg 60deg 4m">Perspectiva</button></div><p class="text-muted mt-3">Modelos conceptuales; no sustituyen mediciones ni planos. En iPhone o iPad abrí Safari; en Android, Chrome. Usá una dirección HTTPS confiable. Si AR no está disponible, podés seguir explorando en 3D.</p></div></div>
+    <div class="col-lg-4"><form asp-action="Guardar" asp-route-id="@Model.Solicitud.Id" method="post" class="glass-card p-3">@Html.AntiForgeryToken()<h4>Personalizar propuesta</h4><label for="forma">Modelo conceptual</label><select id="forma" name="forma" class="form-select mb-3"><option value="baranda">Baranda</option><option value="mampara">Mampara</option><option value="puerta">Puerta</option><option value="division">División</option></select><label for="materialId">Material del catálogo</label><select id="materialId" name="materialId" class="form-select mb-3" required><option value="">Seleccionar</option>@foreach(var m in Model.Materiales){
+        <option value="@m.Id">@m.Nombre</option>
+    }
+</select><label for="acabado">Perfil visual</label><select id="acabado" name="acabado" class="form-select mb-3"><option value="negro">Negro mate</option><option value="aluminio">Aluminio</option><option value="blanco">Blanco</option></select><label for="vidrio">Vidrio visual</label><select id="vidrio" name="vidrio" class="form-select mb-3"><option value="claro">Transparente</option><option value="esmerilado">Esmerilado</option></select><input type="hidden" name="usoAR" id="usoAR" value="false" /><button class="btn btn-glassflow w-100" type="submit" disabled="@(Model.Materiales.Count == 0)">Guardar referencia para cotización</button><small>El material comercial y la apariencia conceptual se registran por separado.</small></form></div>
+</div>
+<div class="glass-card p-3 mt-3 table-responsive"><h4>Historial de configuraciones</h4><table class="table"><thead><tr><th>Fecha UTC</th><th>Modelo</th><th>Material</th><th>Perfil</th><th>Vidrio</th><th>Sesión WebXR reportada</th></tr></thead><tbody>@foreach(var h in Model.Historial){
+    <tr><td>@h.FechaUtc.ToString("dd/MM/yyyy HH:mm")</td><td>@h.Forma</td><td>@h.Material.Nombre</td><td>@h.Acabado</td><td>@h.Vidrio</td><td>@(h.UsoAR ? "Sí" : "No")</td></tr>
+}
+</tbody></table></div>
+<script src="~/js/glassflow-ar.js" asp-append-version="true"></script>

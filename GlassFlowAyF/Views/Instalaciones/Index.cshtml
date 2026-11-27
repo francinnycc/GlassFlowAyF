@@ -64,6 +64,7 @@
                 </p>
 
                 <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary" asp-controller="CierreInstalaciones" asp-action="Detalle" asp-route-id="@item.Id">Evidencias y cierre</a>
                     @if (item.Estado != "Finalizada" && item.FechaFinalizacion == null && !item.InstalacionRealizada)
                     {
                         <a class="btn btn-glassflow" asp-action="Reasignar" asp-route-id="@item.Id">Reasignar / reprogramar</a>

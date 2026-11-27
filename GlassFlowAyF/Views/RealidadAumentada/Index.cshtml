@@ -1,0 +1,6 @@
+﻿@model List<GlassFlowAyF.Models.SolicitudCotizacion>
+@{ ViewData["Title"] = "GlassFlow AR Studio"; }
+<div class="glass-card p-4 mb-3"><h2>GlassFlow AR Studio</h2><p>Explorá propuestas tridimensionales y guardá referencias para cotización.</p></div>
+<div class="glass-card p-3 table-responsive"><table class="table"><thead><tr><th>Solicitud</th><th>Producto</th><th>Estado</th><th></th></tr></thead><tbody>
+@foreach(var s in Model){<tr><td>SOL-@s.Id.ToString("D5")</td><td>@s.TipoProducto</td><td>@s.Estado</td><td><a asp-action="Detalle" asp-route-id="@s.Id" class="btn btn-glassflow">Abrir estudio 3D</a></td></tr>}
+</tbody></table></div>
