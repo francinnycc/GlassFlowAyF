@@ -165,6 +165,12 @@ namespace GlassFlowAyF.Controllers
             }
 
 
+            if (trabajo.FechaAprobacionCierre != null)
+            {
+                TempData["Mensaje"] = "El cierre ya fue aprobado; el checklist es de solo lectura.";
+                return RedirectToAction(nameof(Checklist), new { id = trabajo.Id });
+            }
+
             trabajo.MedidasConfirmadas =
                 form.MedidasConfirmadas;
 
@@ -187,38 +193,38 @@ namespace GlassFlowAyF.Controllers
                 form.Observaciones;
 
 
-            // Recalcular el estado en CADA guardado, no solo cuando se completan pasos.
+            if (trabajo.FechaAprobacionCierre != null)
+            {
+                TempData["Mensaje"] = "Esta instalación ya tiene un cierre aprobado y no se puede modificar.";
+                return RedirectToAction(nameof(Checklist), new { id = trabajo.Id });
+            }
+
             bool completo = trabajo.MedidasConfirmadas && trabajo.MaterialListo &&
                 trabajo.InstalacionIniciada && trabajo.InstalacionRealizada &&
                 trabajo.RevisionAcabados && trabajo.LimpiezaFinal;
-
             bool hayAvance = trabajo.MedidasConfirmadas || trabajo.MaterialListo ||
                 trabajo.InstalacionIniciada || trabajo.InstalacionRealizada ||
                 trabajo.RevisionAcabados || trabajo.LimpiezaFinal;
 
             if (completo)
             {
-                trabajo.Estado = "Finalizada";
-                trabajo.FechaFinalizacion ??= DateTime.Now;
+                // Sprint 4: completar el checklist NO cierra automáticamente la instalación.
+                trabajo.Estado = "Pendiente de cierre";
+                trabajo.FechaFinalizacion = null;
                 if (trabajo.SolicitudCotizacion != null)
-                    trabajo.SolicitudCotizacion.Estado = "Finalizado";
-                if (trabajo.Compra != null)
-                    trabajo.Compra.Estado = "Finalizada";
+                    trabajo.SolicitudCotizacion.Estado = "Instalación en revisión";
             }
             else
             {
                 trabajo.Estado = hayAvance ? "En proceso" : "Programada";
+                trabajo.FechaSolicitudCierre = null;
                 trabajo.FechaFinalizacion = null;
-
                 if (trabajo.SolicitudCotizacion != null)
-                    trabajo.SolicitudCotizacion.Estado = hayAvance
-                        ? "Instalado" : "Instalación programada";
-
-                // Conservar el estado de producción de la compra, que es el
-                // estado previo utilizado por este proyecto antes del cierre.
-                if (trabajo.Compra != null && trabajo.Compra.Estado == "Finalizada")
-                    trabajo.Compra.Estado = "En producción";
+                    trabajo.SolicitudCotizacion.Estado = hayAvance ? "Instalado" : "Instalación programada";
             }
+            // La compra solo se finaliza cuando el administrador aprueba el cierre.
+            if (trabajo.Compra != null && trabajo.Compra.Estado == "Finalizada")
+                trabajo.Compra.Estado = "En producción";
 
             await _context
                 .SaveChangesAsync();

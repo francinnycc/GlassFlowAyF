@@ -31,94 +31,100 @@
       method="post"
       class="glass-card">
 
-    <input asp-for="Id"
-           type="hidden" />
+    <input asp-for="Id" type="hidden" />
+    <fieldset disabled="@(Model.FechaAprobacionCierre != null)">
 
 
-    <div class="checklist-row">
+        <div class="checklist-row">
 
-        <input asp-for="MedidasConfirmadas"
-               class="form-check-input" />
+            <input asp-for="MedidasConfirmadas"
+                   class="form-check-input" />
 
-        <label asp-for="MedidasConfirmadas">
-        </label>
+            <label asp-for="MedidasConfirmadas">
+            </label>
 
-    </div>
-
-
-    <div class="checklist-row">
-
-        <input asp-for="MaterialListo"
-               class="form-check-input" />
-
-        <label asp-for="MaterialListo">
-        </label>
-
-    </div>
+        </div>
 
 
-    <div class="checklist-row">
+        <div class="checklist-row">
 
-        <input asp-for="InstalacionIniciada"
-               class="form-check-input" />
+            <input asp-for="MaterialListo"
+                   class="form-check-input" />
 
-        <label asp-for="InstalacionIniciada">
-        </label>
+            <label asp-for="MaterialListo">
+            </label>
 
-    </div>
-
-
-    <div class="checklist-row">
-
-        <input asp-for="InstalacionRealizada"
-               class="form-check-input" />
-
-        <label asp-for="InstalacionRealizada">
-        </label>
-
-    </div>
+        </div>
 
 
-    <div class="checklist-row">
+        <div class="checklist-row">
 
-        <input asp-for="RevisionAcabados"
-               class="form-check-input" />
+            <input asp-for="InstalacionIniciada"
+                   class="form-check-input" />
 
-        <label asp-for="RevisionAcabados">
-        </label>
+            <label asp-for="InstalacionIniciada">
+            </label>
 
-    </div>
-
-
-    <div class="checklist-row">
-
-        <input asp-for="LimpiezaFinal"
-               class="form-check-input" />
-
-        <label asp-for="LimpiezaFinal">
-        </label>
-
-    </div>
+        </div>
 
 
-    <div class="mt-4">
+        <div class="checklist-row">
 
-        <label asp-for="Observaciones"
-               class="form-label">
-        </label>
+            <input asp-for="InstalacionRealizada"
+                   class="form-check-input" />
 
-        <textarea asp-for="Observaciones"
-                  class="form-control"
-                  rows="4">
+            <label asp-for="InstalacionRealizada">
+            </label>
+
+        </div>
+
+
+        <div class="checklist-row">
+
+            <input asp-for="RevisionAcabados"
+                   class="form-check-input" />
+
+            <label asp-for="RevisionAcabados">
+            </label>
+
+        </div>
+
+
+        <div class="checklist-row">
+
+            <input asp-for="LimpiezaFinal"
+                   class="form-check-input" />
+
+            <label asp-for="LimpiezaFinal">
+            </label>
+
+        </div>
+
+
+        <div class="mt-4">
+
+            <label asp-for="Observaciones"
+                   class="form-label">
+            </label>
+
+            <textarea asp-for="Observaciones"
+                      class="form-control"
+                      rows="4">
         </textarea>
 
-    </div>
+        </div>
 
 
-    <button class="btn btn-glassflow mt-4">
+        <button class="btn btn-glassflow mt-4">
 
-        Guardar progreso
+            Guardar progreso
 
-    </button>
+        </button>
 
+    </fieldset>
 </form>
+<div class="glass-card mt-3">
+    <h4>Evidencias y cierre formal</h4>
+    <p>Adjuntá fotografías del trabajo terminado y solicitá la revisión administrativa.</p>
+    <a class="btn btn-glassflow" asp-controller="CierreInstalaciones" asp-action="Detalle" asp-route-id="@Model.Id">Gestionar evidencias y cierre</a>
+</div>

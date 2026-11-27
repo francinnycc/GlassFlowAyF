@@ -1,0 +1,21 @@
+﻿@model List<GlassFlowAyF.Models.SolicitudCotizacion>
+@{
+    ViewData["Title"] = "Seguimiento de proyectos";
+}
+<h2>Seguimiento de proyectos</h2><p class="text-muted">Trazabilidad de los cuatro sprints</p>
+<form method="get" class="d-flex gap-2 mb-3"><input name="buscar" class="form-control" placeholder="Cliente o producto" /><button class="btn btn-glassflow">Buscar</button></form>
+<div class="glass-card table-responsive">
+    <table class="table align-middle">
+        <thead><tr><th>Solicitud</th><th>Cliente</th><th>Producto</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr><td>SOL-@s.Id.ToString("D5")</td><td>@s.NombreCliente</td><td>@s.TipoProducto</td><td>@s.Estado</td><td><a class="btn btn-glassflow" asp-action="Detalle" asp-route-id="@s.Id">Ver seguimiento</a></td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (Model.Count == 0)
+{
+    <p>No hay solicitudes disponibles.</p>
+}

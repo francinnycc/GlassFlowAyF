@@ -1,0 +1,11 @@
+﻿@model GlassFlowAyF.Models.ViewModels.SeguimientoProyectoViewModel
+@{ ViewData["Title"] = "Trazabilidad del proyecto"; var alertas = Model.Etapas.Count(x => x.Alerta != null); }
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2>Trazabilidad del proyecto</h2><p>SOL-@Model.Solicitud.Id.ToString("D5") · @Model.Solicitud.TipoProducto</p></div><a asp-action="Index" class="btn btn-outline-secondary">Volver</a></div>
+<div class="row g-3 mb-3"><div class="col-md-6"><div class="glass-card p-3"><small>Estado de la solicitud</small><h4>@Model.Solicitud.Estado</h4></div></div><div class="col-md-6"><div class="glass-card p-3"><small>Alertas de plazo</small><h4>@alertas</h4></div></div></div>
+<div class="glass-card p-3 mb-3"><h4>Registros vinculados</h4><p class="text-muted">Etapas registradas, no un porcentaje estimado de avance.</p>
+@foreach(var e in Model.Etapas){<div class="border-start border-3 ps-3 py-2 mb-2"><strong>@e.Etapa · @e.Referencia</strong><div>@e.Estado</div><small>@e.Fecha?.ToString("dd/MM/yyyy HH:mm")</small>@if(e.Alerta != null){<div class="text-danger">@e.Alerta</div>}</div>}
+<a asp-controller="RealidadAumentada" asp-action="Detalle" asp-route-id="@Model.Solicitud.Id" class="btn btn-outline-secondary me-2">Referencias 3D / AR</a>
+<a asp-controller="Cotizaciones" asp-action="Details" asp-route-id="@Model.Solicitud.Id" class="btn btn-glassflow">Abrir solicitud y gestionar desde su módulo</a></div>
+<div class="glass-card p-3 table-responsive"><h4>Historial de cambios de estado</h4><p class="text-muted">Registro automático desde la instalación del módulo 20. Fechas en UTC.</p><table class="table"><thead><tr><th>Fecha UTC</th><th>Registro</th><th>Anterior</th><th>Nuevo</th>@if(User.IsInRole("Administrador")){<th>Usuario ID</th>}</tr></thead><tbody>
+@foreach(var h in Model.Historial){<tr><td>@h.FechaUtc.ToString("dd/MM/yyyy HH:mm")</td><td>@h.Entidad #@h.RegistroId</td><td>@h.Anterior</td><td>@h.Nuevo</td>@if(User.IsInRole("Administrador")){<td>@h.UsuarioId</td>}</tr>}
+</tbody></table>@if(Model.Historial.Count == 0){<p>Aún no hay cambios auditados desde la activación del módulo.</p>}</div>

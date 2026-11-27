@@ -231,6 +231,12 @@
                     </a>
 
 
+                    @if (User.IsInRole("Cliente") || User.IsInRole("Administrador"))
+                    {
+                        <a asp-controller="RealidadAumentada" asp-action="Index"><i class="bi bi-box"></i> GlassFlow AR Studio</a>
+                        <a asp-controller="Seguimiento" asp-action="Index"><i class="bi bi-diagram-3"></i> Seguimiento de proyectos</a>
+                    }
+
                     @if (User.IsInRole("Cliente"))
                     {
                         <div class="sidebar-label">

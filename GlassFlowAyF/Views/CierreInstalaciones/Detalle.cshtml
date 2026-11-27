@@ -1,0 +1,108 @@
+﻿@using System.Linq
+@using System.Collections.Generic
+@using GlassFlowAyF.Models
+@model GlassFlowAyF.Models.TrabajoInstalacion
+@{
+    TrabajoInstalacion trabajo = (TrabajoInstalacion)Model;
+    List<EvidenciaInstalacion> evidencias = trabajo.Evidencias.OrderBy(x => x.FechaRegistro).ToList();
+    List<HistorialCierreInstalacion> historial = trabajo.HistorialCierre.OrderByDescending(x => x.Fecha).ToList();
+    ViewData["Title"] = "Cierre formal de instalación";
+    bool admin = (bool)(ViewBag.EsAdministrador ?? false);
+    bool completo = (bool)(ViewBag.ChecklistCompleto ?? false);
+    bool pendiente = trabajo.FechaSolicitudCierre != null && trabajo.FechaAprobacionCierre == null;
+    bool aprobado = trabajo.FechaAprobacionCierre != null;
+}
+<div class="page-header"><div><h1>Cierre formal de instalación</h1><p>#INS-@trabajo.Id.ToString("D5") — @trabajo.Cliente — @trabajo.Producto</p></div><span class="status-badge">@trabajo.Estado</span></div>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+<div class="glass-card mb-4">
+    <h4>Verificación</h4>
+    <p>Checklist: <strong>@(completo ? "6 de 6 completados" : "Incompleto")</strong></p>
+    <p>Fotografías: <strong>@evidencias.Count</strong></p>
+    <p>Estado del cierre: <strong>@(aprobado ? "Aprobado" : pendiente ? "Esperando revisión administrativa" : "Sin solicitar")</strong></p>
+    @if (!admin && !aprobado && !pendiente)
+    {
+        <a class="btn btn-outline-primary" asp-controller="Instalador" asp-action="Checklist" asp-route-id="@trabajo.Id">Editar checklist</a>
+    }
+    @if (aprobado)
+    {
+        <p class="text-success">Aprobado el @trabajo.FechaAprobacionCierre?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+    }
+</div>
+<div class="glass-card mb-4">
+    <h4>Evidencias fotográficas</h4>
+    @if (!evidencias.Any())
+    {
+        <p>No hay fotografías finales registradas.</p>
+    }
+    <div class="row g-3">
+        @foreach (var foto in evidencias)
+        {
+            <div class="col-md-4">
+                <a asp-action="Foto" asp-route-id="@trabajo.Id" asp-route-evidenciaId="@foto.Id" target="_blank" rel="noopener noreferrer">
+                    <img class="img-fluid rounded" style="max-height:180px;object-fit:cover" src="@Url.Action("Foto", "CierreInstalaciones", new { id = trabajo.Id, evidenciaId = foto.Id })" alt="Evidencia final" />
+                </a><p class="small mt-2">@foto.Descripcion<br />@foto.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        }
+    </div>
+    @if (!aprobado && !pendiente)
+    {
+        <form asp-action="SubirEvidencia" method="post" enctype="multipart/form-data" class="mt-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@trabajo.Id" />
+            <label class="form-label" for="archivo">Fotografía JPG, PNG o WebP (máximo 5 MB)</label>
+            <input class="form-control mb-2" id="archivo" name="archivo" type="file" accept=".jpg,.jpeg,.png,.webp" required />
+            <label class="form-label" for="descripcion">Descripción</label>
+            <input class="form-control mb-2" id="descripcion" name="descripcion" maxlength="300" />
+            <button class="btn btn-glassflow" type="submit">Agregar fotografía</button>
+        </form>
+    }
+</div>
+@if (!aprobado && !pendiente && completo && evidencias.Any())
+{
+    <div class="glass-card mb-4">
+        <h4>Solicitar cierre</h4>
+        <form asp-action="Solicitar" method="post">
+            @Html.AntiForgeryToken()<input type="hidden" name="id" value="@trabajo.Id" />
+            <button type="submit" class="btn btn-glassflow">Enviar a revisión administrativa</button>
+        </form>
+    </div>
+}
+@if (admin && pendiente)
+{
+    <div class="glass-card mb-4">
+        <h4>Revisión administrativa</h4>
+        <form asp-action="Aprobar" method="post" class="mb-3">
+            @Html.AntiForgeryToken()<input type="hidden" name="id" value="@trabajo.Id" />
+            <label class="form-label">Comentario de aprobación (opcional)</label><textarea name="comentario" class="form-control mb-2" maxlength="450"></textarea>
+            <button class="btn btn-success" type="submit">Aprobar cierre</button>
+        </form>
+        <form asp-action="Rechazar" method="post">
+            @Html.AntiForgeryToken()<input type="hidden" name="id" value="@trabajo.Id" />
+            <label class="form-label">Motivo de corrección (obligatorio)</label><textarea name="comentario" class="form-control mb-2" maxlength="450" required></textarea>
+            <button class="btn btn-outline-danger" type="submit">Solicitar correcciones</button>
+        </form>
+    </div>
+}
+<div class="glass-card">
+    <h4>Historial de cierre</h4>
+    @if (!historial.Any())
+    {
+        <p>Sin eventos registrados todavía.</p>
+    }
+    <table class="table">
+        <thead><tr><th>Fecha</th><th>Acción</th><th>Observación</th></tr></thead>
+        <tbody>
+            @foreach (var evento in historial)
+            {
+                <tr><td>@evento.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td><td>@evento.Accion</td><td>@evento.Comentario</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
